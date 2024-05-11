@@ -27,6 +27,10 @@ router.use(express.json());
 
 router.get("/", homeController.index);
 
+/*프로필 라우팅*/
+router.get("/profile", homeController.profile);
+
+/*에러 라우팅*/
 router.use(errorController.logErrors);
 router.use(errorController.respondNoResourceFound);
 router.use(errorController.respondInternalError);
