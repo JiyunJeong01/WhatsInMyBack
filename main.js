@@ -1,3 +1,5 @@
+const profileController = require("./controllers/profileController");
+
 const express = require("express"), //애플리케이션에 express 모듈 추가
   app = express(), //app에 express 웹 서버 애플리케이션 할당
   router = express.Router(),
@@ -48,7 +50,11 @@ router.use(express.json());
 router.get("/", homeController.index);
 
 /*프로필 라우팅*/
-router.get("/profile", homeController.profile);
+router.get("/profile", profileController.profile);
+router.get("/profile/collectComment",profileController.collectComment);
+router.get("/profile/collectBookmark",profileController.collectBookmark);
+router.get("/profile/collectLike",profileController.collectLike);
+router.get("/profile/profileModified",profileController.profileModified);
 
 /*에러 라우팅*/
 router.use(errorController.logErrors);
