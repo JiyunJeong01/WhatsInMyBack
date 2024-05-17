@@ -1,3 +1,4 @@
+require('dotenv').config();
 const profileController = require("./controllers/profileController");
 
 const express = require("express"), //애플리케이션에 express 모듈 추가
@@ -13,11 +14,11 @@ const express = require("express"), //애플리케이션에 express 모듈 추�
 exports.connection = async () => {
   try {
     const db = await mysql.createPool({
-      host: 'localhost',
-      user: 'root',
-      password: 'root',
-      port: 3306,
-      database: 'nodejs',
+      host: process.env.DB_HOST,
+      user: process.env.DB_USER,
+      password: process.env.DB_PW,
+      port: process.env.DB_PORT,
+      database: process.env.DB_NAME,
       waitForConnections: true,
       insecureAuth: true
     });
@@ -50,7 +51,7 @@ router.use(express.json());
 router.get("/", homeController.index);
 
 /*프로필 라우팅*/
-router.get("/profile", profileController.profile);
+router.get("/profile/:id", profileController.profile);
 router.get("/profile/collectComment",profileController.collectComment);
 router.get("/profile/collectBookmark",profileController.collectBookmark);
 router.get("/profile/collectLike",profileController.collectLike);

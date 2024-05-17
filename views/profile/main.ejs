@@ -1,36 +1,89 @@
-<div>
-    <h1>프로필</h1>
+<h1>프로필</h1>
+<div class="profileBord">
     <div class="left">
-        <div class="photo">
+        <div class="profilePhoto">
             <img src="" alt="사진이미지">
-            <div class="description">자기소개를 하는 부분입니다.</div>
+            <div class="description">
+                <%= id %>: id님의 의 자기소개 부분입니다.
+            </div>
         </div>
-        <div class="follow">
+        <div class="profileFollow">
             <div>
-                <button class="followbtn">팔로잉 n명</button>
-                <button class="follwerbtn">팔로워 n명</button>
+                <button class="followbtn">팔로잉 <%= id %>명</button>
+                <button class="follwerbtn">팔로워 <%= id %>명</button>
             </div>
             <div class="follow_container">
                 팔로워 목록이 뜹니다.
             </div>
         </div>
-        <div class="controller">
+        <div class="profileCon">
             누가 보느냐에 따라 등장하는 요소가 다르게 적용됩니다.
             <a href="/profile/collectComment">
-				<span class="button">내가 쓴 댓글</span>
-			</a>
-			<a href="/profile/collectBookmark">
-				<span class="button">북마크한 글</span>
-			</a>
-			<a href="/profile/collectLike">
-				<span class="button">좋아요 한 글</span>
-			</a>
-			<a href="/profile/profileModified">
-				<span class="button">설정</span>
-			</a>
+                <span class="button">내가 쓴 댓글</span>
+            </a>
+            <a href="/profile/collectBookmark">
+                <span class="button">북마크한 글</span>
+            </a>
+            <a href="/profile/collectLike">
+                <span class="button">좋아요 한 글</span>
+            </a>
+            <a href="/profile/profileModified">
+                <span class="button">설정</span>
+            </a>
         </div>
     </div>
     <div class="right">
         피드가 뜨게 합니다.
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            <div class="col">
+                <div class="card h-100">
+                    <img src="..." class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title">Card title</h5>
+                        <p class="card-text">This is a longer card with supporting text below as a natural lead-in to
+                            additional content. This content is a little bit longer.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card h-100">
+                    <img src="..." class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title">Card title</h5>
+                        <p class="card-text">This is a short card.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card h-100">
+                    <img src="..." class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title">Card title</h5>
+                        <p class="card-text">This is a longer card with supporting text below as a natural lead-in to
+                            additional content.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card h-100">
+                    <img src="..." class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title">Card title</h5>
+                        <p class="card-text">This is a longer card with supporting text below as a natural lead-in to
+                            additional content. This content is a little bit longer.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <nav aria-label="...">
+            <ul class="pagination pagination-sm">
+                <li class="page-item active" aria-current="page">
+                    <span class="page-link">1</span>
+                </li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+            </ul>
+        </nav>
     </div>
 </div>
