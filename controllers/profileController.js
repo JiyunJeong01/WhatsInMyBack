@@ -1,6 +1,7 @@
 module.exports = {
     profile: (req, res) => {
-        res.render("profile/main");
+        let userId = req.params.id;
+        res.render("profile/main", {id: userId});
     },
 
     collectComment: (req, res) => {
