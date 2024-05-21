@@ -30,7 +30,9 @@ exports.connection = async () => {
     }
 };
 
-app.use(bodyParser.json());
+// JSON 데이터의 최대 크기 설정 (예: 50MB)
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
 app.set("port", process.env.PORT || 80); //포트 80으로 연결 셋팅
 app.set("view engine", "ejs"); //뷰 엔진을 ejs로 설정
