@@ -2,9 +2,11 @@ const express = require("express"), //애플리케이션에 express 모듈 추�
     app = express(), //app에 express 웹 서버 애플리케이션 할당
     router = express.Router(),
     layouts = require("express-ejs-layouts"), //모듈 설치
-    postController = require("./controllers/postController"),
+    // postController = require("./controllers/postController"),
     homeController = require("./controllers/homeController"),
     errorController = require("./controllers/errorController"),
+    userController = require("./controllers/userController")
+    
     mysql = require('mysql2/promise'),
     
     methodOverride = require("method-override");
@@ -48,7 +50,10 @@ router.use(
 router.use(express.json());
 
 router.get("/", homeController.index);
-app.get("/post/:id", postController.showPost);
+// app.get("/post/:id", postController.showPost);
+router.get("/login", userController.login);
+router.get("/signup", userController.signup);
+
 
 
 router.use(errorController.logErrors);

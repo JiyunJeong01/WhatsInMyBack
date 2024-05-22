@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>회원가입</title>
+    <style>
+        body {
+            background-color: white;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            width: 300px;
+            margin: 0 auto;
+        }
+        .title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .input-field {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            box-sizing: border-box;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0px 0px 15px 0px rgba(0,0,0,0.2);
+        }
+        .dropdown {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            box-sizing: border-box;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0px 0px 15px 0px rgba(0,0,0,0.2);
+            cursor: pointer;
+        }
+        .signup-button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            box-sizing: border-box;
+            border: none;
+            border-radius: 5px;
+            background-color: black;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .tag {
+            display: inline-block;
+            padding: 5px 10px;
+            margin: 5px;
+            border: 1px solid black;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .tag.selected {
+            background-color: gray;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">회원가입</div>
+        <input type="text" class="input-field" placeholder="아이디">
+        <input type="password" class="input-field" placeholder="비밀번호">
+        <input type="password" class="input-field" placeholder="비밀번호 확인">
+        <input type="text" class="input-field" placeholder="닉네임">
+        <select class="dropdown">
+            <option value="" disabled selected>직업</option>
+            <!-- 직업 옵션을 여기에 추가하세요 -->
+        </select>
+        <select class="dropdown">
+            <option value="" disabled selected>성별</option>
+            <!-- 성별 옵션을 여기에 추가하세요 -->
+        </select>
+        <select class="dropdown">
+            <option value="" disabled selected>출생연도</option>
+            <!-- 출생연도 옵션을 여기에 추가하세요 -->
+        </select>
+        <div class="container">
+            <!-- 기존 입력 필드 -->
+            <div class="title">관심태그 설정</div>
+            <div id="tags">
+                <span class="tag">#개발자</span>
+                <span class="tag">#디자이너</span>
+                <span class="tag">#초등교사</span>
+                <span class="tag">#마케터</span>
+                <!-- 추가 태그 -->
+            </div>
+            <div class="title">관심 테마 설정</div>
+            <div id="themes">
+                <span class="tag">학교생활</span>
+                <span class="tag">패션</span>
+                <span class="tag">시험기간</span>
+                <span class="tag">직장생활</span>
+                <!-- 추가 테마 -->
+            </div>
+            <button class="signup-button">가입하기</button>
+        </div>
+        <script>
+            // 태그와 테마 클릭 이벤트
+            document.querySelectorAll('.tag').forEach(tag => {
+                tag.addEventListener('click', () => {
+                    tag.classList.toggle('selected');
+                });
+            });
+        </script>
+    </div>
+</body>
+</html>
