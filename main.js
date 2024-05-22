@@ -1,13 +1,7 @@
 const express = require("express"), //애플리케이션에 express 모듈 추가
     app = express(), //app에 express 웹 서버 애플리케이션 할당
-    router = express.Router(),
     layouts = require("express-ejs-layouts"), //모듈 설치
-    bodyParser = require('body-parser');
-    postController = require("./controllers/postController"),
-    homeController = require("./controllers/homeController"),
-    errorController = require("./controllers/errorController"),
     mysql = require('mysql2/promise'),
-    
     methodOverride = require("method-override");
 
 // DB connection
@@ -26,43 +20,28 @@ exports.connection = async () => {
         return db; // 연결된 데이터베이스 객체 반환
     } catch (error) {
         console.error("데이터베이스 연결 오류:", error);
-        throw error; // 오류 발생시 처리
+        throw error;
     }
 };
-
-// JSON 데이터의 최대 크기 설정 (예: 50MB)
-app.use(bodyParser.json({ limit: '50mb' }));
-app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
 app.set("port", process.env.PORT || 80); //포트 80으로 연결 셋팅
 app.set("view engine", "ejs"); //뷰 엔진을 ejs로 설정
 
-router.use(
-    methodOverride("_method", {
-      methods: ["POST", "GET"]
-    })
-  );
 
-router.use(layouts);
-router.use(express.static("public"));
-
-router.use(
-  express.urlencoded({
-    extended: false
-  })
-);
-router.use(express.json());
-
-router.get("/", homeController.index);
-router.get("/post/new", postController.newPost);
-router.post("/post/register", postController.registerPost);
+app.use(methodOverride("_method", {methods: ["POST", "GET"]}));
+app.use(layouts);
+app.use(express.static("public"));
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
 
 
-router.use(errorController.logErrors);
-router.use(errorController.respondNoResourceFound);
-router.use(errorController.respondInternalError);
+const postRouter = require('./routers/postRouter');
+const homeRouter = require('./routers/homeRouter');
+const errorRouter = require('./routers/errorRouter');
 
-app.use("/", router);
+app.use("/", homeRouter);
+app.use("/post", postRouter);
+app.use(errorRouter);
 
 app.listen(app.get("port"), () => {
     console.log(`Server running at http://localhost:${app.get("port")}`);

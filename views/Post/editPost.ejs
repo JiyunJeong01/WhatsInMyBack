@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>새 게시글 작성</title>
+    <title>게시글 수정</title>
     <style>
         /* 기본 스타일 설정 */
         body {
@@ -32,15 +32,15 @@
             max-width: 100%;
         }
         .upload-section {
-            border: 2px solid rgb(0, 0, 0);
+            border: 2px solid orange;
             padding: 10px;
         }
         .detail-section {
-            border: 2px solid rgb(0, 0, 0);
+            border: 2px solid skyblue;
             padding: 10px;
         }
         .product-section {
-            border: 2px solid rgb(0, 0, 0);
+            border: 2px solid green;
             padding: 10px;
         }
         .product-item {
@@ -58,21 +58,23 @@
 </head>
 <body>
     <div class="container">
-        <h1>글쓰기</h1>
-        <form id="postForm" action="/post/register" method="post" enctype="multipart/form-data">
+        <h1>게시글 수정</h1>
+        <form id="postForm" action="/post/update" method="post" enctype="multipart/form-data">
+            <!-- 게시글 ID 숨김 필드 -->
+            <input type="hidden" name="post_id" value="<%= post.post_id %>">
             <!-- 주제 선택 박스 -->
             <div class="section">
                 <label for="theme_id">테마 선택:</label>
                 <select name="theme_id" id="theme_id">
                     <% themes.forEach(function(theme) { %>
-                        <option value="<%= theme.theme_id %>"><%= theme.theme_name %></option>
+                        <option value="<%= theme.theme_id %>" <%= theme.theme_id === post.theme_id ? 'selected' : '' %>><%= theme.theme_name %></option>
                     <% }); %>
                 </select>
             </div>
             <!-- 제목 입력 -->
             <div class="section">
-                <label for="title">여기에 제목:</label>
-                <input type="text" id="title" name="post_title" required>
+                <label for="title">제목:</label>
+                <input type="text" id="title" name="post_title" value="<%= post.post_title %>" required>
             </div>
             <!-- 멤버 ID 숨김 필드 -->
             <input type="hidden" name="member_id" value="<%= memberId %>">
@@ -85,13 +87,26 @@
                             <label>이미지 업로드 창</label>
                             <input type="file" id="image" onchange="previewImage(event)">
                             <div id="uploadedImage">
-                                <!-- 업로드 후 이미지 미리보기 영역 -->
+                                <% imagesData.forEach(function(image, index) { %>
+                                    <div class="img-container" data-page="<%= index + 1 %>">
+                                        <img src="<%= image.image_base64 %>" alt="이미지">
+                                        <button type="button" onclick="removeImage(index + 1)">삭제</button>
+                                    </div>
+                                <% }); %>
                             </div>
                         </div>
                         <div class="detail-section">
                             <label>상세 제품 목록</label>
                             <div id="productList">
-                                <!-- 상세 제품 목록 표시 영역 -->
+                                <% productsData.forEach(function(product) { %>
+                                    <div class="product-item" data-page="<%= product.image_id %>">
+                                        <input type="text" name="product_name[]" value="<%= product.product_name %>" placeholder="제품명">
+                                        <input type="text" name="product_category[]" value="<%= product.product_category %>" placeholder="제품 카테고리">
+                                        <input type="text" name="product_brand[]" value="<%= product.brand %>" placeholder="제품 브랜드">
+                                        <input type="text" name="product_link[]" value="<%= product.purchase_link %>" placeholder="구매 링크">
+                                        <button type="button" onclick="removeProduct(this)">삭제</button>
+                                    </div>
+                                <% }); %>
                             </div>
                             <button type="button" onclick="addProduct()">제품 추가</button>
                         </div>
@@ -106,23 +121,48 @@
                 <!-- 오른쪽 영역 -->
                 <div class="right">
                     <div class="section">
-                        <label for="content">여기에 내용:</label>
-                        <textarea id="content" name="post_content" required></textarea>
+                        <label for="content">내용:</label>
+                        <textarea id="content" name="post_content" required><%= post.post_content %></textarea>
                     </div>
                     <div class="section">
-                        <label for="hashtags">해시태그 입력 칸:</label>
-                        <input type="text" id="hashtags" name="hashtags">
+                        <label for="hashtags">해시태그:</label>
+                        <input type="text" id="hashtags" name="hashtags" value="<%= post.hashtags %>">
                     </div>
                 </div>
             </div>
             <!-- 저장된 데이터 전송 -->
-            <button type="button" onclick="submitForm()">게시하기</button>
+            <button type="button" onclick="submitForm()">수정하기</button>
         </form>
     </div>
     <script>
         // 페이지 번호 관리 변수 및 페이지 데이터 저장용 객체
         let currentPage = 1;
         const pages = {};
+
+        // EJS 데이터에서 JSON 변환
+        const imagesData = JSON.stringify(imagesData);
+        const productsData = JSON.stringify(productsData);
+
+        // 기존 데이터를 페이지 객체에 저장
+        imagesData.forEach(function(post_image) {
+            if (!pages[post_image.image_id]) {
+                pages[post_image.image_id] = { products: [], image: '' };
+            }
+            pages[post_image.image_id].image = post_image.image_base64;
+        });
+
+        productsData.forEach(function(product) {
+            if (!pages[product.image_id]) {
+                pages[product.image_id] = { products: [], image: '' };
+            }
+            pages[product.image_id].products.push({
+                name: product.product_name,
+                category: product.product_category,
+                brand: product.brand,
+                link: product.purchase_link
+            });
+        });
+
 
         // 제품 추가 함수
         function addProduct() {
@@ -136,6 +176,7 @@
                 <input type="text" name="product_link[]" placeholder="구매 링크">
                 <button type="button" onclick="removeProduct(this)">삭제</button>
             `;
+            //productItem.setAttribute('data-page', currentPage);
             productList.appendChild(productItem);
         }
 
@@ -149,7 +190,8 @@
         function previewImage(event) {
             const imageInput = event.target;
             const uploadedImage = document.getElementById('uploadedImage');
-            uploadedImage.innerHTML = '';
+            uploadedImage.innerHTML = ''; // 이전 이미지 초기화
+
             if (imageInput.files && imageInput.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
@@ -178,6 +220,7 @@
             }
             pages[page].image = imageData;
         }
+
 
         // 페이지 객체에서 이미지 데이터를 불러오기
         function loadImageFromPage(page) {
@@ -253,6 +296,7 @@
                 pageData.products.forEach(product => {
                     const productItem = document.createElement('div');
                     productItem.className = 'product-item';
+                    //productItem.setAttribute('data-page', currentPage);
                     productItem.innerHTML = `
                         <input type="text" name="product_name[]" value="${product.name}" placeholder="제품명">
                         <input type="text" name="product_category[]" value="${product.category}" placeholder="제품 카테고리">
@@ -293,6 +337,7 @@
         function submitForm() {
             saveCurrentPageData(); // 현재 페이지 데이터 저장
             const postData = {
+                post_id: document.querySelector('input[name="post_id"]').value,
                 member_id: document.querySelector('input[name="member_id"]').value,
                 theme_id: document.querySelector('select[name="theme_id"]').value,
                 post_title: document.querySelector('input[name="post_title"]').value,
@@ -322,7 +367,7 @@
                 });
             }
 
-            fetch('/post/register', {
+            fetch('/post/update', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

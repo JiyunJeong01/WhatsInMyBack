@@ -3,37 +3,42 @@ exports.findAll = async () => {
     try {
         const db = await require('../main').connection(); 
         let sql = 'SELECT * FROM post';
-        let [rows, fields] = await db.query(sql); 
+        let [rows] = await db.query(sql); 
+        return rows;
 
-        let posts = [];
-        rows.forEach(row => {
-            let post = {
-                post_id: row.post_id,
-                member_id: row.member_id,
-                theme_id: row.theme_id,
-                post_title: row.post_title,
-                post_content: row.post_content,
-                hashtags: row.hashtags,
-                created_at: row.created_at,
-                updated_at: row.updated_at,
-                views: row.views,
-                likes: row.likes,
-                comments: row.comments,
-                bookmarks: row.bookmarks,                
-            };
-            posts.push(post);
-        });
-        return posts; // ??
     } catch (error) {
         console.error("Post.findAll() 쿼리 실행 중 오류:", error);
     }
 };
 
 // findById
+exports.findByPostId = async (postId) => {
+    try {
+        const db = await require('../main').connection(); 
+        let sql = 'SELECT * FROM post WHERE post_id = ?';
+        const [rows] = await db.query(sql, [postId]);
+        return rows.length > 0 ? rows[0] : null;
+
+    } catch (error) {
+        console.error("Post.findByPostId() 쿼리 실행 중 오류:", error);
+    }
+};
+
+exports.findByMemberId = async (MemberId) => {
+    try {
+        const db = await require('../main').connection(); 
+        let sql = 'SELECT * FROM post WHERE member_id = ?';
+        const [rows] = await db.query(sql, [MemberId]);
+        return rows.length > 0 ? rows[0] : null;
+
+    } catch (error) {
+        console.error("Post.findByMemberId() 쿼리 실행 중 오류:", error);
+    }
+};
 
 
 // post 객체 받아서 DB에 등록
-exports.createPost = async (post) => {
+exports.create = async (post) => {
     try {
         const db = await require('../main').connection(); 
         let sql = `
@@ -49,6 +54,9 @@ exports.createPost = async (post) => {
         return result.insertId;
 
     } catch (error) {
-        console.error("registerPost() 쿼리 실행 중 오류:", error);
+        console.error("Post.registerPost() 쿼리 실행 중 오류:", error);
     }
-}
+};
+
+
+// 검색어 검색 쿼리

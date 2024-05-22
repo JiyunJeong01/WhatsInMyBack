@@ -1,11 +1,11 @@
 // Product 객체 받아서 DB에 등록
-exports.createProduct = async (product) => {
+exports.create = async (product) => {
     try {
         const db = await require('../main').connection(); 
         let sql = `
             INSERT INTO product (product_id, post_id, image_id, product_name, product_category, brand, purchase_link) 
             VALUES (?, ?, ?, ?, ?, ?, ?)`;
-        const [result] = await db.query(sql, [
+        await db.query(sql, [
             product.product_id,
             product.post_id,
             product.image_id,
@@ -23,7 +23,15 @@ exports.createProduct = async (product) => {
     }
 }
 
-// post_id, image_id로 제품 배열 반환 
 
+exports.findByPostId = async (postId) => {
+    try {
+        const db = await require('../main').connection(); 
+        let sql = 'SELECT * FROM product WHERE post_id = ?';
+        const [rows] = await db.query(sql, [postId]);
+        return rows;
 
-// findById
+    } catch (error) {
+        console.error("Product.findByPostId() 쿼리 실행 중 오류:", error);
+    }
+};
