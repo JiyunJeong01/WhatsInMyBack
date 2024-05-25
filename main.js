@@ -2,6 +2,8 @@ const express = require("express"), //애플리케이션에 express 모듈 추�
     app = express(), //app에 express 웹 서버 애플리케이션 할당
     layouts = require("express-ejs-layouts"), //모듈 설치
     mysql = require('mysql2/promise'),
+    bodyParser = require('body-parser'),
+    morgan = require('morgan'),
     methodOverride = require("method-override");
 
 // DB connection
@@ -27,7 +29,11 @@ exports.connection = async () => {
 app.set("port", process.env.PORT || 80); //포트 80으로 연결 셋팅
 app.set("view engine", "ejs"); //뷰 엔진을 ejs로 설정
 
+// JSON데이터의 최대 크기 설정
+app.use(bodyParser.json({ limit: '50mb' })); 
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
+app.use(morgan('dev'));
 app.use(methodOverride("_method", {methods: ["POST", "GET"]}));
 app.use(layouts);
 app.use(express.static("public"));
