@@ -1,0 +1,33 @@
+<%- include('../layouts/main') %>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1>게시글</h1>
+  <a href="/post/create" class="btn btn-outline-dark">New Post</a>
+</div>
+
+<% if (posts.length === 0) { %>
+  <p>No posts found.</p>
+<% } else { %>
+  <div class="row">
+    <% posts.forEach(post => { %>
+      <div class="col-md-4 mb-3">
+        <div class="card">
+          <img src="/images/post-images/<%= post.image %>" class="card-img-top" alt="Post Image">
+          <div class="card-body">
+            <h5 class="card-title"><%= post.post_title %></h5>
+            <p style="font-size: 12px" class="card-text"><%= post.post_content.substring(0, 100) %>...</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <small class="text-muted">by <%= post.username %> (<%= post.nickname %>)</small>
+              <small class="text-muted"><%= post.created_at %></small>
+            </div>
+          </div>
+          
+          <div class="card-footer">
+            <a href="/post/<%= post.post_id %>" class="btn btn-dark btn-sm">View Post</a>
+          </div>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+<% } %>
+
+

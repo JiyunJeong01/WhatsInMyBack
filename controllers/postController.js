@@ -1,7 +1,16 @@
-const postModel = require('../models/Post');
+const PostModel = require('../models/Post');
 const ImageModel = require('../models/Image');
 const ProductModel = require('../models/Product');
 const ThemeModel = require('../models/Theme');
+const MemberModel = require('../models/Member');
+const CommentModel = require('../models/Comment');
+
+// 게시글 목록 조회
+exports.getPosts = (req, res) => {
+    const result = PostModel.findAllWithInfo();
+    res.render('Post/posts', { posts: result });
+};
+
 
 // get: 새 게시글 작성 페이지 반환
 exports.newPost = async (req, res) => {
@@ -32,7 +41,7 @@ exports.registerPost = async (req, res) => {
         // if member_id가 null -> response 로그인 페이지 
     
         // Post등록
-        const savedPostId = await postModel.create(postData);
+        const savedPostId = await PostModel.create(postData);
 
         // image등록
         for (const imageData of imagesData) {
@@ -67,10 +76,13 @@ exports.editPost = async (req, res) => {
         const themes = await ThemeModel.findAll();
 
         // 게시글 정보 받아오기 
-        const post = await postModel.findByPostId(postId);
+        const post = await PostModel.findByPostId(postId);
         // if (post == null) 
         const images = await ImageModel.findByPostId(postId);
         const products = await ProductModel.findByPostId(postId);
+
+        console.log(images);
+        console.log(products);
 
         res.render(`Post/editPost`, {
             memberId: member_id,
@@ -106,16 +118,25 @@ exports.updatePost = async (req, res) => {
 }
 
 
-exports.showPost = async (req, res) => {
+exports.getPostDetail = async (req, res) => {
     try {
+        const postId = req.params.postId;
+        const member_id = 2; // 임시 
+
         // 로그인된 사용자 id == 게시글 작성자 id -> 수정 삭제 버튼 표시
-
         // 로그인된 사용자 id != 게시글 작성자 id -> 게시글 열람 & 댓글 작성 가능
-
         // 로그인 안됨 -> 게시글 열람 & 댓글 작성 불가
+        
+        await PostModel.increasedViews(); // 조회수++
 
+        const post = await PostModel.findByPostId(postId);
+        const member = await MemberModel.findByMemberId(post.member_id);
+        const comments = await CommentModel.findByPostId(postId);
+    
 
+        // 좋아요, 북마크 숫자 전송
 
+        res.render('Post/post-detail', { post, member, comments })
 
     } catch (error) {
         console.error("게시글 보기 중 오류:", error);
@@ -123,3 +144,5 @@ exports.showPost = async (req, res) => {
     }
 }
 
+// 좋아요 
+// 북마크

@@ -2,6 +2,7 @@
 exports.findAll = async () => {
     try {
         const db = await require('../main').connection(); 
+
         let sql = 'SELECT * FROM post';
         let [rows] = await db.query(sql); 
         return rows;
@@ -15,6 +16,7 @@ exports.findAll = async () => {
 exports.findByPostId = async (postId) => {
     try {
         const db = await require('../main').connection(); 
+
         let sql = 'SELECT * FROM post WHERE post_id = ?';
         const [rows] = await db.query(sql, [postId]);
         return rows.length > 0 ? rows[0] : null;
@@ -24,11 +26,12 @@ exports.findByPostId = async (postId) => {
     }
 };
 
-exports.findByMemberId = async (MemberId) => {
+exports.findByMemberId = async (memberId) => {
     try {
         const db = await require('../main').connection(); 
+
         let sql = 'SELECT * FROM post WHERE member_id = ?';
-        const [rows] = await db.query(sql, [MemberId]);
+        const [rows] = await db.query(sql, [memberId]);
         return rows.length > 0 ? rows[0] : null;
 
     } catch (error) {
@@ -41,6 +44,7 @@ exports.findByMemberId = async (MemberId) => {
 exports.create = async (post) => {
     try {
         const db = await require('../main').connection(); 
+
         let sql = `
             INSERT INTO post (member_id, theme_id, post_title, post_content, hashtags) 
             VALUES (?, ?, ?, ?, ?)`;
@@ -60,3 +64,35 @@ exports.create = async (post) => {
 
 
 // 검색어 검색 쿼리
+
+// 
+exports.increasedViews = async (postId) => {
+    try {
+        const db = await require('../main').connection(); 
+
+        let sql = 'UPDATE post SET views = views + 1 WHERE post_id = ?';
+        await db.query(sql, [postId]);
+
+    } catch (error) {
+        console.error("Post.Post.increasedViews() 쿼리 실행 중 오류:", error);
+    }
+};
+
+exports.findAllWithInfo = async () => {
+    try {
+        const db = await require('../main').connection(); 
+
+        let sql = `
+        SELECT p.post_id, p.member_id, p.theme_id, p.post_title, p.post_content, p.hashtags, p.created_at, p.updated_at, p.views, p.post_like, p.comments, p.bookmarks,
+            m.username, m.nickname, m.profile_picture
+        FROM post p
+        JOIN member m ON p.member_id = m.member_id
+        ORDER BY p.created_at DESC
+        `;
+        const [rows] = await db.query(sql);
+        return rows;
+
+    } catch (error) {
+        console.error("Post.Post.findAllWithMember() 쿼리 실행 중 오류:", error);
+    }
+}

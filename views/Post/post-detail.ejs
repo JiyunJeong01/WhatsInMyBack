@@ -1,0 +1,134 @@
+<%- include('../layouts/main') %>
+<h1><%= post.post_title %></h1>
+<div class="d-flex align-items-center mb-3">
+  <img src="<%= member.profile_picture %>" alt="Profile Picture" class="rounded-circle mr-3" style="width: 50px; height: 50px" />
+  <div>
+    <h5 class="mb-0"><%= member.username %></h5>
+    <small class="text-muted"><%= member.nickname %></small>
+  </div>
+</div>
+<p><%= post.post_content %></p>
+<% if (post.images) { %>
+<div class="row">
+  <% post.images.split(',').forEach(image => { %>
+  <div class="col-md-4 mb-3">
+    <img src="<%= image %>" alt="Post Image" class="img-fluid" />
+  </div>
+  <% }) %>
+</div>
+<% } %>
+<hr />
+
+<!-- 수정 및 삭제 버튼 -->
+<div class="d-flex justify-content-end mb-3">
+  <a href="/post/<%= post.post_id %>/edit" class="btn btn-primary btn-sm mr-2">게시글 수정</a>
+  <form action="/post/<%= post.post_id %>?_method=DELETE" method="POST" class="mr-2">
+    <button type="submit" class="btn btn-danger btn-sm">게시글 삭제</button>
+  </form>
+</div>
+
+<!-- 댓글 입력 폼 수정 아전
+  <h4>댓글 작성</h4>
+  <form id="comment-form">
+    <div>
+      <textarea id="comment-input" placeholder="댓글을 입력하세요"></textarea>
+    </div>
+    <button type="submit">댓글 작성</button>
+  </form>
+</div>
+-->
+
+
+
+<!-- 댓글 입력 폼 수정-->
+<div class="mb-3">
+  <h4>댓글 작성</h4>
+  <form id="comment-form" class="d-flex">
+    <div class="flex-grow-1 mr-2">
+      <textarea id="comment-input" class="form-control" rows="3" placeholder="댓글을 입력하세요"></textarea>
+    </div>
+    <button type="submit" class="btn btn-outline-secondary">댓글 작성</button>
+  </form>
+</div>
+
+<script>
+  // 댓글 작성 폼 submit 이벤트 핸들러
+  const commentForm = document.getElementById('comment-form');
+  const commentInput = document.getElementById('comment-input');
+  const commentList = document.getElementById('comment-list');
+
+  commentForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const postId = '<%= post.post_id %>'; // 게시글 ID 가져오기
+    const memberId = '1'; // 로그인한 사용자의 ID 가져오기
+    const commentContent = commentInput.value.trim();
+
+    if (!commentContent) return; // 댓글 내용이 없으면 함수 종료
+
+    try {
+      const response = await fetch(`/post/${postId}/comment`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ member_id: memberId, comment_content: commentContent }),
+      });
+
+      if (response.ok) {
+        // 댓글 렌더링 영역 업데이트
+        const newComment = await response.json();
+        renderComment(newComment);
+        commentInput.value = ''; // 입력 필드 초기화
+      } else {
+        console.error('Failed to create comment');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  });
+
+  // 새 댓글 렌더링 함수
+  function renderComment(comment) {
+    const commentElement = document.createElement('div');
+    commentElement.classList.add('list-group-item');
+    commentElement.innerHTML = `
+      <div class="d-flex align-items-center">
+        <img src="${comment.profile_picture}" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
+        <div>
+          <h6 class="mb-0">${comment.username} (${comment.nickname})</h6>
+          <small class="text-muted">${comment.created_at}</small>
+        </div>
+      </div>
+      <p class="mt-2 mb-0">${comment.comment_content}</p>
+    `;
+    commentList.appendChild(commentElement);
+  }
+</script>
+
+
+<!---->
+
+
+<h4>댓글 목록</h4>
+<div id="comment-list">
+  <!-- 기존 댓글 렌더링 코드 -->
+  <% if (comments.length === 0) { %>
+  <p>등록된 댓글이 없습니다.</p>
+  <% } else { %>
+  <div class="list-group">
+    <% comments.forEach(comment => { %>
+    <div class="list-group-item">
+      <div class="d-flex align-items-center">
+        <img src="<%= comment.profile_picture %>" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
+        <div>
+          <h6 class="mb-0"><%= comment.username %> (<%= comment.nickname %>)</h6>
+          <small class="text-muted"><%= comment.created_at %></small>
+        </div>
+      </div>
+      <p class="mt-2 mb-0"><%= comment.comment_content %></p>
+    </div>
+    <% }) %>
+  </div>
+  <% } %>
+</div>
