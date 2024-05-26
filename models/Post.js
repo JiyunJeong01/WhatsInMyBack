@@ -78,17 +78,30 @@ exports.increasedViews = async (postId) => {
     }
 };
 
-exports.findAllWithInfo = async () => {
+exports.findAllPreviews = async () => {
     try {
         const db = await require('../main').connection(); 
 
         let sql = `
-        SELECT p.post_id, p.member_id, p.theme_id, p.post_title, p.post_content, p.hashtags, p.created_at, p.updated_at, p.views, p.post_like, p.comments, p.bookmarks,
-            m.username, m.nickname, m.profile_picture
-        FROM post p
-        JOIN member m ON p.member_id = m.member_id
-        ORDER BY p.created_at DESC
-        `;
+            SELECT 
+                p.post_id,
+                p.post_title,
+                p.post_content,
+                p.hashtags,
+                p.theme_id,
+                p.created_at,
+                p.views,
+                m.nickname,
+                m.picture_base64,
+                (SELECT COUNT(*) FROM comment WHERE post_id = p.post_id) AS comment_count,
+                (SELECT COUNT(*) FROM bookmark WHERE post_id = p.post_id) AS bookmark_count,
+                (SELECT COUNT(*) FROM post_like WHERE post_id = p.post_id) AS like_count,
+                (SELECT image_base64 FROM post_image WHERE post_id = p.post_id AND image_id = 1 LIMIT 1) AS thumbnail
+            FROM 
+                post p 
+            JOIN 
+                member m ON p.member_id = m.member_id;
+            `;
         const [rows] = await db.query(sql);
         return rows;
 

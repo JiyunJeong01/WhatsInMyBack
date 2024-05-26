@@ -1,33 +1,35 @@
 <%- include('../layouts/main') %>
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1>게시글</h1>
-  <a href="/post/create" class="btn btn-outline-dark">New Post</a>
+  <a href="/post/new" class="btn btn-outline-dark">New Post</a>
 </div>
 
-<% if (posts.length === 0) { %>
+<% if (Previews.length === 0) { %>
   <p>No posts found.</p>
 <% } else { %>
   <div class="row">
-    <% posts.forEach(post => { %>
+    <% Previews.forEach(Preview => { %>
       <div class="col-md-4 mb-3">
         <div class="card">
-          <img src="/images/post-images/<%= post.image %>" class="card-img-top" alt="Post Image">
+          <img src="data:image/jpeg;base64,<%= JSON.stringify(Preview.thumbnail) %>" class="card-img-top" alt="Post Image">
           <div class="card-body">
-            <h5 class="card-title"><%= post.post_title %></h5>
-            <p style="font-size: 12px" class="card-text"><%= post.post_content.substring(0, 100) %>...</p>
-            <div class="d-flex justify-content-between align-items-center">
-              <small class="text-muted">by <%= post.username %> (<%= post.nickname %>)</small>
-              <small class="text-muted"><%= post.created_at %></small>
+            <h5 class="card-title"><%= Preview.post_title %></h5>
+            <p style="font-size: 12px" class="card-text"><%= Preview.post_content.substring(0, 100) %>...</p>
+            <p style="font-size: 12px" class="card-text"><%= Preview.hashtags %></p>
+            <p style="font-size: 12px" class="card-text">작성자: <%= Preview.nickname %></p>
+            <p style="font-size: 12px" class="card-text">작성일: <%= Preview.created_at %></p>
+            <div class="d-flex justify-content-between align-items-center mt-2">
+              <small class="text-muted">조회수: <%= Preview.views %></small>
+              <small class="text-muted">댓글: <%= Preview.comment_count %></small>
+              <small class="text-muted">북마크: <%= Preview.bookmark_count %></small>
+              <small class="text-muted">좋아요: <%= Preview.like_count %></small>
             </div>
           </div>
-          
           <div class="card-footer">
-            <a href="/post/<%= post.post_id %>" class="btn btn-dark btn-sm">View Post</a>
+            <a href="/post/<%= Preview.post_id %>" class="btn btn-dark btn-sm">View Post</a>
           </div>
         </div>
       </div>
     <% }) %>
   </div>
 <% } %>
-
-
