@@ -15,9 +15,9 @@ router.put("/update", postController.updatePost);
 
 
 // 게시글 목록 조회
-//router.get("/posts", postController.getPosts);
+router.get("/posts", postController.getPosts);
 //게시글 열람
-router.get("/:postId", postController.getPostDetail);
+router.get("/:postId/detail", postController.getPostDetail);
 
 
 /*

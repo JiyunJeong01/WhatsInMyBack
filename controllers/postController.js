@@ -5,12 +5,12 @@ const ThemeModel = require('../models/Theme');
 const MemberModel = require('../models/Member');
 const CommentModel = require('../models/Comment');
 
-// 게시글 목록 조회
-exports.getPosts = (req, res) => {
-    const result = PostModel.findAllWithInfo();
-    res.render('Post/posts', { posts: result });
-};
 
+// 게시글 목록 조회
+exports.getPosts = async (req, res) => {
+    const Previews = await PostModel.findAllPreviews();
+    res.render('Post/posts', { Previews });
+};
 
 // get: 새 게시글 작성 페이지 반환
 exports.newPost = async (req, res) => {
@@ -70,7 +70,7 @@ exports.editPost = async (req, res) => {
 
         // 로그인 되어있음 -> if(게시글 작성자id  == 로그인된 사용자id)
         // member id 모델에 등록
-        const member_id = 4; // 임시 
+        const memberId = 4; // 임시 
 
         // 테마 받아오기 
         const themes = await ThemeModel.findAll();
@@ -78,21 +78,33 @@ exports.editPost = async (req, res) => {
         // 게시글 정보 받아오기 
         const post = await PostModel.findByPostId(postId);
         // if (post == null) 
-        const images = await ImageModel.findByPostId(postId);
-        const products = await ProductModel.findByPostId(postId);
+        const images = await ImageModel.findByPostId(postId); 
+        const products = await ProductModel.findByPostId(postId); 
 
-        console.log(images);
-        console.log(products);
 
-        res.render(`Post/editPost`, {
-            memberId: member_id,
-            themes: themes, 
-
-            post: post, 
-            imagesData: images,
-            productsData: products
+        // 기존 데이터를 페이지 객체에 저장
+        const pages = {};
+        images.forEach(function(post_image) {
+            if (!pages[post_image.image_id]) {
+                pages[post_image.image_id] = { products: [], image: '' };
+            }
+            pages[post_image.image_id].image = post_image.image_base64;
+        });
+        products.forEach(function(product) {
+            if (!pages[product.image_id]) {
+                pages[product.image_id] = { products: [], image: '' };
+            }
+            pages[product.image_id].products.push({
+                name: product.product_name,
+                category: product.product_category,
+                brand: product.brand,
+                link: product.purchase_link
+            });
         });
 
+        console.log(pages);
+        res.render(`Post/editPost`, { memberId, themes, post, pages, images });
+ 
     } catch (error) {
         console.error("게시글 수정 페이지 반환 중 오류:", error);
         res.status(500).json({ error: '서버 오류가 발생했습니다.' });
@@ -120,6 +132,8 @@ exports.updatePost = async (req, res) => {
 
 exports.getPostDetail = async (req, res) => {
     try {
+        console.log(req.url);
+
         const postId = req.params.postId;
         const member_id = 2; // 임시 
 
@@ -127,13 +141,15 @@ exports.getPostDetail = async (req, res) => {
         // 로그인된 사용자 id != 게시글 작성자 id -> 게시글 열람 & 댓글 작성 가능
         // 로그인 안됨 -> 게시글 열람 & 댓글 작성 불가
         
-        await PostModel.increasedViews(); // 조회수++
+        await PostModel.increasedViews(postId); // 조회수++
 
         const post = await PostModel.findByPostId(postId);
+        console.log(post);
+        console.log(post.member_id);
         const member = await MemberModel.findByMemberId(post.member_id);
         const comments = await CommentModel.findByPostId(postId);
     
-
+    
         // 좋아요, 북마크 숫자 전송
 
         res.render('Post/post-detail', { post, member, comments })

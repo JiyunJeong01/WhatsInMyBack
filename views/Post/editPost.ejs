@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>게시글 수정</title>
     <style>
-        /* 기본 스타일 설정 */
         body {
             font-family: Arial, sans-serif;
         }
@@ -87,27 +86,19 @@
                             <label>이미지 업로드 창</label>
                             <input type="file" id="image" onchange="previewImage(event)">
                             <div id="uploadedImage">
-                                <% imagesData.forEach(function(image, index) { %>
-                                    <div class="img-container" data-page="<%= index + 1 %>">
-                                        <img src="<%= image.image_base64 %>" alt="이미지">
-                                        <button type="button" onclick="removeImage(index + 1)">삭제</button>
-                                    </div>
+                                <% Object.keys(pages).forEach(function(pageId) { %>
+                                    <% if (pages[pageId].image) { %>
+                                        <div class="img-container" data-page="<%= pageId %>">
+                                            <img src="<%= pages[pageId].image %>" alt="이미지">
+                                            <button type="button" onclick="removeImage(pageId)">삭제</button>
+                                        </div>
+                                    <% } %>
                                 <% }); %>
                             </div>
                         </div>
                         <div class="detail-section">
                             <label>상세 제품 목록</label>
-                            <div id="productList">
-                                <% productsData.forEach(function(product) { %>
-                                    <div class="product-item" data-page="<%= product.image_id %>">
-                                        <input type="text" name="product_name[]" value="<%= product.product_name %>" placeholder="제품명">
-                                        <input type="text" name="product_category[]" value="<%= product.product_category %>" placeholder="제품 카테고리">
-                                        <input type="text" name="product_brand[]" value="<%= product.brand %>" placeholder="제품 브랜드">
-                                        <input type="text" name="product_link[]" value="<%= product.purchase_link %>" placeholder="구매 링크">
-                                        <button type="button" onclick="removeProduct(this)">삭제</button>
-                                    </div>
-                                <% }); %>
-                            </div>
+                            <div id="productList"></div>
                             <button type="button" onclick="addProduct()">제품 추가</button>
                         </div>
                     </div>
@@ -134,107 +125,73 @@
             <button type="button" onclick="submitForm()">수정하기</button>
         </form>
     </div>
+
+    <input type="hidden" id="pages" value='<%= JSON.stringify(pages) %>'>
+
     <script>
         // 페이지 번호 관리 변수 및 페이지 데이터 저장용 객체
         let currentPage = 1;
-        const pages = {};
+        let pages = {};
 
-        // EJS 데이터에서 JSON 변환
-        const imagesData = JSON.stringify(imagesData);
-        const productsData = JSON.stringify(productsData);
+        window.onload = function() {
+            pages = JSON.parse(document.getElementById('pages').value);
 
-        // 기존 데이터를 페이지 객체에 저장
-        imagesData.forEach(function(post_image) {
-            if (!pages[post_image.image_id]) {
-                pages[post_image.image_id] = { products: [], image: '' };
-            }
-            pages[post_image.image_id].image = post_image.image_base64;
-        });
+        //     function bufferToBase64(buffer) {
+        //     const binary = [];
+        //     const bytes = new Uint8Array(buffer.data);
+        //     for (let i = 0; i < bytes.byteLength; i++) {
+        //         binary.push(String.fromCharCode(bytes[i]));
+        //     }
+        //     return window.btoa(binary.join(''));
+        // }
 
-        productsData.forEach(function(product) {
-            if (!pages[product.image_id]) {
-                pages[product.image_id] = { products: [], image: '' };
-            }
-            pages[product.image_id].products.push({
-                name: product.product_name,
-                category: product.product_category,
-                brand: product.brand,
-                link: product.purchase_link
+            Object.keys(pages).forEach(pageId => {
+                if (pages[pageId].image) {
+                   console.log(pages[pageId].image);
+                }
             });
-        });
+
+            loadPageData();
+        };
 
 
-        // 제품 추가 함수
-        function addProduct() {
+        function loadPageData() {
             const productList = document.getElementById('productList');
-            const productItem = document.createElement('div');
-            productItem.className = 'product-item';
-            productItem.innerHTML = `
-                <input type="text" name="product_name[]" placeholder="제품명">
-                <input type="text" name="product_category[]" placeholder="제품 카테고리">
-                <input type="text" name="product_brand[]" placeholder="제품 브랜드">
-                <input type="text" name="product_link[]" placeholder="구매 링크">
-                <button type="button" onclick="removeProduct(this)">삭제</button>
-            `;
-            //productItem.setAttribute('data-page', currentPage);
-            productList.appendChild(productItem);
-        }
-
-        // 제품 삭제 함수
-        function removeProduct(button) {
-            const productItem = button.parentElement;
-            productItem.remove();
-        }
-
-        // 이미지 미리보기 및 저장 함수
-        function previewImage(event) {
-            const imageInput = event.target;
             const uploadedImage = document.getElementById('uploadedImage');
-            uploadedImage.innerHTML = ''; // 이전 이미지 초기화
+            productList.innerHTML = ''; // 기존 제품 목록 초기화
+            uploadedImage.innerHTML = ''; // 기존 이미지 미리보기 초기화
 
-            if (imageInput.files && imageInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const imgContainer = document.createElement('div');
-                    imgContainer.className = 'img-container';
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    const removeButton = document.createElement('button');
-                    removeButton.textContent = '삭제';
-                    removeButton.onclick = () => removeImage(currentPage);
-                    imgContainer.appendChild(img);
-                    imgContainer.appendChild(removeButton);
-                    uploadedImage.appendChild(imgContainer);
+            // 이미지 불러오기
+            if (pages[currentPage] && pages[currentPage].image) {
+                const imgContainer = document.createElement('div');
+                imgContainer.className = 'img-container';
+                const img = document.createElement('img');
 
-                    // 이미지 데이터를 페이지 객체에 저장
-                    saveImageToPage(currentPage, e.target.result);
-                };
-                reader.readAsDataURL(imageInput.files[0]);
+                //img.src = pages[currentPage].image;
+                img.src = 'data:image/jpeg;base64,' + pages[currentPage].image;
+                
+                const removeButton = document.createElement('button');
+                removeButton.textContent = '삭제';
+                removeButton.onclick = () => removeImage(currentPage);
+                imgContainer.appendChild(img);
+                imgContainer.appendChild(removeButton);
+                uploadedImage.appendChild(imgContainer);
             }
-        }
 
-        // 이미지 데이터를 페이지 객체에 저장
-        function saveImageToPage(page, imageData) {
-            if (!pages[page]) {
-                pages[page] = { products: [], image: '' };
-            }
-            pages[page].image = imageData;
-        }
-
-
-        // 페이지 객체에서 이미지 데이터를 불러오기
-        function loadImageFromPage(page) {
-            if (pages[page] && pages[page].image) {
-                return pages[page].image;
-            }
-            return null;
-        }
-
-        // 페이지 객체에서 이미지 데이터 삭제
-        function removeImage(page) {
-            if (pages[page]) {
-                pages[page].image = '';
-                document.getElementById('uploadedImage').innerHTML = '';
+            // 제품 목록 불러오기
+            if (pages[currentPage] && pages[currentPage].products) {
+                pages[currentPage].products.forEach(product => {
+                    const productItem = document.createElement('div');
+                    productItem.className = 'product-item';
+                    productItem.innerHTML = `
+                        <input type="text" name="product_name[]" value="${product.name}" placeholder="제품명">
+                        <input type="text" name="product_category[]" value="${product.category}" placeholder="제품 카테고리">
+                        <input type="text" name="product_brand[]" value="${product.brand}" placeholder="제품 브랜드">
+                        <input type="text" name="product_link[]" value="${product.link}" placeholder="구매 링크">
+                        <button type="button" onclick="removeProduct(this)">삭제</button>
+                    `;
+                    productList.appendChild(productItem);
+                });
             }
         }
 
@@ -280,58 +237,71 @@
                 pages[currentPage] = { products: [], image: '' };
             }
             pages[currentPage].products = products;
-            localStorage.setItem('pages', JSON.stringify(pages));
         }
 
-        // 페이지 데이터 불러오기 함수
-        function loadPageData() {
+        // 제품 추가 함수
+        function addProduct() {
             const productList = document.getElementById('productList');
+            const productItem = document.createElement('div');
+            productItem.className = 'product-item';
+            productItem.innerHTML = `
+                <input type="text" name="product_name[]" placeholder="제품명">
+                <input type="text" name="product_category[]" placeholder="제품 카테고리">
+                <input type="text" name="product_brand[]" placeholder="제품 브랜드">
+                <input type="text" name="product_link[]" placeholder="구매 링크">
+                <button type="button" onclick="removeProduct(this)">삭제</button>
+            `;
+            productList.appendChild(productItem);
+        }
+
+        // 제품 삭제 함수
+        function removeProduct(button) {
+            const productItem = button.parentElement;
+            productItem.remove();
+        }
+
+        // 이미지 미리보기 및 저장 함수
+        function previewImage(event) {
+            const imageInput = event.target;
             const uploadedImage = document.getElementById('uploadedImage');
-            productList.innerHTML = ''; // 기존 제품 목록 초기화
-            uploadedImage.innerHTML = ''; // 기존 이미지 미리보기 초기화
+            uploadedImage.innerHTML = ''; // 이전 이미지 초기화
 
-            // 제품 목록 불러오기
-            if (pages[currentPage]) {
-                const pageData = pages[currentPage];
-                pageData.products.forEach(product => {
-                    const productItem = document.createElement('div');
-                    productItem.className = 'product-item';
-                    //productItem.setAttribute('data-page', currentPage);
-                    productItem.innerHTML = `
-                        <input type="text" name="product_name[]" value="${product.name}" placeholder="제품명">
-                        <input type="text" name="product_category[]" value="${product.category}" placeholder="제품 카테고리">
-                        <input type="text" name="product_brand[]" value="${product.brand}" placeholder="제품 브랜드">
-                        <input type="text" name="product_link[]" value="${product.link}" placeholder="구매 링크">
-                        <button type="button" onclick="removeProduct(this)">삭제</button>
-                    `;
-                    productList.appendChild(productItem);
-                });
-
-                // 이미지 불러오기
-                const imageData = loadImageFromPage(currentPage);
-                if (imageData) {
+            if (imageInput.files && imageInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
                     const imgContainer = document.createElement('div');
                     imgContainer.className = 'img-container';
                     const img = document.createElement('img');
-                    img.src = imageData;
+                    img.src = e.target.result;
                     const removeButton = document.createElement('button');
                     removeButton.textContent = '삭제';
                     removeButton.onclick = () => removeImage(currentPage);
                     imgContainer.appendChild(img);
                     imgContainer.appendChild(removeButton);
                     uploadedImage.appendChild(imgContainer);
-                }
+
+                    // 이미지 데이터를 페이지 객체에 저장
+                    saveImageToPage(currentPage, e.target.result);
+                };
+                reader.readAsDataURL(imageInput.files[0]);
             }
         }
 
-        // 페이지 로드시 초기 데이터 불러오기
-        window.onload = function() {
-            const savedPages = localStorage.getItem('pages');
-            if (savedPages) {
-                Object.assign(pages, JSON.parse(savedPages));
+        // 이미지 데이터를 페이지 객체에 저장
+        function saveImageToPage(page, imageData) {
+            if (!pages[page]) {
+                pages[page] = { products: [], image: '' };
             }
-            loadPageData();
-        };
+            pages[page].image = imageData;
+        }
+
+        // 페이지 객체에서 이미지 데이터 삭제
+        function removeImage(page) {
+            if (pages[page]) {
+                pages[page].image = '';
+                document.getElementById('uploadedImage').innerHTML = '';
+            }
+        }
 
         // 폼 데이터 전송 함수
         function submitForm() {
