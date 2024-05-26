@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config(); //DB정보 담고 있는 환경변수 파일 생성
 const profileController = require("./controllers/profileController");
 
 const express = require("express"), //애플리케이션에 express 모듈 추가
@@ -8,6 +8,8 @@ const express = require("express"), //애플리케이션에 express 모듈 추�
   homeController = require("./controllers/homeController"),
   errorController = require("./controllers/errorController"),
   mysql = require("mysql2/promise"),
+
+
   methodOverride = require("method-override");
 
 // DB connection
@@ -51,11 +53,13 @@ router.use(express.json());
 router.get("/", homeController.index);
 
 /*프로필 라우팅*/
-router.get("/profile/:id", profileController.profile);
-router.get("/profile/collectComment",profileController.collectComment);
-router.get("/profile/collectBookmark",profileController.collectBookmark);
-router.get("/profile/collectLike",profileController.collectLike);
-router.get("/profile/profileModified",profileController.profileModified);
+router.get("/profile/:id", profileController.profile, profileController.profileShow);
+router.get("/profile/:id/collectComment", profileController.collectComment);
+router.get("/profile/:id/collectBookmark", profileController.collectBookmark, profileController.collectBookmarkShow);
+router.get("/profile/:id/collectLike", profileController.collectLike, profileController.collectLikeShow);
+router.get("/profile/:id/profileModified", profileController.profileModified);
+router.delete("/profile/:id/:follow", profileController.unfollow);
+router.put("/profile/:id/:follow", profileController.follow);
 
 /*에러 라우팅*/
 router.use(errorController.logErrors);
