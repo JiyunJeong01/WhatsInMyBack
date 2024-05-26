@@ -185,7 +185,7 @@
         <div class="left-column">
             <div class="big-circle">
                 <div class="small-circle">
-                    <img src="data:image/jpeg;base64, <%= userInfo.picture_base64 || '/default_image.jpg' %>">
+                    <img id="profileImage" src="/default_image.jpg">
                 </div>
             </div>
             <br>
@@ -199,14 +199,14 @@
                 <label for="email">이메일</label>
                 <div class="input-button">
                     <input type="text" id="email" name="email" value="<%= userInfo.email %>">
-                    <button type="button" class="btn-check">인증하기</button>
+                    <!-- <button type="button" class="btn-check">인증하기</button> -->
                 </div>
             </div>
             <div class="form-group">
                 <label for="nickname">닉네임</label>
                 <div class="input-button">
                     <input type="text" id="nickname" name="nickname" value="<%= userInfo.nickname %>">
-                    <button type="submit" class="btn-check">확인하기</button>
+                    <!-- <button type="submit" class="btn-check">확인하기</button> -->
                 </div>
             </div>
             <div class="form-group">
@@ -259,7 +259,7 @@
                         <% } %>
                     <% }); %>
                 </div>
-                <input type="hidden" id="theme" name="theme">
+                <input type="hidden" id="selected-theme" name="theme" value="<%= userTheme.map(theme => theme.theme_name).join(', ') %>">
             </div>
             <div class="form-group">
                 <label for="notification">알림 설정</label>
@@ -297,13 +297,22 @@
             <br>
             <br>
             <div class="form-group">
-                <button type="submit" class="btn-primary" onclick="submitForm()">적용</button>
+                <input type="hidden" id="picture_base64" name="picture_base64" value="<%= userInfo.picture_base64 %>">
+                <button type="submit" class="btn-primary">적용</button>
             </div>
         </form>
         </div>
         </div>
     </body>
 <script>
+    window.addEventListener('DOMContentLoaded', (event) => {
+        const profileImage = document.getElementById('profileImage');
+        const userInfo = '<%- JSON.stringify(userInfo) %>';
+
+        if (document.getElementById('picture_base64').value) {
+            profileImage.src = document.getElementById('picture_base64').value;
+        }
+    });
     function previewImage(input) {
         var file = input.files[0];
         var reader = new FileReader();
@@ -322,11 +331,10 @@
                 ctx.drawImage(img, 0, 0, minSize, minSize, 0, 0, minSize, minSize);
                 var croppedImageData = canvas.toDataURL('image/jpeg');
                 preview.src = croppedImageData;
-                var base64Image = e.target.result;
-                userInfo.picture_base64 = base64Image;
+                var base64Image = croppedImageData;
+                document.getElementById('picture_base64').value = base64Image;
             };
             img.src = e.target.result;
-            userInfo.picture_base64 = img.src;
         };
     
         if (file) {
@@ -352,6 +360,14 @@
         });
         selectedThemeElement.value = themes.join(', ');
     }
+    document.addEventListener('DOMContentLoaded', function() {
+        var selectedThemeElement = document.getElementById('selected-theme');
+        var activeButtons = document.querySelectorAll('.theme-container button.active');
+        var themes = Array.from(activeButtons).map(function(activeButton) {
+            return activeButton.innerText;
+        });
+        selectedThemeElement.value = themes.join(', ');
+    });
     function toggleNotification(statusElement, hiddenInput) {
         const currentValue = hiddenInput.value;
         const newValue = currentValue === '1' ? '0' : '1';

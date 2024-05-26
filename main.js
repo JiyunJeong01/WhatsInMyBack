@@ -12,6 +12,7 @@ const express = require("express"), //애플리케이션에 express 모듈 추�
   methodOverride = require("method-override"),
   session = require("express-session"),
   flash = require("connect-flash");
+  validator = require('validator');
 
 // DB connection
 exports.connection = async () => {
@@ -69,7 +70,8 @@ router.get("/", homeController.index);
 router.get("/profile/:userId/collectComment/:pageId",profileController.collectComment);
 router.get("/profile/:userId/collectBookmark/:pageId",profileController.collectBookmark);
 router.get("/profile/:userId/collectLike/:pageId",profileController.collectLike);
-router.get("/profile/:userId/profileModified",profileController.profileModified);
+router.get("/profile/:userId/profileModified",profileController.profileModified_GET);
+router.post("/profile/:userId/profileModified",profileController.profileModified_POST);
 router.get("/profile/:userId/pwModified", profileController.passwordModified_GET);
 router.post("/profile/:userId/pwModified", profileController.passwordModified_POST);
 router.get("/profile/:userId/cancleAccount", profileController.unregister_GET);
