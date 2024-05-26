@@ -1,4 +1,98 @@
-<h1>회원탈퇴</h1>
-<textarea name="current_pwd" id="">현재 비밀번호 입력</textarea>
-<input type="checkbox" name="" id="">
-<button>탈퇴하기</button>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>탈퇴하기</title>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        max-width: 1000px;
+        margin: auto;
+    }
+    .data-form {
+        display:table-cell;
+        vertical-align:middle;
+        width: 1000px;
+        height: 500px;
+        background-color: #F8F8F8;
+        text-align: center;
+        border: 2px solid #C5C5C5;
+        border-radius: 20px;
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .form-group input[type="text"],
+    .form-group input[type="password"] {
+        width: 30%;
+        height: 20px;
+        padding: 10px;
+        border: 1px solid #C5C5C5;
+        border-radius: 20px;
+    }
+    .form-group button {
+        width: 20%;
+        padding: 10px;
+        background-color: #C5C5C5;
+        color: black;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+    }
+    .custom-checkbox {
+        display: inline-block;
+        position: relative;
+        cursor: pointer;
+        line-height: 32px;
+     }
+     .custom-checkbox input[type="checkbox"] {
+         opacity: 0;
+     }
+     .custom-checkbox .checkbox-icon {
+         position: absolute;
+         top: 0;
+         left: 0;
+         width: 32px;
+         height: 32px;
+         background-color: #ffffff;
+         border: 1px solid #C5C5C5;
+         border-radius: 4px;
+     }
+     .custom-checkbox input[type="checkbox"]:checked + .checkbox-icon::before {
+         content: "\2714";
+         font-size: 18px;
+         color: #000000;
+         position: absolute;
+         top: 2px;
+         left: 4px;
+     }
+     .custom-checkbox label {
+         display: inline-block;
+         margin-left: 8px;
+      }
+</style>
+</head>
+<body>
+<h1>탈퇴하기</h1>
+<div class="data-form">
+    <form class="form-unregister" action="/profile/<%= userId %>/cancleAccount" method="POST">
+        <div class="form-group">
+            <input type="password" id="current_password" name="current_password" placeholder="비밀번호 입력">
+        </div>
+        <br>
+        <br>
+        <br>
+        <br>
+        <div class="form-group">
+            <input type="checkbox" id="confirm_check" name="confirm_check" required>
+            <label for="confirm_check">정말 탈퇴하시겠습니까?</label>
+        </div>
+        <div class="form-group">
+            <button class="btn btn-lg btn-primary btn-block" type="submit">탈퇴하기</button>
+        </div>
+    </form>
+</div>
+</body>
+</html>

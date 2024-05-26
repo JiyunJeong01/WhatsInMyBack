@@ -1,74 +1,378 @@
-<div>
-    <h1>프로필</h1>
-    <div class="left">
-        <div class="photo">
-            <img src="" alt="사진이미지">
-            <button class="photobtn">사진 변경하기</button>
-        </div>
-    </div>
-    <div class="right">
-        <div class="email">
-            <h3>이메일</h3>
-            <div>
-                <span>이메일 적는 란</span>
-                <button>이메일 변경하기</button>
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                max-width: 900px;
+                margin: auto;
+                display: flex;
+                flex-direction: column;
+            }
+            .body-container {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between; 
+                width: 100%;
+            }
+            .left-column{
+                flex: 1;
+                text-align: center;
+            }
+            .right-column {
+                flex: 1.2;
+            }
+            .big-circle {
+                display: inline-block;
+                width: 200px; 
+                height: 200px; 
+                border: 1px solid #000000;
+                border-radius: 50%;
+                overflow: hidden;
+                position: relative;
+            }
+            .small-circle {
+                display: inline-block;
+                width: 180px; 
+                height: 180px; 
+                border-radius: 50%; 
+                overflow: hidden; 
+                position: absolute; 
+                top: 10px; 
+                left: 10px; 
+            }
+            .small-circle img {
+                width: 100%;
+                height: auto;
+            }
+            .left-column image {
+                display: inline-block;
+            }
+            .form-group {
+                margin-bottom: 20px;
+                text-align: left;
+            }
+            .input-button {
+                width: 470px;
+                position: relative;
+            }
+            .form-group form {
+                width: 470px;
+                display: flex;
+                align-items: center;
+                position: relative;
+            }
+            .form-group label {
+                display: block;
+                margin-bottom: 5px;
+            }
+            .form-group input[type="text"],
+            .form-group input[type="integer"] {
+                width: 450px;
+                height: 20px;
+                padding: 10px;
+                background-color: #F8F8F8;
+                border: 1px solid #C5C5C5;
+                border-radius: 20px;
+                cursor: pointer;
+            }
+            .form-group textarea {
+                width: 450px;
+                padding: 10px;
+                height: 60px;
+                background-color: #F8F8F8;
+                border: 1px solid #C5C5C5;
+                border-radius: 20px;
+                cursor: pointer;
+                resize: none;
+                font-family: Arial, sans-serif;
+                font-size: 13px;
+            }
+            .form-group button {
+                border: 1px solid #C5C5C5;
+                border-radius: 20px;
+                cursor: pointer;
+            }
+            .form-group a{
+                border: 1px solid #C5C5C5;
+                border-radius: 20px;
+                cursor: pointer;
+                padding: 10px;
+                width: 450px;
+                background-color: #F8F8F8;
+                font-family: Arial, sans-serif;
+                font-size: 13px;
+                text-decoration: none;
+                color: #000000;
+                display: inline-block;
+                text-align: center;
+                box-sizing: border-box;
+            }
+            .button-gender,
+            .button-upper-theme {
+                padding: 10px;
+                width: 100px;
+                background-color: #F8F8F8;
+
+            }
+            .button-gender.active,
+            .button-upper-theme.active, 
+            .button-lower-theme.active {
+                background-color: #E9E9E9;
+            }
+            .button-lower-theme {
+                padding: 10px;
+                margin-top: 10px;
+                width: 100px;
+                background-color: #F8F8F8;
+
+            }
+            .notification-container {
+                width: 450px;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            .notification-item {
+                width: calc(50% - 5px);
+		        height: 40px;
+                display: flex;
+                align-items: center;
+                padding: 10px;
+                background-color: #F8F8F8;
+                border: 1px solid #C5C5C5;
+                border-radius: 20px;
+                box-sizing: border-box;
+            }
+            .notification-label {
+                flex: 1;
+                text-align: left;
+            }
+            .notification-status {
+                padding: 5px 10px;
+                background-color: #F8F8F8;
+                border-radius: 10px;
+                cursor: pointer;
+            }
+            .notification-item span {
+                font-family: Arial, sans-serif;
+                font-size: 13px;
+            }
+            .btn-primary,
+            .btn-secondary {
+                padding: 10px;
+                width: 450px;
+                background-color: #F8F8F8;
+
+            }
+            .btn-check {
+                top: 4px;
+                right: 2px;
+                width: 80px;
+                height: 34px;
+                background-color: #D1D1D1;
+                position: absolute;
+                margin-left: auto;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>프로필</h1>
+        <div class="body-container">
+        <div class="left-column">
+            <div class="big-circle">
+                <div class="small-circle">
+                    <img id="profileImage" src="/default_image.jpg">
+                </div>
+            </div>
+            <br>
+            <div class="image">
+                <input type="file" id="image" name="image" onchange="previewImage(this)">
             </div>
         </div>
-        <div class="id">
-            <h3>아이디</h3>
-            <div>
-                <span>아이디 적는 란</span>
-                <button>아이디 변경하기</button>
+        <div class="right-column">
+        <form id="infoSetting" action="/profile/<%= userId %>/profileModified" method="POST">
+            <div class="form-group">
+                <label for="email">이메일</label>
+                <div class="input-button">
+                    <input type="text" id="email" name="email" value="<%= userInfo.email %>">
+                    <!-- <button type="button" class="btn-check">인증하기</button> -->
+                </div>
             </div>
-        </div>
-        <div class="nickname">
-            <h3>닉네임</h3>
-            <div>
-                <span>닉네임 적는 란</span>
-                <button>닉네임 변경하기</button>
+            <div class="form-group">
+                <label for="nickname">닉네임</label>
+                <div class="input-button">
+                    <input type="text" id="nickname" name="nickname" value="<%= userInfo.nickname %>">
+                    <!-- <button type="submit" class="btn-check">확인하기</button> -->
+                </div>
             </div>
-        </div>
-        <div class="description">
-            <h3>소개글</h3>
-            <div>
-                <span>소개글 적는 란</span>
-                <button>소개글 변경하기</button>
+            <div class="form-group">
+                <label for="username">이름</label>
+                <input type="text" id="username" name="username" value="<%= userInfo.username %>">
             </div>
-        </div>
-        <div class="job">
-            <h3>직업</h3>
-            <div>
-                <span>직업 적는 란</span>
+            <div class="form-group">
+                <label for="bio">소개글</label>
+                <textarea type="text" id="bio" name="bio"><%= userInfo.bio %></textarea>
             </div>
-        </div>
-        <div class="age">
-            <h3>나이</h3>
-            <div>
-                <span>나이 적는 란</span>
+            <div class="form-group">
+                <label for="job">직업</label>
+                <input type="text" id="job" name="job" value="<%= userInfo.job %>">
             </div>
-        </div>
-        <div class="sex">
-            <h3>성별</h3>
-            <div>
-                <button>여성</button>
-                <button>남성</button>
+            <div class="form-group">
+                <label for="age">나이</label>
+                <input type="integer" id="age" name="age" value="<%= userInfo.age %>">
             </div>
-        </div>
-        <div class="thema">
-            <h3>관심 테마 설정</h3>
-            <div class="thema_container">
-                테마 목록이 뜹니다.
+            <div class="form-group">
+                <label for="gender">성별</label>
+                <div id="gender" name="gender">
+                    <button type="button" class="button-gender <%= (userInfo.gender === 'male') ? 'active' : '' %>" onclick="selectGender(this, 'male')">남성</button>
+                    <button type="button" class="button-gender <%= (userInfo.gender === 'female') ? 'active' : '' %>" onclick="selectGender(this, 'female')">여성</button>
+                    <button type="button" class="button-gender <%= (userInfo.gender === 'other') ? 'active' : '' %>" onclick="selectGender(this, 'other')">기타</button>
+                </div>
+                <input type="hidden" id="gender" name="gender" value="<%= userInfo.gender %>">
             </div>
+            <div class="form-group">
+                <label for="theme">관심 테마 설정</label>
+                <div id="theme" name="theme" class="theme-container">
+                    <%
+                        var receivedThemeNames = new Set();
+                        userTheme.forEach(function(theme) {
+                            receivedThemeNames.add(theme.theme_name);
+                        });
+                    %>
+                    <% ['기타', '일상', '패션', '학교생활'].forEach(function(themeName) { %>
+                        <% if (receivedThemeNames.has(themeName)) { %>
+                            <button type="button" class="button-upper-theme active" onclick="selectTheme(this, '<%= themeName %>')"><%= themeName %></button>
+                        <% } else { %>
+                            <button type="button" class="button-upper-theme" onclick="selectTheme(this, '<%= themeName %>')"><%= themeName %></button>
+                        <% } %>
+                    <% }); %>
+                    <br>
+                    <% ['시험기간', '직장생활', '여행', '덕질'].forEach(function(themeName) { %>
+                        <% if (receivedThemeNames.has(themeName)) { %>
+                            <button type="button" class="button-lower-theme active" onclick="selectTheme(this, '<%= themeName %>')"><%= themeName %></button>
+                        <% } else { %>
+                            <button type="button" class="button-lower-theme" onclick="selectTheme(this, '<%= themeName %>')"><%= themeName %></button>
+                        <% } %>
+                    <% }); %>
+                </div>
+                <input type="hidden" id="selected-theme" name="theme" value="<%= userTheme.map(theme => theme.theme_name).join(', ') %>">
+            </div>
+            <div class="form-group">
+                <label for="notification">알림 설정</label>
+                <div id="notification" name="notification" class="notification-container">
+                    <div class="notification-item" data-type="comment_notification">
+                        <span class="notification-label">댓글 알림</span>
+                        <span class="notification-status" onclick="toggleNotification(this, document.querySelector('input[name=comment_notification]'))"><%= (userInfo.comment_notification) ? 'ON' : 'OFF' %></span>
+                        <input type="hidden" name="comment_notification" value="<%= userInfo.comment_notification %>">
+                    </div>
+                    <div class="notification-item" data-type="like_notification">
+                        <span class="notification-label">좋아요 알림</span>
+                        <span class="notification-status" onclick="toggleNotification(this, document.querySelector('input[name=like_notification]'))"><%= (userInfo.like_notification) ? 'ON' : 'OFF' %></span>
+                        <input type="hidden" name="like_notification" value="<%= userInfo.like_notification %>">
+                    </div>
+                    <div class="notification-item" data-type="follow_notification">
+                        <span class="notification-label">팔로우 알림</span>
+                        <span class="notification-status" onclick="toggleNotification(this, document.querySelector('input[name=follow_notification]'))"><%= (userInfo.follow_notification) ? 'ON' : 'OFF' %></span>
+                        <input type="hidden" name="follow_notification" value="<%= userInfo.follow_notification %>">
+                    </div>
+                    <div class="notification-item" data-type="recommend_notification">
+                        <span class="notification-label">유도 알림</span>
+                        <span class="notification-status" onclick="toggleNotification(this, document.querySelector('input[name=recommend_notification]'))"><%= (userInfo.recommend_notification) ? 'ON' : 'OFF' %></span>
+                        <input type="hidden" name="recommend_notification" value="<%= userInfo.recommend_notification %>">
+                    </div>
+                </div>
+            </div>
+            <br>
+            <div class="form-group">
+                <a href="/profile/<%= userId %>/pwModified">비밀번호 변경</a>
+            </div>
+            <div class="form-group">
+                <a href="/profile/<%= userId %>/cancleAccount">회원 탈퇴</a>
+            </div>
+            <br>
+            <br>
+            <br>
+            <div class="form-group">
+                <input type="hidden" id="picture_base64" name="picture_base64" value="<%= userInfo.picture_base64 %>">
+                <button type="submit" class="btn-primary">적용</button>
+            </div>
+        </form>
         </div>
-        <div class="alarm">
-            <button>댓글 알람 설정</button>
-            <button>좋아요 알람 설정</button>
-            <button>유도 알람 설정</button>
         </div>
-        <div>
-            <button class="change_pwd">비밀번호 변경</button>
-            <button class="unregister">회원 탈퇴</button>
-            <button class="modify">수정</button>
-        </div>
-    </div>
-</div>
+    </body>
+<script>
+    window.addEventListener('DOMContentLoaded', (event) => {
+        const profileImage = document.getElementById('profileImage');
+        const userInfo = '<%- JSON.stringify(userInfo) %>';
+
+        if (document.getElementById('picture_base64').value) {
+            profileImage.src = document.getElementById('picture_base64').value;
+        }
+    });
+    function previewImage(input) {
+        var file = input.files[0];
+        var reader = new FileReader();
+    
+        reader.onload = function(e) {
+            var preview = document.querySelector('.small-circle img');
+            preview.src = e.target.result;
+    
+            var canvas = document.createElement('canvas');
+            var ctx = canvas.getContext('2d');
+            var img = new Image();
+            img.onload = function() {
+                var minSize = Math.min(img.width, img.height);
+                canvas.width = minSize;
+                canvas.height = minSize;
+                ctx.drawImage(img, 0, 0, minSize, minSize, 0, 0, minSize, minSize);
+                var croppedImageData = canvas.toDataURL('image/jpeg');
+                preview.src = croppedImageData;
+                var base64Image = croppedImageData;
+                document.getElementById('picture_base64').value = base64Image;
+            };
+            img.src = e.target.result;
+        };
+    
+        if (file) {
+            reader.readAsDataURL(file);
+        }
+    }
+    function selectGender(button, gender) {
+        document.querySelectorAll('.button-gender').forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+        document.getElementById('selected-gender').value = gender;
+    }
+    function selectTheme(button, theme) {
+        var selectedThemeElement = document.getElementById('selected-theme');
+        var themes = selectedThemeElement.value.split(', ').filter(Boolean);
+    
+        var isActive = button.classList.contains('active');
+    
+        isActive ? button.classList.remove('active') : button.classList.add('active');
+    
+        var activeButtons = document.querySelectorAll('.theme-container button.active');
+        themes = Array.from(activeButtons).map(function(activeButton) {
+            return activeButton.innerText;
+        });
+        selectedThemeElement.value = themes.join(', ');
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        var selectedThemeElement = document.getElementById('selected-theme');
+        var activeButtons = document.querySelectorAll('.theme-container button.active');
+        var themes = Array.from(activeButtons).map(function(activeButton) {
+            return activeButton.innerText;
+        });
+        selectedThemeElement.value = themes.join(', ');
+    });
+    function toggleNotification(statusElement, hiddenInput) {
+        const currentValue = hiddenInput.value;
+        const newValue = currentValue === '1' ? '0' : '1';
+        hiddenInput.value = newValue;
+        statusElement.textContent = (newValue === '1') ? 'ON' : 'OFF';
+    }
+</script>
+</html>
