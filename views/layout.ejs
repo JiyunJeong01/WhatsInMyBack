@@ -4,12 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WhatsInMyBack</title>
+    <style>
+        .flash {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .flash.success {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .flash.error {
+            background-color: #f44336; 
+            color: white;
+        }
+    </style>
 </head>
 <body>
     <h1>hello world!</h1>
+    
+    <div>
+        <% if (flashMessages) { %>
+            <% if (flashMessages.success) { %>
+                <div class="flash success">
+                    <%= flashMessages.success %>
+                </div>
+            <% } else if (flashMessages.error) { %>
+                <div class="flash error">
+                    <%= flashMessages.error %>
+                </div>
+            <% } %>
+        <% } %>
+    </div>
 
     <div class="container">
         <%- body %>
     </div>
+    
 </body>
 </html>

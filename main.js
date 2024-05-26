@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const profileController = require("./controllers/profileController");
 
 const express = require("express"), //애플리케이션에 express 모듈 추가
@@ -7,17 +9,19 @@ const express = require("express"), //애플리케이션에 express 모듈 추�
   homeController = require("./controllers/homeController"),
   errorController = require("./controllers/errorController"),
   mysql = require("mysql2/promise"),
-  methodOverride = require("method-override");
+  methodOverride = require("method-override"),
+  session = require("express-session"),
+  flash = require("connect-flash");
 
 // DB connection
 exports.connection = async () => {
   try {
     const db = await mysql.createPool({
-      host: 'localhost',
-      user: 'root',
-      password: 'root',
-      port: 3306,
-      database: 'nodejs',
+      host: process.env.DB_HOST,
+      user: process.env.DB_USER,
+      password: process.env.DB_PW,
+      port: process.env.DB_PORT,
+      database: process.env.DB_NAME,
       waitForConnections: true,
       insecureAuth: true
     });
@@ -31,11 +35,23 @@ exports.connection = async () => {
 app.set("port", process.env.PORT || 80); //포트 80으로 연결 셋팅
 app.set("view engine", "ejs"); //뷰 엔진을 ejs로 설정
 
+app.use(session({
+  secret: 'secret_key',
+  resave: false,
+  saveUninitialized: true
+}));
+
 router.use(
   methodOverride("_method", {
     methods: ["POST", "GET"]
   })
 );
+
+router.use(flash());
+router.use((req, res, next) => {
+  res.locals.flashMessages = req.flash();
+  next();
+});
 
 router.use(layouts);
 router.use(express.static("public"));
@@ -50,11 +66,15 @@ router.use(express.json());
 router.get("/", homeController.index);
 
 /*프로필 라우팅*/
-router.get("/profile", profileController.profile);
-router.get("/profile/collectComment",profileController.collectComment);
-router.get("/profile/collectBookmark",profileController.collectBookmark);
-router.get("/profile/collectLike",profileController.collectLike);
-router.get("/profile/profileModified",profileController.profileModified);
+router.get("/profile/:userId/collectComment/:pageId",profileController.collectComment);
+router.get("/profile/:userId/collectBookmark/:pageId",profileController.collectBookmark);
+router.get("/profile/:userId/collectLike/:pageId",profileController.collectLike);
+router.get("/profile/:userId/profileModified",profileController.profileModified);
+router.get("/profile/:userId/pwModified", profileController.passwordModified_GET);
+router.post("/profile/:userId/pwModified", profileController.passwordModified_POST);
+router.get("/profile/:userId/cancleAccount", profileController.unregister_GET);
+router.post("/profile/:userId/cancleAccount", profileController.unregister_POST);
+router.get("/profile/:userId/:pageId", profileController.profile);
 
 /*에러 라우팅*/
 router.use(errorController.logErrors);

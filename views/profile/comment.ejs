@@ -1,4 +1,96 @@
-<h1>내가 쓴 댓글</h1>
-<div>
-    댓글 정보가 아래로 등장합니다.
-</div>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        max-width: 1000px;
+        margin: auto;
+    }
+    table {
+        width: 100%;
+        border-top: none;
+    }
+    .table td {
+        border-bottom: 1px lightgray solid; 
+        height: 40px;
+        font-size: 14px;
+    }
+    h1 {
+        margin-left: 0;
+    }
+    .footer {
+        text-align: center;
+        margin-top: 20px;
+    }
+    .table td:nth-child(1) { 
+        text-align: center;
+    }
+    .table td:nth-child(2) { 
+        text-align: left;
+    }
+    .table td:nth-child(3) { 
+        text-align: right;
+    }
+</style>
+</head>
+<body>
+    <h1>내가 쓴 댓글</h1>
+    <br>
+    <table class="table">
+        <tbody>
+            <% comments.forEach(comment => { %>
+            <tr>
+                <td>
+                    <%= comment.comment_id %>
+                </td>
+                <td>
+                    <a href="/post/<%= comment.post_id %>" style="text-decoration: none; color: #000000;">
+                        <%= comment.comment_content %>
+                    </a>
+                </td>
+                <td>
+                    <% let date = new Date(comment.created_at); %>
+                    <%= date.getFullYear() %>.<%= (date.getMonth() + 1) %>.<%= date.getDate() %>
+                </td>
+            </tr>
+            <% }); %>
+        </tbody>
+    </table>
+    <br>
+    <% const endPage = (Math.floor((currentPageId - 1) / 5) + 1) * 5 %>
+    <% const startPage = endPage - 4 %>
+    <% const totalPages = Math.floor((length - 1) / 10) + 1 %>
+    <div class="footer">
+        <% if(startPage > 1) { %>
+            <a href="<%= `${currentURL.substring(0, currentURL.lastIndexOf('/') + 1)}${parseInt(currentPageId) - 1}` %>" style="text-decoration: none; color: #000000;">
+                &lt;
+            </a>
+        <% } else { %>
+            &lt;
+        <% } %>    
+        <% let maxPagesToShow = 5; %>
+        <% for(let i = startPage; i <= Math.min(endPage, startPage + maxPagesToShow - 1); i++) { %>
+            <% if(i <= totalPages) { %>
+                <% if(i === parseInt(currentPageId)) { %>
+                    <%= i %>
+                <% } else { %> 
+                    <a href="<%= `${currentURL.substring(0, currentURL.lastIndexOf('/') + 1)}${i}` %>" style="text-decoration: none; color: #000000;">
+                        <%= i %>
+                    </a>
+                <% } %>
+            <% } %>
+        <% } %>   
+        <% if(endPage < totalPages) { %>
+            <a href="<%= `${currentURL.substring(0, currentURL.lastIndexOf('/') + 1)}${parseInt(currentPageId) + 1}` %>" style="text-decoration: none; color: #000000;">
+                &gt;
+            </a>
+        <% } else { %>
+            &gt;
+        <% } %> 
+    </div>
+</body>
+</html>
