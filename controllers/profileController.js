@@ -1,6 +1,7 @@
 const db = require("../models/index"),
 comment = db.comment;
 member = db.member;
+preference = db.preference;
 
 module.exports = {
     profile: (req, res) => {
@@ -45,8 +46,74 @@ module.exports = {
         res.render("profile/like");
     },
 
-    profileModified: (req, res) => {
-        res.render("profile/setting");
+    profileModified_GET: async (req, res, next) => {
+        try {
+            const userId = req.params.userId;
+            res.locals.userId = userId;
+    
+            const userInfo = await member.loadMember(userId);
+            const userTheme = await preference.loadTheme(userId);
+            res.locals.userInfo = userInfo[0]
+            res.locals.userTheme = userTheme
+            res.render("profile/setting");
+        } catch (error) {
+            console.error(`Error collecting comments: ${error.message}`);
+            next(error);
+        };
+    },
+
+    profileModified_POST: async (req, res, next) => {
+        try {
+            const userId = req.params.userId;
+            const { email, nickname, username, bio, job, age, gender, theme, comment_notification, like_notification, follow_notification, recommend_notification, picture_base64 } = req.body;
+    
+            if (!email || !nickname || !username || !job || !age || !gender) {
+                let errorMessage = '모든 필드를 채워주세요: ';
+                if (!email) errorMessage += '이메일, ';
+                if (!nickname) errorMessage += '닉네임, ';
+                if (!username) errorMessage += '이름, ';
+                if (!job) errorMessage += '직업, ';
+                if (!age) errorMessage += '나이, ';
+                if (!gender) errorMessage += '성별, ';
+                errorMessage = errorMessage.slice(0, -2);
+                req.flash('error', errorMessage);
+                return res.redirect(`/profile/${userId}/profileModified`);
+            }
+    
+            if (!validator.isEmail(email)) {
+                req.flash('error', '올바른 이메일 주소를 입력하세요.');
+                return res.redirect(`/profile/${userId}/profileModified`);
+            }
+    
+            if (!validator.isNumeric(age)) {
+                req.flash('error', '나이는 숫자로 입력하세요.');
+                return res.redirect(`/profile/${userId}/profileModified`);
+            }
+    
+            const existingUserWithEmail = await member.getUserByEmail(email);
+            if (existingUserWithEmail && existingUserWithEmail.member_id != userId) {
+                req.flash('error', '이미 사용 중인 이메일입니다.');
+                return res.redirect(`/profile/${userId}/profileModified`);
+            }
+        
+            const existingUserWithNickname = await member.getUserByNickname(nickname);
+            if (existingUserWithNickname && existingUserWithNickname.member_id != userId) {
+                req.flash('error', '이미 사용 중인 닉네임입니다.');
+                return res.redirect(`/profile/${userId}/profileModified`);
+            }
+    
+            if ((await member.updateMember(userId, username, nickname, email, age, gender, job, follow_notification, like_notification, comment_notification, recommend_notification, picture_base64, bio))
+                & (await preference.updateTheme(userId, theme))) {
+                req.flash('success', '프로필 정보가 수정되었습니다.');
+                return res.redirect(`/profile/${userId}/1`);
+            } else {
+                req.flash('error', '오류가 발생했습니다.');
+                return res.redirect(`/profile/${userId}/profileModified`);
+            }
+        } catch (error) {
+            console.error(`Error collecting comments: ${error.message}`);
+            next(error);
+        };
     },
     
     passwordModified_GET: async (req, res, next) => {
