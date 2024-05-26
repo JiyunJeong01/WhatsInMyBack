@@ -3,11 +3,7 @@ const router = express.Router();
 const postController = require("../controllers/postController");
 const commentController = require("../controllers/commentController");
 
-
-// 게시글 목록 조회
-//router.get("/posts", postController.getPosts);
-//게시글 열람
-router.get("/:postId", postController.getPostDetail);
+// 라우터 순서 주의
 
 // 게시글 작성
 router.get("/new", postController.newPost);
@@ -16,6 +12,12 @@ router.post("/register", postController.registerPost);
 // 게시글 수정
 router.get('/:postId/edit', postController.editPost);
 router.put("/update", postController.updatePost);
+
+
+// 게시글 목록 조회
+//router.get("/posts", postController.getPosts);
+//게시글 열람
+router.get("/:postId", postController.getPostDetail);
 
 
 /*
