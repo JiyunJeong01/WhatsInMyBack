@@ -14,7 +14,7 @@
         </div>
         <div class="right-column">
             <form id="infoSetting" action="/profile/<%= userId %>/profileModified" method="POST">
-                <div class="form-group">
+                <div class="setting-form-group">
                     <label for="email">이메일</label>
                     <div class="input-button">
                         <input type="text" id="email" name="email" value="<%= userInfo.email %>">
@@ -117,7 +117,7 @@
                 <br>
                 <div class="setting-form-group">
                     <input type="hidden" id="picture_base64" name="picture_base64" value="<%= userInfo.picture_base64 %>">
-                    <button type="submit" class="btn-primary">적용</button>
+                    <button type="submit" class="setting-btn-primary">적용</button>
                 </div>
             </form>
         </div>
