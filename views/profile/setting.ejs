@@ -21,30 +21,30 @@
                         <!-- <button type="button" class="btn-check">인증하기</button> -->
                     </div>
                 </div>
-                <div class="form-group">
+                <div class="setting-form-group">
                     <label for="nickname">닉네임</label>
                     <div class="input-button">
                         <input type="text" id="nickname" name="nickname" value="<%= userInfo.nickname %>">
                         <!-- <button type="submit" class="btn-check">확인하기</button> -->
                     </div>
                 </div>
-                <div class="form-group">
+                <div class="setting-form-group">
                     <label for="username">이름</label>
                     <input type="text" id="username" name="username" value="<%= userInfo.username %>">
                 </div>
-                <div class="form-group">
+                <div class="setting-form-group">
                     <label for="bio">소개글</label>
                     <textarea type="text" id="bio" name="bio"><%= userInfo.bio %></textarea>
                 </div>
-                <div class="form-group">
+                <div class="setting-form-group">
                     <label for="job">직업</label>
                     <input type="text" id="job" name="job" value="<%= userInfo.job %>">
                 </div>
-                <div class="form-group">
+                <div class="setting-form-group">
                     <label for="age">나이</label>
                     <input type="integer" id="age" name="age" value="<%= userInfo.age %>">
                 </div>
-                <div class="form-group">
+                <div class="setting-form-group">
                     <label for="gender">성별</label>
                     <div id="gender" name="gender">
                         <button type="button" class="button-gender <%= (userInfo.gender === 'male') ? 'active' : '' %>" onclick="selectGender(this, 'male')">남성</button>
@@ -53,7 +53,7 @@
                     </div>
                     <input type="hidden" id="gender" name="gender" value="<%= userInfo.gender %>">
                 </div>
-                <div class="form-group">
+                <div class="setting-form-group">
                     <label for="theme">관심 테마 설정</label>
                     <div id="theme" name="theme" class="theme-container">
                         <%
@@ -80,7 +80,7 @@
                     </div>
                     <input type="hidden" id="selected-theme" name="theme" value="<%= userTheme.map(theme => theme.theme_name).join(', ') %>">
                 </div>
-                <div class="form-group">
+                <div class="setting-form-group">
                     <label for="notification">알림 설정</label>
                     <div id="notification" name="notification" class="notification-container">
                         <div class="notification-item" data-type="comment_notification">
@@ -106,16 +106,16 @@
                     </div>
                 </div>
                 <br>
-                <div class="form-group">
+                <div class="setting-form-group">
                     <a href="/profile/<%= userId %>/pwModified">비밀번호 변경</a>
                 </div>
-                <div class="form-group">
+                <div class="setting-form-group">
                     <a href="/profile/<%= userId %>/cancleAccount">회원 탈퇴</a>
                 </div>
                 <br>
                 <br>
                 <br>
-                <div class="form-group">
+                <div class="setting-form-group">
                     <input type="hidden" id="picture_base64" name="picture_base64" value="<%= userInfo.picture_base64 %>">
                     <button type="submit" class="btn-primary">적용</button>
                 </div>
