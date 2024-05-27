@@ -1,7 +1,7 @@
 const db ={};
 
-db.comment = require("./comment.js")
-db.member = require("./member.js")
-db.preference = require("./preference.js")
+db.Comment = require("./Comment.js")
+db.Member = require("./Member.js")
+db.Preference = require("./Preference.js")
 
 module.exports = db;

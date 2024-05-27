@@ -23,4 +23,4 @@ exports.findCommentWithUser = async (userId) => {
     catch (error) {
         console.error("쿼리 실행 중 오류:", error);
     };
-}
+};

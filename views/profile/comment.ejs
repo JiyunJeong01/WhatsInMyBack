@@ -1,46 +1,7 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-    body {
-        margin: 0;
-        padding: 0;
-        max-width: 1000px;
-        margin: auto;
-    }
-    table {
-        width: 100%;
-        border-top: none;
-    }
-    .table td {
-        border-bottom: 1px lightgray solid; 
-        height: 40px;
-        font-size: 14px;
-    }
-    h1 {
-        margin-left: 0;
-    }
-    .footer {
-        text-align: center;
-        margin-top: 20px;
-    }
-    .table td:nth-child(1) { 
-        text-align: center;
-    }
-    .table td:nth-child(2) { 
-        text-align: left;
-    }
-    .table td:nth-child(3) { 
-        text-align: right;
-    }
-</style>
-</head>
-<body>
+<div class = comment-body>
     <h1>내가 쓴 댓글</h1>
     <br>
-    <table class="table">
+    <table class="comment-table">
         <tbody>
             <% comments.forEach(comment => { %>
             <tr>
@@ -92,5 +53,4 @@
             &gt;
         <% } %> 
     </div>
-</body>
-</html>
+</div>
