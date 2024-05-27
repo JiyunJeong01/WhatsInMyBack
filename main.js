@@ -1,10 +1,4 @@
-<<<<<<< HEAD
-require('dotenv').config();
-
-=======
 require('dotenv').config(); //DB정보 담고 있는 환경변수 파일 생성
->>>>>>> 96fabed6c1d1ebb2097eb8b34bf170f324951ace
-const profileController = require("./controllers/profileController");
 
 const express = require("express"), //애플리케이션에 express 모듈 추가
   app = express(), //app에 express 웹 서버 애플리케이션 할당
@@ -12,20 +6,12 @@ const express = require("express"), //애플리케이션에 express 모듈 추�
   layouts = require("express-ejs-layouts"), //모듈 설치
   homeController = require("./controllers/homeController"),
   errorController = require("./controllers/errorController"),
+  profileController = require("./controllers/profileController"),
   mysql = require("mysql2/promise"),
-<<<<<<< HEAD
-  methodOverride = require("method-override"),
-  session = require("express-session"),
-  flash = require("connect-flash");
-  validator = require('validator');
-=======
   session = require("express-session"),
   flash = require("connect-flash"),
   validator = require('validator'),
-
-
   methodOverride = require("method-override");
->>>>>>> 96fabed6c1d1ebb2097eb8b34bf170f324951ace
 
 // DB connection
 exports.connection = async () => {
@@ -80,11 +66,6 @@ router.use(express.json());
 router.get("/", homeController.index);
 
 /*프로필 라우팅*/
-<<<<<<< HEAD
-router.get("/profile/:userId/collectComment/:pageId",profileController.collectComment);
-router.get("/profile/:userId/collectBookmark/:pageId",profileController.collectBookmark);
-router.get("/profile/:userId/collectLike/:pageId",profileController.collectLike);
-=======
 /*프로필 라우팅 방법 정리 필요 */
 router.get("/profile/:id", profileController.profile, profileController.profileShow);
 router.delete("/profile/:id/:follow", profileController.unfollow);
@@ -92,17 +73,12 @@ router.put("/profile/:id/:follow", profileController.follow);
 router.get("/profile/:id/collectBookmark", profileController.collectBookmark, profileController.collectBookmarkShow);
 router.get("/profile/:id/collectLike", profileController.collectLike, profileController.collectLikeShow);
 router.get("/profile/:userId/collectComment/:pageId",profileController.collectComment);
->>>>>>> 96fabed6c1d1ebb2097eb8b34bf170f324951ace
 router.get("/profile/:userId/profileModified",profileController.profileModified_GET);
 router.post("/profile/:userId/profileModified",profileController.profileModified_POST);
 router.get("/profile/:userId/pwModified", profileController.passwordModified_GET);
 router.post("/profile/:userId/pwModified", profileController.passwordModified_POST);
 router.get("/profile/:userId/cancleAccount", profileController.unregister_GET);
 router.post("/profile/:userId/cancleAccount", profileController.unregister_POST);
-<<<<<<< HEAD
-router.get("/profile/:userId/:pageId", profileController.profile);
-=======
->>>>>>> 96fabed6c1d1ebb2097eb8b34bf170f324951ace
 
 /*에러 라우팅*/
 router.use(errorController.logErrors);
