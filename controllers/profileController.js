@@ -196,6 +196,16 @@ module.exports = {
                 return res.redirect(`/profile/${userId}/profileModified`);
             }
 
+            if (nickname.length > 8) {
+                req.flash('error', '닉네임은 8글자 이하로 입력하세요.');
+                return res.redirect(`/profile/${userId}/profileModified`);
+            }
+    
+            if (username.length > 12) {
+                req.flash('error', '이름은 12글자 이하로 입력하세요.');
+                return res.redirect(`/profile/${userId}/profileModified`);
+            }
+
             if (!validator.isNumeric(age)) {
                 req.flash('error', '나이는 숫자로 입력하세요.');
                 return res.redirect(`/profile/${userId}/profileModified`);
@@ -247,6 +257,11 @@ module.exports = {
                 req.flash('error', '모든 필드를 채워주세요.');
                 return res.redirect(`/profile/${userId}/pwModified`);
             }
+
+            if (new_password.length < 6) {
+                req.flash('error', '새 비밀번호는 6글자 이상이어야 합니다.');
+                return res.redirect(`/profile/${userId}/pwModified`);
+            }    
 
             if (await Member.checkPassword(userId, current_password)) {
                 if (new_password === confirm_password) {
