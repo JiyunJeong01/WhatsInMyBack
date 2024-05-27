@@ -74,7 +74,7 @@ exports.increasedViews = async (postId) => {
         await db.query(sql, [postId]);
 
     } catch (error) {
-        console.error("Post.Post.increasedViews() 쿼리 실행 중 오류:", error);
+        console.error("Post.increasedViews() 쿼리 실행 중 오류:", error);
     }
 };
 
@@ -106,6 +106,60 @@ exports.findAllPreviews = async () => {
         return rows;
 
     } catch (error) {
-        console.error("Post.Post.findAllWithMember() 쿼리 실행 중 오류:", error);
+        console.error("Post.findAllWithMember() 쿼리 실행 중 오류:", error);
+    }
+}
+
+
+
+exports.findByQueryAndSortBy = async (query, sortBy) => {
+    try {
+        const db = await require('../main').connection();        
+
+        let sql = `
+            SELECT 
+                p.post_id,
+                p.post_title,
+                p.post_content,
+                p.hashtags,
+                p.theme_id,
+                p.created_at,
+                p.views,
+                m.nickname,
+                m.picture_base64,
+                (SELECT COUNT(*) FROM comment WHERE post_id = p.post_id) AS comment_count,
+                (SELECT COUNT(*) FROM bookmark WHERE post_id = p.post_id) AS bookmark_count,
+                (SELECT COUNT(*) FROM post_like WHERE post_id = p.post_id) AS like_count,
+                (SELECT image_base64 FROM post_image WHERE post_id = p.post_id AND image_id = 1 LIMIT 1) AS thumbnail
+            FROM 
+                post p 
+            JOIN 
+                member m ON p.member_id = m.member_id
+            WHERE 
+                CONCAT(p.post_title, p.post_content, p.hashtags) LIKE ?
+            ORDER BY
+            `;
+
+            switch (sortBy) {
+                case 'date':
+                    sql = sql + `p.created_at DESC`;
+                    break;
+                case 'likes':
+                    sql = sql + `p.views DESC`;
+                    break;
+                case 'views':
+                    sql = sql + `(SELECT COUNT(*) FROM post_like WHERE post_id = p.post_id) DESC`;
+                    break;
+                default:
+                    sql = sql + `p.created_at DESC`;
+                    break;
+            }
+            console.log(sql);
+
+        const [rows] = await db.query(sql, [`%${query}%`]);
+        return rows.length > 0 ? rows : null;
+
+    } catch (error) {
+        console.error("Post.findByQueryAndSortBy() 쿼리 실행 중 오류:", error);
     }
 }

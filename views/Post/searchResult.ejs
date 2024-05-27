@@ -1,7 +1,14 @@
 <%- include('../layouts/main') %>
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1>게시글</h1>
-  <a href="/post/new" class="btn btn-outline-dark">New Post</a>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4>게시글 - <%= query %> 검색 결과  </h4>
+    <select id="sortSelect" onchange="sortPosts()">
+        <option value="latest">최신순</option>
+        <option value="views">조회순</option>
+        <option value="likes">좋아요순</option>
+    </select>
+  </div>
 </div>
 
 <% if (Previews.length === 0) { %>
@@ -35,3 +42,13 @@
 <% } %>
 
 <input type="hidden" id="Datas" value='<%= JSON.stringify(Previews) %>'>
+
+<script>
+
+    function sortPosts() {
+        var sortValue = document.getElementById("sortSelect").value;
+        var query = encodeURIComponent(document.getElementById("query").value);
+        window.location.href = "/search/" + sortValue + "/?query=" + query;
+    }
+
+</script>
