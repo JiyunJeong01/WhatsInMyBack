@@ -1,5 +1,6 @@
 <%- include('../layouts/main') %>
 <h1><%= post.post_title %></h1>
+<p>조회수 <%= post.views %></p>
 <div class="d-flex align-items-center mb-3">
   <img src="<%= member.profile_picture %>" alt="Profile Picture" class="rounded-circle mr-3" style="width: 50px; height: 50px" />
   <div>
@@ -18,6 +19,66 @@
 </div>
 <% } %>
 <hr />
+
+
+<!--좋아요/북마크-->
+<div class="d-flex justify-content-end mb-3">
+  <button id="likeButton" class="btn btn-outline-success btn-sm mr-2">
+    좋아요 (<span id="likeCount"><%= post.like_count %></span>)
+  </button>
+  <button id="bookmarkButton" class="btn btn-outline-info btn-sm">
+    북마크 (<span id="likeCount"><%= post.bookmark_count %></span>)
+  </button>
+</div>
+
+<script>
+  const likeButton = document.getElementById('likeButton');
+  const bookmarkButton = document.getElementById('bookmarkButton');
+  const likeCount = document.getElementById('likeCount');
+  const postId = post.post_id;
+  const memberId = member.member_id; 
+
+  likeButton.addEventListener('click', async () => {
+    try {
+      const response = await fetch(`/post/${postId}/like`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ postId, memberId })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        likeCount.innerText = result.like_count;
+        likeButton.textContent = result.liked ? '좋아요 취소' : '좋아요';
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  });
+
+  bookmarkButton.addEventListener('click', async () => {
+    try {
+    const action = bookmarkButton.textContent.includes('취소') ? 'remove' : 'add';
+    const response = await fetch(`/post/${postId}/bookmark/${action}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ postId, memberId })
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      bookmarkButton.textContent = result.bookmarked ? '북마크 취소' : '북마크';
+      alert(result.bookmarked ? '북마크가 설정되었습니다.' : '북마크가 해제되었습니다.');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  }
+});
+</script>
 
 <!-- 수정 및 삭제 버튼 -->
 <div class="d-flex justify-content-end mb-3">
@@ -106,11 +167,8 @@
   }
 </script>
 
-
-<!---->
-
-
 <h4>댓글 목록</h4>
+<p><%= post.comment_count %></p>
 <div id="comment-list">
   <!-- 기존 댓글 렌더링 코드 -->
   <% if (comments.length === 0) { %>

@@ -339,7 +339,7 @@
             .then(data => {
                 if (data.success) {
                 console.log('Success:', data);
-                window.location.href = data.redirect; // 서버로부터 받은 리디렉션 URL로 이동
+                window.location.href = data.redirect; // 서버로부터 받은 리디렉션 URL로 이동 
             } else {
                 console.error('Failed to register post:', data.error);
                 window.location.href = data.redirect;
