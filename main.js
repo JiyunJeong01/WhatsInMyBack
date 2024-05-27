@@ -10,7 +10,6 @@ const express = require("express"), //애플리케이션에 express 모듈 추�
   mysql = require("mysql2/promise"),
   session = require("express-session"),
   flash = require("connect-flash"),
-  validator = require('validator'),
   methodOverride = require("method-override");
 
 // DB connection
