@@ -61,7 +61,7 @@
 .left-column image {
     display: inline-block;
 }
-.form-group {
+.setting-form-group {
     margin-bottom: 20px;
     text-align: left;
 }
@@ -69,18 +69,18 @@
     width: 470px;
     position: relative;
 }
-.form-group form {
+.setting-form-group form {
     width: 470px;
     display: flex;
     align-items: center;
     position: relative;
 }
-.form-group label {
+.setting-form-group label {
                 display: block;
                 margin-bottom: 5px;
 }
-.form-group input[type="text"],
-.form-group input[type="integer"] {
+.setting-form-group input[type="text"],
+.setting-form-group input[type="integer"] {
     width: 450px;
     height: 20px;
     padding: 10px;
@@ -89,7 +89,7 @@
     border-radius: 20px;
     cursor: pointer;
 }
-.form-group textarea {
+.setting-form-group textarea {
     width: 450px;
     padding: 10px;
     height: 60px;
@@ -101,12 +101,12 @@
     font-family: Arial, sans-serif;
     font-size: 13px;
 }
-.form-group button {
+.setting-form-group button {
     border: 1px solid #C5C5C5;
     border-radius: 20px;
     cursor: pointer;
 }
-.form-group a{
+.setting-form-group a{
     border: 1px solid #C5C5C5;
     border-radius: 20px;
     cursor: pointer;
