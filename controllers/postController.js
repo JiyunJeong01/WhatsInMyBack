@@ -55,7 +55,8 @@ exports.registerPost = async (req, res) => {
             await ProductModel.create(productData);
         }
         
-        res.redirect(`/post/${savedPostId}/detail`);
+        return res.json({ success: true, redirect: `/post/${savedPostId}/detail` });
+        //return res.redirect(`/post/${savedPostId}/detail`);
     } catch (error) {        
         console.error("포스트 등록 중 오류:", error);
         res.status(500).json({ error: '서버 오류가 발생했습니다.' });
@@ -70,17 +71,13 @@ exports.editPost = async (req, res) => {
 
         // 로그인 되어있음 -> if(게시글 작성자id  == 로그인된 사용자id)
         // member id 모델에 등록
-        const memberId = 4; // 임시 
-
-        // 테마 받아오기 
-        const themes = await ThemeModel.findAll();
+        const memberId = 4; // 임시         
 
         // 게시글 정보 받아오기 
-        const post = await PostModel.findByPostId(postId);
-        // if (post == null) 
+        const themes = await ThemeModel.findAll(); // 테마 받아오기 
+        const post = await PostModel.findByPostId(postId); // if (post == null) 
         const images = await ImageModel.findByPostId(postId); 
         const products = await ProductModel.findByPostId(postId); 
-
 
         // 기존 데이터를 페이지 객체에 저장
         const pages = {};
@@ -88,13 +85,7 @@ exports.editPost = async (req, res) => {
             if (!pages[post_image.image_id]) {
                 pages[post_image.image_id] = { products: [], image: '' };
             }
-
-            // Buffer 객체를 base64 문자열로 변환
-            //pages[post_image.image_id].image = post_image.image_base64.toString('base64');
-
-            // Buffer로 전송
             pages[post_image.image_id].image = post_image.image_base64;
-
         });
         products.forEach(function(product) {
             if (!pages[product.image_id]) {
@@ -109,7 +100,6 @@ exports.editPost = async (req, res) => {
         });
 
         console.log(pages);
-        //res.render(`Post/imageTest`, { memberId, themes, post, pages });
         res.render(`Post/editPost`, { memberId, themes, post, pages });
  
     } catch (error) {
@@ -118,6 +108,7 @@ exports.editPost = async (req, res) => {
     }
 }
 
+// 게시글 수정
 exports.updatePost = async (req, res) => {
     try {
         // if member_id가 null -> response 로그인 페이지 
@@ -136,7 +127,9 @@ exports.updatePost = async (req, res) => {
     }
 }
 
+// 게시글 삭제
 
+// 게시글 
 exports.getPostDetail = async (req, res) => {
     try {
         console.log(req.url);
@@ -151,14 +144,9 @@ exports.getPostDetail = async (req, res) => {
         await PostModel.increasedViews(postId); // 조회수++
 
         const post = await PostModel.findByPostId(postId);
-        console.log(post);
-        console.log(post.member_id);
         const member = await MemberModel.findByMemberId(post.member_id);
         const comments = await CommentModel.findByPostId(postId);
     
-    
-        // 좋아요, 북마크 숫자 전송
-
         res.render('Post/post-detail', { post, member, comments })
 
     } catch (error) {
@@ -168,7 +156,31 @@ exports.getPostDetail = async (req, res) => {
 }
 
 // 좋아요 
-// 북마크
+
+
+// 북마크 추가
+exports.post = async (req, res) => { //:postId 필요함?
+    try {
+        const { postId, memberId } = req.body;
+
+        // 북마크 모델.추가
+        return res.json({ bookmarked: true });
+    } catch (error) {
+        console.error("북마크 오류:", error);
+    }
+  }
+  
+  // 북마크 삭제
+  exports.post = async (req, res) => {
+    try {
+        const { postId, memberId } = req.body;
+
+        // 북마크 모델.삭제
+        return res.json({ bookmarked: false });
+    } catch (error) {
+        console.error("북마크 오류:", error);
+    }
+  }
 
 
 //검색
