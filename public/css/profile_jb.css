@@ -21,6 +21,8 @@
     margin: auto;
     display: flex;
     flex-direction: column;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
 }
 .body-container {
     display: flex;
@@ -191,6 +193,8 @@
     padding: 0;
     max-width: 1000px;
     margin: auto;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
 }
 .comment-table {
     width: 100%;
@@ -229,6 +233,8 @@
     padding: 0;
     max-width: 1000px;
     margin: auto;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
 }
 .password-form {
     display: table-cell;
@@ -267,6 +273,8 @@
     padding: 0;
     max-width: 1000px;
     margin: auto;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
 }
 .unregister-form {
     display:table-cell;
