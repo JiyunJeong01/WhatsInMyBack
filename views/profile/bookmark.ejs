@@ -1,0 +1,30 @@
+<div class="collect_container">
+    <h1>북마크한 글</h1>
+    <div class="collect_user">
+        <div class="profilePhoto" style=" cursor: pointer;" onclick="location.href='/profile/<%= member.member_id %>';">
+            <img src="https://mblogthumb-phinf.pstatic.net/MjAyMTA5MjBfMjM5/MDAxNjMyMTA3ODMwNDY3.lav9M9WIJhXyFFzx6TBHTOa38F6KxBJvLPwym1nu5J0g.aCiuGlZBo_wkFHKTJjUaAeLX1sZVQE6VcReLMnUPdCEg.PNG.adasa69/%EA%B9%80%EA%B3%A0%EC%9D%801.png?type=w800"
+                alt="프로필 이미지">
+        </div>
+        <h1>
+            <%= member.nickname %>
+        </h1>
+    </div>
+    <div class="feed">
+        <div id="card" class="row row-cols-1 row-cols-md-3 g-4">
+            <% bookmarks.forEach(bookmark=> { %>
+                <div class="col">
+                    <div class="post">
+                        <div class="postPhoto">
+                            <img src="https://2.bp.blogspot.com/-svDfXHlWFXc/UxWxzy1zzXI/AAAAAAAACAE/3NmmqvGgnjo/s1600/[Whats+in+my+bag+blogger].jpg"
+                                alt="게시글 이미지">
+                        </div>
+                        <h5 class="post_title"><%= bookmark.post_title %>
+                        </h5>
+                        <p class="card-text"><%= bookmark.theme_name %>
+                        </p>
+                    </div>
+                </div>
+                <% }); %>
+        </div>
+    </div>
+</div>
