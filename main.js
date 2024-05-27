@@ -65,12 +65,11 @@ router.use(express.json());
 router.get("/", homeController.index);
 
 /*프로필 라우팅*/
-/*프로필 라우팅 방법 정리 필요 */
-router.get("/profile/:id", profileController.profile, profileController.profileShow);
-router.delete("/profile/:id/:follow", profileController.unfollow);
-router.put("/profile/:id/:follow", profileController.follow);
-router.get("/profile/:id/collectBookmark", profileController.collectBookmark, profileController.collectBookmarkShow);
-router.get("/profile/:id/collectLike", profileController.collectLike, profileController.collectLikeShow);
+router.get("/profile/:userId", profileController.profile, profileController.profileShow);
+router.delete("/profile/:userId/:follow", profileController.unfollow);
+router.put("/profile/:userId/:follow", profileController.follow);
+router.get("/profile/:userId/collectBookmark", profileController.collectBookmark, profileController.collectBookmarkShow);
+router.get("/profile/:userId/collectLike", profileController.collectLike, profileController.collectLikeShow);
 router.get("/profile/:userId/collectComment/:pageId",profileController.collectComment);
 router.get("/profile/:userId/profileModified",profileController.profileModified_GET);
 router.post("/profile/:userId/profileModified",profileController.profileModified_POST);
