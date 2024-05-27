@@ -4,7 +4,7 @@
         <div class="left-column">
             <div class="big-circle">
                 <div class="small-circle">
-                    <img id="profileImage" src="/public/images/default_profile.jpg">
+                    <img id="profileImage">
                 </div>
             </div>
             <br>
@@ -51,7 +51,7 @@
                         <button type="button" class="button-gender <%= (userInfo.gender === 'female') ? 'active' : '' %>" onclick="selectGender(this, 'female')">여성</button>
                         <button type="button" class="button-gender <%= (userInfo.gender === 'other') ? 'active' : '' %>" onclick="selectGender(this, 'other')">기타</button>
                     </div>
-                    <input type="hidden" id="gender" name="gender" value="<%= userInfo.gender %>">
+                    <input type="hidden" id="selected-gender" name="gender" value="<%= userInfo.gender %>">
                 </div>
                 <div class="setting-form-group">
                     <label for="theme">관심 테마 설정</label>
@@ -107,10 +107,10 @@
                 </div>
                 <br>
                 <div class="setting-form-group">
-                    <a href="/profile/<%= userId %>/pwModified">비밀번호 변경</a>
+                    <a href="/profile/<%= userId %>/pwModified" style="color: black; text-decoration: none;">비밀번호 변경</a>
                 </div>
                 <div class="setting-form-group">
-                    <a href="/profile/<%= userId %>/cancleAccount">회원 탈퇴</a>
+                    <a href="/profile/<%= userId %>/cancleAccount" style="color: black; text-decoration: none;">회원 탈퇴</a>
                 </div>
                 <br>
                 <br>
