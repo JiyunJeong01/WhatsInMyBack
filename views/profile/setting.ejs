@@ -127,10 +127,15 @@
 <script>
     window.addEventListener('DOMContentLoaded', (event) => {
         const profileImage = document.getElementById('profileImage');
+        const pictureBase64Input = document.getElementById('picture_base64');
         const userInfo = '<%- JSON.stringify(userInfo) %>';
 
-        if (document.getElementById('picture_base64').value) {
-            profileImage.src = document.getElementById('picture_base64').value;
+        if (pictureBase64Input && pictureBase64Input.value) {
+            profileImage.src = pictureBase64Input.value;
+        } else {
+
+            const defaultImagePath = "/public/images/default_profile.jpg"
+            profileImage.src = defaultImagePath;
         }
     });
     function previewImage(input) {
