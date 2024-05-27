@@ -55,7 +55,7 @@ exports.registerPost = async (req, res) => {
             await ProductModel.create(productData);
         }
         
-        res.redirect(`/post/${savedPostId}`);
+        res.redirect(`/post/${savedPostId}/detail`);
     } catch (error) {        
         console.error("포스트 등록 중 오류:", error);
         res.status(500).json({ error: '서버 오류가 발생했습니다.' });
@@ -88,7 +88,13 @@ exports.editPost = async (req, res) => {
             if (!pages[post_image.image_id]) {
                 pages[post_image.image_id] = { products: [], image: '' };
             }
+
+            // Buffer 객체를 base64 문자열로 변환
+            //pages[post_image.image_id].image = post_image.image_base64.toString('base64');
+
+            // Buffer로 전송
             pages[post_image.image_id].image = post_image.image_base64;
+
         });
         products.forEach(function(product) {
             if (!pages[product.image_id]) {
@@ -103,7 +109,8 @@ exports.editPost = async (req, res) => {
         });
 
         console.log(pages);
-        res.render(`Post/editPost`, { memberId, themes, post, pages, images });
+        //res.render(`Post/imageTest`, { memberId, themes, post, pages });
+        res.render(`Post/editPost`, { memberId, themes, post, pages });
  
     } catch (error) {
         console.error("게시글 수정 페이지 반환 중 오류:", error);
@@ -162,3 +169,23 @@ exports.getPostDetail = async (req, res) => {
 
 // 좋아요 
 // 북마크
+
+
+//검색
+exports.findQuery = async (req, res) => {
+    try {
+        const query = req.query.query;
+        const sortBy = req.params.sortBy;
+
+        results = await PostModel.findByQueryAndSortBy(query, sortBy);
+
+        console.log(results);
+
+        res.render('Post/searchResult', { Previews : results, sortBy, query });
+
+    } catch (error) {
+        console.error("게시글 보기 중 오류:", error);
+        res.status(500).json({ error: '서버 오류가 발생했습니다.' });
+    }
+}
+
