@@ -1,20 +1,77 @@
-const db = require("../models/index"),
-comment = db.comment;
-member = db.member;
-preference = db.preference;
+const db = require("../models/Index"),
+Comment = db.Comment,
+Member = db.Member,
+Preference = db.Preference;
+
 
 module.exports = {
-    profile: (req, res) => {
-        res.render("profile/main");
+    /*지윤 작업 부분*/ 
+    profile: async (req, res, next) => {
+        let userId = req.params.id;
+        await Member.findById(userId)
+            .then(member => {
+                res.locals.member = member;
+            })
+            .catch(error => {
+                console.log(`Error fetching member by ID: ${error.message}`);
+                next(error);
+            });
+        await Member.findFolloweeById(userId)
+            .then(followees => {
+                res.locals.followees = followees;
+            })
+            .catch(error => {
+                console.log(`Error fetching member by ID: ${error.message}`);
+                next(error);
+            });
+        await Member.findFollowerById(userId)
+            .then(followers => {
+                res.locals.followers = followers;
+            })
+            .catch(error => {
+                console.log(`Error fetching member by ID: ${error.message}`);
+                next(error);
+            });
+        await Member.findAllPostById(userId)
+            .then(posts => {
+                res.locals.posts = posts;
+                next();
+            })
+            .catch(error => {
+                console.log(`Error fetching member by ID: ${error.message}`);
+                next(error);
+            });
     },
 
+    profileShow: (req, res) => {
+        if (!res.locals.member) {
+            res.status(404).send('Member not found');
+            return;
+        }
+        res.render('profile/main', {
+            member: res.locals.member
+        });
+    },
+
+    follow: (req, res) => {
+        let userId = req.params.id;
+        let followId = req.params.follow;
+        Member.findFollowAndAdd(userId, followId);
+    },
+
+    unfollow: (req, res) => {
+        let userId = req.params.id;
+        let followId = req.params.follow;
+        Member.findFollowAndDelete(userId, followId);
+    },
+    /*정빈 작업 부분 */
     //세션 이용해서 접근 중인 사용자와 userId가 일치하는지 확인하는 작업 필요 -> 로그인 구현 이후에 가능할듯
     collectComment: async (req, res, next) => {
         try {
             const userId = req.params.userId;
             let pageId = req.params.pageId;
     
-            const comments = await comment.findCommentWithUser(userId);
+            const comments = await Comment.findCommentWithUser(userId);
 
             if(comments.length === 0) {
                 res.locals.userId = userId;
@@ -37,22 +94,76 @@ module.exports = {
             next(error);
         };
     },
-
-    collectBookmark: (req, res) => {
-        res.render("profile/bookmark");
+    /*지윤 작업 부분 */
+    collectBookmark: async (req, res, next) => {
+        let userId = req.params.id;
+        await Member.findById(userId)
+            .then(member => {
+                res.locals.member = member;
+            })
+            .catch(error => {
+                console.log(`Error fetching member by ID: ${error.message}`);
+                next(error);
+            });
+        await Member.findAllBookmarkById(userId)
+            .then(bookmarks => {
+                res.locals.bookmarks = bookmarks;
+                next();
+            })
+            .catch(error => {
+                console.log(`Error fetching member by ID: ${error.message}`);
+                next(error);
+            });
     },
 
-    collectLike: (req, res) => {
-        res.render("profile/like");
+    collectBookmarkShow: (req, res) => {
+        if (!res.locals.member) {
+            res.status(404).send('Member not found');
+            return;
+        }
+        res.render('profile/bookmark', {
+            member: res.locals.member
+        });
     },
 
+    collectLike: async (req, res, next) => {
+        let userId = req.params.id;
+        await Member.findById(userId)
+            .then(member => {
+                res.locals.member = member;
+            })
+            .catch(error => {
+                console.log(`Error fetching member by ID: ${error.message}`);
+                next(error);
+            });
+        await Member.findAllLikeById(userId)
+            .then(likes => {
+                res.locals.likes = likes;
+                next();
+            })
+            .catch(error => {
+                console.log(`Error fetching member by ID: ${error.message}`);
+                next(error);
+            });
+    },
+    
+    collectLikeShow: (req, res) => {
+        if (!res.locals.member) {
+            res.status(404).send('Member not found');
+            return;
+        }
+        res.render('profile/like', {
+            member: res.locals.member
+        });
+    },
+
+    /*정빈 작업부분 */
     profileModified_GET: async (req, res, next) => {
         try {
             const userId = req.params.userId;
             res.locals.userId = userId;
-    
-            const userInfo = await member.loadMember(userId);
-            const userTheme = await preference.loadTheme(userId);
+            const userInfo = await Member.loadMember(userId);
+            const userTheme = await Preference.loadTheme(userId);
             res.locals.userInfo = userInfo[0]
             res.locals.userTheme = userTheme
             res.render("profile/setting");
@@ -66,7 +177,7 @@ module.exports = {
         try {
             const userId = req.params.userId;
             const { email, nickname, username, bio, job, age, gender, theme, comment_notification, like_notification, follow_notification, recommend_notification, picture_base64 } = req.body;
-    
+
             if (!email || !nickname || !username || !job || !age || !gender) {
                 let errorMessage = '모든 필드를 채워주세요: ';
                 if (!email) errorMessage += '이메일, ';
@@ -79,33 +190,33 @@ module.exports = {
                 req.flash('error', errorMessage);
                 return res.redirect(`/profile/${userId}/profileModified`);
             }
-    
+
             if (!validator.isEmail(email)) {
                 req.flash('error', '올바른 이메일 주소를 입력하세요.');
                 return res.redirect(`/profile/${userId}/profileModified`);
             }
-    
+
             if (!validator.isNumeric(age)) {
                 req.flash('error', '나이는 숫자로 입력하세요.');
                 return res.redirect(`/profile/${userId}/profileModified`);
             }
-    
-            const existingUserWithEmail = await member.getUserByEmail(email);
+
+            const existingUserWithEmail = await Member.getUserByEmail(email);
             if (existingUserWithEmail && existingUserWithEmail.member_id != userId) {
                 req.flash('error', '이미 사용 중인 이메일입니다.');
                 return res.redirect(`/profile/${userId}/profileModified`);
             }
-        
-            const existingUserWithNickname = await member.getUserByNickname(nickname);
+
+            const existingUserWithNickname = await Member.getUserByNickname(nickname);
             if (existingUserWithNickname && existingUserWithNickname.member_id != userId) {
                 req.flash('error', '이미 사용 중인 닉네임입니다.');
                 return res.redirect(`/profile/${userId}/profileModified`);
             }
-    
-            if ((await member.updateMember(userId, username, nickname, email, age, gender, job, follow_notification, like_notification, comment_notification, recommend_notification, picture_base64, bio))
-                & (await preference.updateTheme(userId, theme))) {
+
+            if ((await Member.updateMember(userId, username, nickname, email, age, gender, job, follow_notification, like_notification, comment_notification, recommend_notification, picture_base64, bio))
+                & (await Preference.updateTheme(userId, theme))) {
                 req.flash('success', '프로필 정보가 수정되었습니다.');
-                return res.redirect(`/profile/${userId}/1`);
+                return res.redirect(`/profile/${userId}`);
             } else {
                 req.flash('error', '오류가 발생했습니다.');
                 return res.redirect(`/profile/${userId}/profileModified`);
@@ -115,7 +226,7 @@ module.exports = {
             next(error);
         };
     },
-    
+
     passwordModified_GET: async (req, res, next) => {
         try {
             const userId = req.params.userId;
@@ -137,9 +248,9 @@ module.exports = {
                 return res.redirect(`/profile/${userId}/pwModified`);
             }
 
-            if (await member.checkPassword(userId, current_password)) {
+            if (await Member.checkPassword(userId, current_password)) {
                 if (new_password === confirm_password) {
-                    if (await member.updatePassword(userId, new_password)) {
+                    if (await Member.updatePassword(userId, new_password)) {
                         req.flash('success', '비밀번호가 재설정되었습니다.');
                         return res.redirect(`/profile/${userId}/profileModified`);
                     } else {
@@ -159,6 +270,7 @@ module.exports = {
             next(error);
         };
     },
+
 
     unregister_GET : async (req, res, next) => {
         try {
@@ -186,8 +298,8 @@ module.exports = {
                 return res.redirect(`/profile/${userId}/cancleAccount`);
             }
 
-            if (await member.checkPassword(userId, current_password)) {
-                if (await member.deleteMember(userId)) {
+            if (await Member.checkPassword(userId, current_password)) {
+                if (await Member.deleteMember(userId)) {
                     req.flash('success', '회원을 탈퇴했습니다.');
                     return res.redirect(`/`);
                 } else {

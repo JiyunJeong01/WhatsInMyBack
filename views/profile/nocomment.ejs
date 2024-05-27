@@ -1,36 +1,10 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="UTF-8">
-<meta .name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-    body {
-        margin: 0;
-        padding: 0;
-        max-width: 1000px;
-        margin: auto;
-    }
-    h1 {
-        margin-left: 0;
-    }
-    .center-container {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        height: calc(100vh - 300px);
-        text-align: center;
-    }
-</style>
-</head>
-<body>
+<div class = comment-body>
     <h1>내가 쓴 댓글</h1>
     <br>
     <div class="center-container">
         <p>작성한 댓글이 없습니다.</p>
-        <a href="/profile/<%= userId %>/1" style="text-decoration: none; color: #000000; background-color: #F8F8F8; padding: 10px; border-radius: 5px;">
+        <a href="/profile/<%= userId %>" style="text-decoration: none; color: #000000; background-color: #F8F8F8; padding: 10px; border-radius: 5px;">
             프로필로 돌아가기
         </a>
     </div>
-</body>
-</html>
+</div>

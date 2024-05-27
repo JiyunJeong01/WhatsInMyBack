@@ -8,13 +8,12 @@ exports.loadTheme = async (userId) => {
     catch (error) {
         console.error("쿼리 실행 중 오류:", error);
     };
-}
+};
 
 exports.updateTheme = async (userId, themes) => {
     try {
         const db = await require('../main').connection();
         const themeNames = themes.split(',').map(theme => theme.trim());
-        
         await db.query('DELETE FROM preference WHERE member_id = ?', [userId]);
 
         for (const themeName of themeNames) {
@@ -29,4 +28,4 @@ exports.updateTheme = async (userId, themes) => {
     catch (error) {
         console.error("쿼리 실행 중 오류:", error);
     };
-}
+};
