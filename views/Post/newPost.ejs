@@ -236,6 +236,7 @@
             if (!pages[currentPage]) {
                 pages[currentPage] = { products: [], image: '' };
             }
+            
             pages[currentPage].products = products;
             localStorage.setItem('pages', JSON.stringify(pages));
         }
@@ -311,6 +312,7 @@
                     });
                 }
 
+
                 data.products.forEach(product => {
                     productsData.push({
                         product_name: product.name,
@@ -335,13 +337,19 @@
             })
             .then(response => response.json())
             .then(data => {
+                if (data.success) {
                 console.log('Success:', data);
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                // 에러 시 처리 로직 추가
-            });
-        }
+                window.location.href = data.redirect; // 서버로부터 받은 리디렉션 URL로 이동 
+            } else {
+                console.error('Failed to register post:', data.error);
+                window.location.href = data.redirect;
+            }
+        })
+        .catch((error) => {
+            console.error('Network Error:', error);
+            window.location.href = data.redirect;
+        });
+    }
     </script>
 </body>
 </html>
