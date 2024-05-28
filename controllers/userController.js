@@ -1,3 +1,4 @@
+const bcrypt = require('bcrypt');
 const UserModel = require('../models/User');
 const ThemeModel = require('../models/Theme');
 
@@ -31,9 +32,11 @@ exports.signup = async (req, res) => {
     const genderValue = gender === '남' ? 'male' : gender === '여' ? 'female' : '';
 
     try {
+        const hashedPassword = await bcrypt.hash(password, 10); // 비밀번호 해싱 
+
         const user = {
             email,
-            password,
+            password: hashedPassword,
             username,
             nickname,
             job,
@@ -76,7 +79,8 @@ exports.login = async (req, res) => {
         }
 
         // 비밀번호가 일치하지 않는 경우
-        if (user.password !== password) {
+        const passwordMatch = await bcrypt.compare(password, user.password);    // 비밀번호 비교
+        if (!passwordMatch) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
 
