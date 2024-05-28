@@ -20,7 +20,7 @@ exports.signupPage = async (req, res) => {
 
 // POST: 회원가입 데이터 처리
 exports.signup = async (req, res) => {
-    const { email, password, username, nickname, job, gender, age } = req.body;
+    const { email, password, username, nickname, job, gender, age, themes } = req.body;
 
     // 입력 데이터 검증
     if (!email || !password || !username || !nickname || !job || !gender || !age) {
@@ -42,6 +42,11 @@ exports.signup = async (req, res) => {
         };
 
         const memberId = await UserModel.createUser(user);
+        
+        for (const themeId of themes) {
+            await UserModel.addPreference(memberId, themeId);
+        }
+
         res.status(201).json({ message: 'User created successfully', memberId });
     } catch (error) {
         res.status(500).json({ error: error.message });

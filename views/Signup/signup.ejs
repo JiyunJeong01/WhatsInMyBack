@@ -88,7 +88,7 @@
                 <div class="title">관심 테마 설정</div>
                 <div id="theme_list">
                     <% themes.forEach(function(theme) { %>
-                        <span class="tag"><%= theme.theme_name %></span>
+                        <span class="tag" data-theme-id="<%= theme.theme_id %>"><%= theme.theme_name %></span>
                     <% }); %>
                 </div>
                 <button type="submit" class="signup-button" id="signup-button" disabled>가입하기</button>
@@ -105,7 +105,7 @@
                 birthYearSelect.appendChild(option);
             }
 
-            // 태그와 테마 클릭 이벤트
+            // 테마 클릭 이벤트
             document.querySelectorAll('.tag').forEach(tag => {
                 tag.addEventListener('click', () => {
                     tag.classList.toggle('selected');
@@ -141,6 +141,9 @@
                 if (signupButton.disabled) return;
 
                 const age = currentYear - birthYear.value;
+                const selectedThemes = Array.from(document.querySelectorAll('.tag.selected'))
+                                        .map(tag => tag.getAttribute('data-theme-id'));
+
                 const userData = {
                     email: email.value,
                     password: password.value,
@@ -148,9 +151,11 @@
                     nickname: nickname.value,
                     job: job.value,
                     gender: gender.value,
-                    age: age
+                    age: age,
+                    themes: selectedThemes
                 };
 
+                // 서버로 데이터 전송하는 부분
                 fetch('/signup', {
                     method: 'POST',
                     headers: {
