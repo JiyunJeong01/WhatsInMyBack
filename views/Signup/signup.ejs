@@ -48,6 +48,10 @@
             font-weight: bold;
             cursor: pointer;
         }
+        .signup-button:disabled {
+            background-color: grey;
+            cursor: not-allowed;
+        }
         .tag {
             display: inline-block;
             padding: 5px 10px;
@@ -65,49 +69,109 @@
 <body>
     <div class="container">
         <div class="title">회원가입</div>
-        <input type="text" class="input-field" placeholder="아이디">
-        <input type="password" class="input-field" placeholder="비밀번호">
-        <input type="password" class="input-field" placeholder="비밀번호 확인">
-        <input type="text" class="input-field" placeholder="닉네임">
-        <select class="dropdown">
-            <option value="" disabled selected>직업</option>
-            <!-- 직업 옵션을 여기에 추가하세요 -->
-        </select>
-        <select class="dropdown">
-            <option value="" disabled selected>성별</option>
-            <!-- 성별 옵션을 여기에 추가하세요 -->
-        </select>
-        <select class="dropdown">
-            <option value="" disabled selected>출생연도</option>
-            <!-- 출생연도 옵션을 여기에 추가하세요 -->
-        </select>
-        <div class="container">
-            <!-- 기존 입력 필드 -->
-            <div class="title">관심태그 설정</div>
-            <div id="tags">
-                <span class="tag">#개발자</span>
-                <span class="tag">#디자이너</span>
-                <span class="tag">#초등교사</span>
-                <span class="tag">#마케터</span>
-                <!-- 추가 태그 -->
+        <form id="signup-form">
+            <input type="text" class="input-field" id="email" placeholder="이메일">
+            <input type="password" class="input-field" id="password" placeholder="비밀번호">
+            <input type="password" class="input-field" id="password-confirm" placeholder="비밀번호 확인">
+            <input type="text" class="input-field" id="username" placeholder="이름">
+            <input type="text" class="input-field" id="nickname" placeholder="닉네임">
+            <input type="text" class="input-field" id="job" placeholder="직업">
+            <select id="gender" class="dropdown">
+                <option value="" disabled selected>성별</option>
+                <option value="남">남</option>
+                <option value="여">여</option>
+            </select>
+            <select id="birth-year" class="dropdown">
+                <option value="" disabled selected>출생연도</option>
+            </select>
+            <div class="container">
+                <div class="title">관심 테마 설정</div>
+                <div id="theme_list">
+                    <% themes.forEach(function(theme) { %>
+                        <span class="tag"><%= theme.theme_name %></span>
+                    <% }); %>
+                </div>
+                <button type="submit" class="signup-button" id="signup-button" disabled>가입하기</button>
             </div>
-            <div class="title">관심 테마 설정</div>
-            <div id="themes">
-                <span class="tag">학교생활</span>
-                <span class="tag">패션</span>
-                <span class="tag">시험기간</span>
-                <span class="tag">직장생활</span>
-                <!-- 추가 테마 -->
-            </div>
-            <button class="signup-button">가입하기</button>
-        </div>
+        </form>
         <script>
+            // 출생연도 드롭다운 메뉴에 1980년부터 2024년까지 추가
+            const birthYearSelect = document.getElementById('birth-year');
+            const currentYear = new Date().getFullYear();
+            for (let year = 1980; year <= currentYear; year++) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                birthYearSelect.appendChild(option);
+            }
+
             // 태그와 테마 클릭 이벤트
             document.querySelectorAll('.tag').forEach(tag => {
                 tag.addEventListener('click', () => {
                     tag.classList.toggle('selected');
                 });
             });
+
+            // 회원가입 버튼 활성화/비활성화
+            const form = document.getElementById('signup-form');
+            const signupButton = document.getElementById('signup-button');
+            const email = document.getElementById('email');
+            const password = document.getElementById('password');
+            const passwordConfirm = document.getElementById('password-confirm');
+            const username = document.getElementById('username');
+            const nickname = document.getElementById('nickname');
+            const job = document.getElementById('job');
+            const gender = document.getElementById('gender');
+            const birthYear = document.getElementById('birth-year');
+
+            // 폼 필드에 입력할 때마다 실행
+            form.addEventListener('input', () => {
+                const allFieldsFilled = email.value && password.value && passwordConfirm.value &&
+                                        username.value && nickname.value && job.value && gender.value &&
+                                        birthYear.value;
+                const passwordsMatch = password.value === passwordConfirm.value;
+
+                signupButton.disabled = !(allFieldsFilled && passwordsMatch);
+            });
+
+            // 회원가입 버튼을 눌렀을 때 실행
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                if (signupButton.disabled) return;
+
+                const age = currentYear - birthYear.value;
+                const userData = {
+                    email: email.value,
+                    password: password.value,
+                    username: username.value,
+                    nickname: nickname.value,
+                    job: job.value,
+                    gender: gender.value,
+                    age: age
+                };
+
+                fetch('/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(userData)
+                }).then(response => {
+                    if (response.ok) {
+                        alert('회원가입이 완료되었습니다.');
+                        window.location.href = '/';
+                    } else {
+                        return response.json().then(error => {
+                            alert('회원가입에 실패했습니다: ' + error.message);
+                        });
+                    }
+                }).catch(error => {
+                    console.error('Error:', error);
+                    alert('회원가입에 실패했습니다!!');
+                });
+            });
+
         </script>
     </div>
 </body>

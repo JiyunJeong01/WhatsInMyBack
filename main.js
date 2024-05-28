@@ -2,24 +2,22 @@ const express = require("express"), //애플리케이션에 express 모듈 추�
     app = express(), //app에 express 웹 서버 애플리케이션 할당
     router = express.Router(),
     layouts = require("express-ejs-layouts"), //모듈 설치
-    // postController = require("./controllers/postController"),
     homeController = require("./controllers/homeController"),
     errorController = require("./controllers/errorController"),
     userController = require("./controllers/userController")
-    
     mysql = require('mysql2/promise'),
-    
     methodOverride = require("method-override");
 
 // DB connection
+require('dotenv').config();
 exports.connection = async () => {
     try {
         const db = await mysql.createPool({
-            host: 'localhost',
-            user: 'root',
-            password: 'root',
-            port: 3306,
-            database: 'nodejs',
+            host: process.env.DB_HOST,
+            user: process.env.DB_USER,
+            password: process.env.DB_PW,
+            port: process.env.DB_PORT,
+            database: process.env.DB_NAME,
             waitForConnections: true,
             insecureAuth: true
         });
@@ -50,9 +48,10 @@ router.use(
 router.use(express.json());
 
 router.get("/", homeController.index);
-// app.get("/post/:id", postController.showPost);
-router.get("/login", userController.login);
-router.get("/signup", userController.signup);
+router.get("/login", userController.loginPage);
+router.get("/signup", userController.signupPage);
+router.post("/signup", userController.signup);
+router.post("/login", userController.login);
 
 
 
