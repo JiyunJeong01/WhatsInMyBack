@@ -3,122 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <title>새 게시글 작성</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
-        /* 기본 스타일 설정 */
-        body {
-            font-family: Arial, sans-serif;
-        }
-        .container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .content {
-            display: flex;
-            width: 100%;
-            margin-top: 20px;
-        }
-        .left, .right {
-            flex: 1;
-            padding: 10px;
-        }
-        .left {
-            border-right: 1px solid #ccc;
-        }
         .section {
             margin-bottom: 20px;
         }
         .section img {
             max-width: 100%;
         }
-        .upload-section {
-            border: 2px solid rgb(0, 0, 0);
-            padding: 10px;
-        }
-        .detail-section {
-            border: 2px solid rgb(0, 0, 0);
-            padding: 10px;
-        }
-        .product-section {
+        .upload-section, .detail-section, .product-section {
             border: 2px solid rgb(0, 0, 0);
             padding: 10px;
         }
         .product-item {
             margin-bottom: 10px;
         }
-        .pagination {
-            display: flex;
-            justify-content: center;
-            margin-top: 10px;
+        .img-container img {
+            width: 900px;
+            height: auto;
         }
-        .pagination button {
-            margin: 0 5px;
+        .page-link {
+            color: black !important; /* 검은색으로 설정 */
         }
+           
+            
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>글쓰기</h1>
+        <h1 class="my-4">글쓰기</h1>
         <form id="postForm" action="/post/register" method="post" enctype="multipart/form-data">
-            <!-- 주제 선택 박스 -->
-            <div class="section">
+            <div class="form-group">
                 <label for="theme_id">테마 선택:</label>
-                <select name="theme_id" id="theme_id">
+                <select class="form-control" name="theme_id" id="theme_id">
                     <% themes.forEach(function(theme) { %>
                         <option value="<%= theme.theme_id %>"><%= theme.theme_name %></option>
                     <% }); %>
                 </select>
             </div>
-            <!-- 제목 입력 -->
-            <div class="section">
+            <div class="form-group">
                 <label for="title">여기에 제목:</label>
-                <input type="text" id="title" name="post_title" required>
+                <input type="text" class="form-control" id="title" name="post_title" required>
             </div>
-            <!-- 멤버 ID 숨김 필드 -->
             <input type="hidden" name="member_id" value="<%= memberId %>">
-            <div class="content">
-                <!-- 왼쪽 영역 -->
-                <div class="left">
-                    <!-- 이미지 업로드 및 상세 제품 영역 -->
+            <div class="row">
+                <div class="col-md-6">
                     <div id="imagePage">
-                        <div class="upload-section">
+                        <div class="upload-section mb-3">
                             <label>이미지 업로드 창</label>
-                            <input type="file" id="image" onchange="previewImage(event)">
-                            <div id="uploadedImage">
-                                <!-- 업로드 후 이미지 미리보기 영역 -->
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="image" onchange="previewImage(event)">
+                                <label class="custom-file-label" for="image">파일 선택</label>
                             </div>
+                            <div id="uploadedImage" class="mt-3"></div>
                         </div>
                         <div class="detail-section">
                             <label>상세 제품 목록</label>
-                            <div id="productList">
-                                <!-- 상세 제품 목록 표시 영역 -->
-                            </div>
-                            <button type="button" onclick="addProduct()">제품 추가</button>
+                            <div id="productList"></div>
+                            <button type="button" class="btn btn-dark" onclick="addProduct()">제품 추가</button>
                         </div>
                     </div>
-                    <!-- 페이지 넘기기 버튼 -->
-                    <div class="pagination">
-                        <button type="button" onclick="prevPage()">이전</button>
-                        <span id="pageNumber">1</span>
-                        <button type="button" onclick="nextPage()">다음</button>
-                    </div>
+                    <nav aria-label="Page navigation" class="mt-3">
+                        <ul class="pagination">
+                            <li class="page-item"><a class="page-link" href="#" onclick="prevPage()">이전</a></li>
+                            <li class="page-item"><span class="page-link" id="pageNumber">1</span></li>
+                            <li class="page-item"><a class="page-link" href="#" onclick="nextPage()">다음</a></li>
+                        </ul>
+                    </nav>
                 </div>
-                <!-- 오른쪽 영역 -->
-                <div class="right">
-                    <div class="section">
+                <div class="col-md-6">
+                    <div class="form-group">
                         <label for="content">여기에 내용:</label>
-                        <textarea id="content" name="post_content" required></textarea>
+                        <textarea class="form-control" id="content" name="post_content" rows="10" required></textarea>
                     </div>
-                    <div class="section">
+                    <div class="form-group">
                         <label for="hashtags">해시태그 입력 칸:</label>
-                        <input type="text" id="hashtags" name="hashtags">
+                        <input type="text" class="form-control" id="hashtags" name="hashtags">
                     </div>
                 </div>
             </div>
-            <!-- 저장된 데이터 전송 -->
-            <button type="button" onclick="submitForm()">게시하기</button>
+            <button type="button" class="btn btn-dark" onclick="submitForm()">게시하기</button>
         </form>
     </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
         // 페이지 번호 관리 변수 및 페이지 데이터 저장용 객체
         let currentPage = 1;
@@ -128,20 +97,22 @@
         function addProduct() {
             const productList = document.getElementById('productList');
             const productItem = document.createElement('div');
-            productItem.className = 'product-item';
+            productItem.className = 'product-item input-group';
             productItem.innerHTML = `
-                <input type="text" name="product_name[]" placeholder="제품명">
-                <input type="text" name="product_category[]" placeholder="제품 카테고리">
-                <input type="text" name="product_brand[]" placeholder="제품 브랜드">
-                <input type="text" name="product_link[]" placeholder="구매 링크">
-                <button type="button" onclick="removeProduct(this)">삭제</button>
+                <input type="text" class="form-control" name="product_name[]" placeholder="제품명">
+                <input type="text" class="form-control" name="product_category[]" placeholder="제품 카테고리">
+                <input type="text" class="form-control" name="product_brand[]" placeholder="제품 브랜드">
+                <input type="text" class="form-control" name="product_link[]" placeholder="구매 링크">
+                <div class="input-group-append">
+                    <button type="button" class="btn btn-dark" onclick="removeProduct(this)">삭제</button>
+                </div>
             `;
             productList.appendChild(productItem);
         }
 
         // 제품 삭제 함수
         function removeProduct(button) {
-            const productItem = button.parentElement;
+            const productItem = button.parentElement.parentElement;
             productItem.remove();
         }
 
@@ -157,8 +128,10 @@
                     imgContainer.className = 'img-container';
                     const img = document.createElement('img');
                     img.src = e.target.result;
+                    img.className = 'img-fluid';
                     const removeButton = document.createElement('button');
                     removeButton.textContent = '삭제';
+                    removeButton.className = 'btn btn-dark mt-2';
                     removeButton.onclick = () => removeImage(currentPage);
                     imgContainer.appendChild(img);
                     imgContainer.appendChild(removeButton);
@@ -253,13 +226,15 @@
                 const pageData = pages[currentPage];
                 pageData.products.forEach(product => {
                     const productItem = document.createElement('div');
-                    productItem.className = 'product-item';
+                    productItem.className = 'product-item input-group';
                     productItem.innerHTML = `
-                        <input type="text" name="product_name[]" value="${product.name}" placeholder="제품명">
-                        <input type="text" name="product_category[]" value="${product.category}" placeholder="제품 카테고리">
-                        <input type="text" name="product_brand[]" value="${product.brand}" placeholder="제품 브랜드">
-                        <input type="text" name="product_link[]" value="${product.link}" placeholder="구매 링크">
-                        <button type="button" onclick="removeProduct(this)">삭제</button>
+                        <input type="text" class="form-control" name="product_name[]" value="${product.name}" placeholder="제품명">
+                        <input type="text" class="form-control" name="product_category[]" value="${product.category}" placeholder="제품 카테고리">
+                        <input type="text" class="form-control" name="product_brand[]" value="${product.brand}" placeholder="제품 브랜드">
+                        <input type="text" class="form-control" name="product_link[]" value="${product.link}" placeholder="구매 링크">
+                        <div class="input-group-append">
+                            <button type="button" class="btn btn-dark" onclick="removeProduct(this)">삭제</button>
+                        </div>
                     `;
                     productList.appendChild(productItem);
                 });
@@ -271,8 +246,10 @@
                     imgContainer.className = 'img-container';
                     const img = document.createElement('img');
                     img.src = imageData;
+                    img.className = 'img-fluid';
                     const removeButton = document.createElement('button');
                     removeButton.textContent = '삭제';
+                    removeButton.className = 'btn btn-dark mt-2';
                     removeButton.onclick = () => removeImage(currentPage);
                     imgContainer.appendChild(img);
                     imgContainer.appendChild(removeButton);
