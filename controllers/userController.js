@@ -84,8 +84,15 @@ exports.login = async (req, res) => {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
 
+        // 로그인 성공 시, 세션에 사용자 정보 저장
+        req.session.user = {
+            id: user.member_id,
+            email: user.email,
+            username: user.username
+        }
+
         // 로그인 성공
-        res.redirect('/signup'); // 회원가입 페이지로 리디렉션
+        res.redirect('/'); // 로그인 성공 후 메인 페이지로 리디렉션
     } catch (error) {
         console.error("로그인 중 오류:", error);
         res.status(500).json({ error: 'Failed to log in' });
