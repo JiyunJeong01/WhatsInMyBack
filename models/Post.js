@@ -62,10 +62,50 @@ exports.create = async (post) => {
     }
 };
 
+exports.update = async (post) => {
+    try {
+        const db = await require('../main').connection(); 
+
+        let sql = `
+            UPDATE post 
+            SET theme_id = ?,
+                post_title = ?,
+                post_content = ?,
+                hashtags = ?,
+                updated_at =  NOW()
+            WHERE post_id = ?;
+            `;
+        await db.query(sql, [
+            post.theme_id,
+            post.post_title,
+            post.post_content,
+            post.hashtags,
+            post.post_id
+        ]);
+        return;
+
+    } catch (error) {
+        console.error("Post.registerPost() 쿼리 실행 중 오류:", error);
+    }
+}
+
+exports.delete = async (postId) => {
+    try {
+        const db = await require('../main').connection(); 
+
+        let sql = `DELETE FROM post WHERE post_id = ?`;
+        await db.query(sql, [postId]);
+        return;
+
+    } catch (error) {
+        console.error("Post.registerPost() 쿼리 실행 중 오류:", error);
+    }
+}
+
 
 // 검색어 검색 쿼리
 
-// 
+// 조회수 증가 
 exports.increasedViews = async (postId) => {
     try {
         const db = await require('../main').connection(); 
