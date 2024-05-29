@@ -10,21 +10,30 @@
         </h1>
     </div>
     <div class="feed">
-        <div id="card" class="row row-cols-1 row-cols-md-3 g-4">
-            <% likes.forEach(like=> { %>
-                <div class="col">
-                    <div class="post">
-                        <div class="postPhoto">
-                            <img src="https://2.bp.blogspot.com/-svDfXHlWFXc/UxWxzy1zzXI/AAAAAAAACAE/3NmmqvGgnjo/s1600/[Whats+in+my+bag+blogger].jpg"
-                                alt="게시글 이미지">
+        <% if (likes.length !== 0) { %>
+            <div id="card" class="row row-cols-1 row-cols-md-3 g-4">
+                <% likes.forEach(like=> { %>
+                    <div class="col">
+                        <div class="post">
+                            <div class="postPhoto">
+                                <img src="https://2.bp.blogspot.com/-svDfXHlWFXc/UxWxzy1zzXI/AAAAAAAACAE/3NmmqvGgnjo/s1600/[Whats+in+my+bag+blogger].jpg"
+                                    alt="게시글 이미지">
+                            </div>
+                            <h5 class="post_title"><%= like.post_title %>
+                            </h5>
+                            <p class="card-text"><%= like.theme_name %>
+                            </p>
                         </div>
-                        <h5 class="post_title"><%= like.post_title %>
-                        </h5>
-                        <p class="card-text"><%= like.theme_name %>
-                        </p>
                     </div>
-                </div>
-                <% }); %>
-        </div>
+                    <% }); %>
+            </div>
+        <% } else { %>
+            <div class="center-container">
+                <p>좋아요한 게시글이 없습니다.</p>
+                <a href="/profile/<%= member.member_id %>" style="text-decoration: none; color: #000000; background-color: #F8F8F8; padding: 10px; border-radius: 5px;">
+                    프로필로 돌아가기
+                </a>
+            </div>
+        <% }; %>
     </div>
 </div>

@@ -59,20 +59,26 @@
     </div>
     <div class="right">
         <div class="post_container">
-            <div id="card" class="row row-cols-1 row-cols-md-2 g-4">
-                <% posts.forEach(post=> { %>
-                    <div class="col">
-                        <div class="post">
-                            <div class="postPhoto">
-                                <img src="https://2.bp.blogspot.com/-svDfXHlWFXc/UxWxzy1zzXI/AAAAAAAACAE/3NmmqvGgnjo/s1600/[Whats+in+my+bag+blogger].jpg"
-                                alt="게시글 이미지">
+            <% if (posts.length !== 0) { %>
+                <div id="card" class="row row-cols-1 row-cols-md-2 g-4">
+                    <% posts.forEach(post=> { %>
+                        <div class="col">
+                            <div class="post">
+                                <div class="postPhoto">
+                                    <img src="https://2.bp.blogspot.com/-svDfXHlWFXc/UxWxzy1zzXI/AAAAAAAACAE/3NmmqvGgnjo/s1600/[Whats+in+my+bag+blogger].jpg"
+                                    alt="게시글 이미지">
+                                </div>
+                                <h5 class="post_title"><%= post.post_title %></h5>
+                                <p class="card-text"><%= post.theme_name %></p>
                             </div>
-                            <h5 class="post_title"><%= post.post_title %></h5>
-                            <p class="card-text"><%= post.theme_name %></p>
                         </div>
+                        <% }); %>
+                </div>
+                <% } else { %>
+                    <div class="center-container">
+                        <p>작성한 게시글이 없습니다.</p>
                     </div>
-                    <% }); %>
-            </div>
+                <% }; %>
         </div>
 
     </div>
