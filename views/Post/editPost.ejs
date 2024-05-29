@@ -1,3 +1,5 @@
+<%- include('../layouts/main') %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,7 +12,7 @@
         .container {
             display: flex;
             flex-direction: column;
-            align-items: center;
+            margin-bottom: 40px;
         }
         .content {
             display: flex;
@@ -23,45 +25,57 @@
         }
         .left {
             border-right: 1px solid #ccc;
+            width: 70%;
         }
         .section {
             margin-bottom: 20px;
         }
-        .section img {
-            max-width: 100%;
-        }
-        .upload-section {
-            border: 2px solid orange;
+        .upload-section, .detail-section, .product-section {
             padding: 10px;
+            margin-bottom: 10px;
+            width: 40%;
         }
-        .detail-section {
-            border: 2px solid skyblue;
-            padding: 10px;
-        }
-        .product-section {
-            border: 2px solid green;
-            padding: 10px;
+        .upload-section img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
         }
         .product-item {
             margin-bottom: 10px;
         }
-        .pagination {
+        .button-group {
             display: flex;
-            justify-content: center;
-            margin-top: 10px;
+            justify-content: space-between;
         }
-        .pagination button {
-            margin: 0 5px;
+        .upload-detail-container {
+            display: flex;
+            justify-content: space-between;
+        }
+        .upload-detail-container > div {
+            flex: 1;
+            margin-right: 10px;
+        }
+        .upload-detail-container > div:last-child {
+            margin-right: 0;
+        }
+        textarea {
+            width: 100%;
+            height: 50vh;
+            box-sizing: border-box;
+        }
+        input[type="text"] {
+            width: 100%;
+            height: 40px;
+            box-sizing: border-box;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>게시글 수정</h1>
-        <form id="postForm" action="/post/update" method="post" enctype="multipart/form-data">
-            <!-- 게시글 ID 숨김 필드 -->
-            <input type="hidden" name="post_id" value="<%= post.post_id %>">
-            <!-- 주제 선택 박스 -->
+        <h1>게시글 수정</h1><hr>
+        <form id="postForm" action="/post/update" method="put" enctype="multipart/form-data">
+            <input type="hidden" id="pages" value='<%= JSON.stringify(pages) %>'>
+            <input type="hidden" id="post_id" value='<%= JSON.stringify(post.post_id) %>'>
             <div class="section">
                 <label for="theme_id">테마 선택:</label>
                 <select name="theme_id" id="theme_id">
@@ -70,46 +84,46 @@
                     <% }); %>
                 </select>
             </div>
-            <!-- 제목 입력 -->
             <div class="section">
                 <label for="title">제목:</label>
                 <input type="text" id="title" name="post_title" value="<%= post.post_title %>" required>
             </div>
-            <!-- 멤버 ID 숨김 필드 -->
-            <input type="hidden" name="member_id" value="<%= memberId %>">
             <div class="content">
-                <!-- 왼쪽 영역 -->
                 <div class="left">
-                    <!-- 이미지 업로드 및 상세 제품 영역 -->
-                    <div id="imagePage">
-                        <div class="upload-section">
-                            <label>이미지 업로드 창</label>
-                            <input type="file" id="image" onchange="previewImage(event)">
-                            <div id="uploadedImage">
-                                <% Object.keys(pages).forEach(function(pageId) { %>
-                                    <% if (pages[pageId].image) { %>
-                                        <div class="img-container" data-page="<%= pageId %>">
-                                            <img src="<%= pages[pageId].image %>" alt="이미지">
-                                            <button type="button" onclick="removeImage(pageId)">삭제</button>
-                                        </div>
+                    <hr>
+                    <% Object.keys(pages).forEach(function(key) { %>
+                        <div class="upload-detail-container" data-index="<%= key %>">
+                            <div class="upload-section">
+                                <label>이미지 업로드 창</label>
+                                <input type="file" onchange="previewImage(event, '<%= key %>')">
+                                <div id="uploadedImage<%= key %>">
+                                    <% if (pages[key].image) { %>
+                                        <img src="<%= pages[key].image %>" alt="Uploaded Image">
+                                        <button class="btn btn-outline-dark" type="button" onclick="removeImage('<%= key %>')">삭제</button>
                                     <% } %>
-                                <% }); %>
+                                </div>
+                            </div>
+                            <div class="detail-section">
+                                <label>상세 제품 목록</label>
+                                <div id="productList<%= key %>">
+                                    <hr>
+                                    <% pages[key].products.forEach(function(product) { %>
+                                        <div class="product-item">
+                                            <small class="text-muted">제품명: <input type="text" name="product_name_<%= key %>[]", value="<%= product.name %>" placeholder="제품명" style="height: 30px;"></small>
+                                            <small class="text-muted">제품카테고리: <input type="text" name="product_category_<%= key %>[]", value="<%= product.category %>" placeholder="제품 카테고리" style="height: 30px;"></small>
+                                            <small class="text-muted">제품브랜드: <input type="text" name="product_brand_<%= key %>[]", value="<%= product.brand %>" placeholder="제품 브랜드" style="height: 30px;"></small>
+                                            <small class="text-muted">제품링크: <input type="text" name="product_link_<%= key %>[]", value="<%= product.link %>" placeholder="구매 링크" style="height: 30px;"></small>
+                                            <button class="btn btn-outline-dark" type="button" onclick="removeProduct(this)">삭제</button>
+                                        </div>
+                                        <hr>
+                                    <% }); %>
+                                </div>
+                                <button class="btn btn-outline-dark" type="button" onclick="addProduct('<%= key %>')">제품 추가</button>
                             </div>
                         </div>
-                        <div class="detail-section">
-                            <label>상세 제품 목록</label>
-                            <div id="productList"></div>
-                            <button type="button" onclick="addProduct()">제품 추가</button>
-                        </div>
-                    </div>
-                    <!-- 페이지 넘기기 버튼 -->
-                    <div class="pagination">
-                        <button type="button" onclick="prevPage()">이전</button>
-                        <span id="pageNumber">1</span>
-                        <button type="button" onclick="nextPage()">다음</button>
-                    </div>
+                        <hr>
+                    <% }); %>
                 </div>
-                <!-- 오른쪽 영역 -->
                 <div class="right">
                     <div class="section">
                         <label for="content">내용:</label>
@@ -121,224 +135,127 @@
                     </div>
                 </div>
             </div>
-            <!-- 저장된 데이터 전송 -->
-            <button type="button" onclick="submitForm()">수정하기</button>
+            <div class="button-group">
+                <button class="btn btn-outline-dark" type="button" onclick="addPage()">페이지 추가</button>
+                <hr>
+                <button class="btn btn-outline-dark" type="button" onclick="submitForm()">수정하기</button>
+            </div>
         </form>
     </div>
 
-    <input type="hidden" id="pages" value='<%= JSON.stringify(pages) %>'>
-
     <script>
-        // 페이지 번호 관리 변수 및 페이지 데이터 저장용 객체
-        let currentPage = 1;
-        let pages = {};
+        let pages = JSON.parse(document.getElementById('pages').value);
 
-        window.onload = function() {
-            pages = JSON.parse(document.getElementById('pages').value);
-
-        //     function bufferToBase64(buffer) {
-        //     const binary = [];
-        //     const bytes = new Uint8Array(buffer.data);
-        //     for (let i = 0; i < bytes.byteLength; i++) {
-        //         binary.push(String.fromCharCode(bytes[i]));
-        //     }
-        //     return window.btoa(binary.join(''));
-        // }
-
-            Object.keys(pages).forEach(pageId => {
-                if (pages[pageId].image) {
-                   console.log(pages[pageId].image);
-                }
-            });
-
-            loadPageData();
-        };
-
-
-        function loadPageData() {
-            const productList = document.getElementById('productList');
-            const uploadedImage = document.getElementById('uploadedImage');
-            productList.innerHTML = ''; // 기존 제품 목록 초기화
-            uploadedImage.innerHTML = ''; // 기존 이미지 미리보기 초기화
-
-            // 이미지 불러오기
-            if (pages[currentPage] && pages[currentPage].image) {
-                const imgContainer = document.createElement('div');
-                imgContainer.className = 'img-container';
-                const img = document.createElement('img');
-
-                //img.src = pages[currentPage].image;
-                img.src = 'data:image/jpeg;base64,' + pages[currentPage].image;
-                
-                const removeButton = document.createElement('button');
-                removeButton.textContent = '삭제';
-                removeButton.onclick = () => removeImage(currentPage);
-                imgContainer.appendChild(img);
-                imgContainer.appendChild(removeButton);
-                uploadedImage.appendChild(imgContainer);
-            }
-
-            // 제품 목록 불러오기
-            if (pages[currentPage] && pages[currentPage].products) {
-                pages[currentPage].products.forEach(product => {
-                    const productItem = document.createElement('div');
-                    productItem.className = 'product-item';
-                    productItem.innerHTML = `
-                        <input type="text" name="product_name[]" value="${product.name}" placeholder="제품명">
-                        <input type="text" name="product_category[]" value="${product.category}" placeholder="제품 카테고리">
-                        <input type="text" name="product_brand[]" value="${product.brand}" placeholder="제품 브랜드">
-                        <input type="text" name="product_link[]" value="${product.link}" placeholder="구매 링크">
-                        <button type="button" onclick="removeProduct(this)">삭제</button>
-                    `;
-                    productList.appendChild(productItem);
-                });
-            }
-        }
-
-        // 페이지 넘기기 함수
-        function nextPage() {
-            saveCurrentPageData();
-            currentPage++;
-            updatePageNumber();
-            loadPageData();
-        }
-
-        function prevPage() {
-            if (currentPage > 1) {
-                saveCurrentPageData();
-                currentPage--;
-                updatePageNumber();
-                loadPageData();
-            }
-        }
-
-        function updatePageNumber() {
-            document.getElementById('pageNumber').innerText = currentPage;
-        }
-
-        // 현재 페이지 데이터 저장 함수
-        function saveCurrentPageData() {
-            const productList = document.getElementById('productList');
-            const products = [];
-            productList.querySelectorAll('.product-item').forEach(item => {
-                const productName = item.querySelector('input[name="product_name[]"]').value;
-                const productCategory = item.querySelector('input[name="product_category[]"]').value;
-                const productBrand = item.querySelector('input[name="product_brand[]"]').value;
-                const productLink = item.querySelector('input[name="product_link[]"]').value;
-                products.push({
-                    name: productName,
-                    category: productCategory,
-                    brand: productBrand,
-                    link: productLink,
-                    page: currentPage
-                });
-            });
-            if (!pages[currentPage]) {
-                pages[currentPage] = { products: [], image: '' };
-            }
-            pages[currentPage].products = products;
-        }
-
-        // 제품 추가 함수
-        function addProduct() {
-            const productList = document.getElementById('productList');
+        function addProduct(pageIndex) {
+            const productList = document.getElementById('productList' + pageIndex);
             const productItem = document.createElement('div');
             productItem.className = 'product-item';
             productItem.innerHTML = `
-                <input type="text" name="product_name[]" placeholder="제품명">
-                <input type="text" name="product_category[]" placeholder="제품 카테고리">
-                <input type="text" name="product_brand[]" placeholder="제품 브랜드">
-                <input type="text" name="product_link[]" placeholder="구매 링크">
+                <input type="text" name="product_name_${pageIndex}[]" placeholder="제품명">
+                <input type="text" name="product_category_${pageIndex}[]" placeholder="제품 카테고리">
+                <input type="text" name="product_brand_${pageIndex}[]" placeholder="제품 브랜드">
+                <input type="text" name="product_link_${pageIndex}[]" placeholder="구매 링크">
                 <button type="button" onclick="removeProduct(this)">삭제</button>
             `;
             productList.appendChild(productItem);
         }
 
-        // 제품 삭제 함수
         function removeProduct(button) {
             const productItem = button.parentElement;
             productItem.remove();
         }
 
-        // 이미지 미리보기 및 저장 함수
-        function previewImage(event) {
+        function previewImage(event, pageIndex) {
             const imageInput = event.target;
-            const uploadedImage = document.getElementById('uploadedImage');
-            uploadedImage.innerHTML = ''; // 이전 이미지 초기화
-
+            const uploadedImage = document.getElementById('uploadedImage' + pageIndex);
+            uploadedImage.innerHTML = '';
             if (imageInput.files && imageInput.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    const imgContainer = document.createElement('div');
-                    imgContainer.className = 'img-container';
                     const img = document.createElement('img');
                     img.src = e.target.result;
                     const removeButton = document.createElement('button');
                     removeButton.textContent = '삭제';
-                    removeButton.onclick = () => removeImage(currentPage);
-                    imgContainer.appendChild(img);
-                    imgContainer.appendChild(removeButton);
-                    uploadedImage.appendChild(imgContainer);
+                    removeButton.onclick = () => removeImage(pageIndex);
+                    uploadedImage.appendChild(img);
+                    uploadedImage.appendChild(removeButton);
 
-                    // 이미지 데이터를 페이지 객체에 저장
-                    saveImageToPage(currentPage, e.target.result);
+                    pages[pageIndex].image = e.target.result;
                 };
                 reader.readAsDataURL(imageInput.files[0]);
             }
         }
 
-        // 이미지 데이터를 페이지 객체에 저장
-        function saveImageToPage(page, imageData) {
-            if (!pages[page]) {
-                pages[page] = { products: [], image: '' };
-            }
-            pages[page].image = imageData;
+        function removeImage(pageIndex) {
+            pages[pageIndex].image = '';
+            document.getElementById('uploadedImage' + pageIndex).innerHTML = '';
         }
 
-        // 페이지 객체에서 이미지 데이터 삭제
-        function removeImage(page) {
-            if (pages[page]) {
-                pages[page].image = '';
-                document.getElementById('uploadedImage').innerHTML = '';
-            }
+        function addPage() {
+            const pageIndex = Object.keys(pages).length + 1;
+            pages[pageIndex] = { image: '', products: [] };
+            const leftSection = document.querySelector('.left');
+            const uploadDetailContainer = document.createElement('div');
+            uploadDetailContainer.className = 'upload-detail-container';
+            uploadDetailContainer.dataset.index = pageIndex;
+
+            const uploadSection = document.createElement('div');
+            uploadSection.className = 'upload-section';
+            uploadSection.innerHTML = `
+                <label>이미지 업로드 창</label>
+                <input type="file" onchange="previewImage(event, ${pageIndex})">
+                <div id="uploadedImage${pageIndex}"></div>
+            `;
+            const detailSection = document.createElement('div');
+            detailSection.className = 'detail-section';
+            detailSection.innerHTML = `
+                <label>상세 제품 목록</label>
+                <div id="productList${pageIndex}"></div>
+                <button type="button" onclick="addProduct(${pageIndex})">제품 추가</button>
+            `;
+
+            uploadDetailContainer.appendChild(uploadSection);
+            uploadDetailContainer.appendChild(detailSection);
+            leftSection.appendChild(uploadDetailContainer);
         }
 
-        // 폼 데이터 전송 함수
-        function submitForm() {
-            saveCurrentPageData(); // 현재 페이지 데이터 저장
+        async function submitForm() {
             const postData = {
-                post_id: document.querySelector('input[name="post_id"]').value,
-                member_id: document.querySelector('input[name="member_id"]').value,
+                post_id: document.getElementById('post_id').value,
                 theme_id: document.querySelector('select[name="theme_id"]').value,
                 post_title: document.querySelector('input[name="post_title"]').value,
                 post_content: document.querySelector('textarea[name="post_content"]').value,
-                hashtags: document.querySelector('input[name="hashtags"]').value
+                hashtags: document.querySelector('input[name="hashtags"]').value,
             };
 
             const imagesData = [];
             const productsData = [];
 
-            for (const [page, data] of Object.entries(pages)) {
-                if (data.image) {
-                    imagesData.push({
-                        image_id: page, // page_index
-                        image_base64: data.image
+            Object.keys(pages).forEach(key => {
+                const page = pages[key];
+                imagesData.push({
+                    image_id: key,
+                    image_base64: page.image
+                });
+                
+                const productNames = document.querySelectorAll(`input[name="product_name_${key}[]"]`);
+                const productCategories = document.querySelectorAll(`input[name="product_category_${key}[]"]`);
+                const productBrands = document.querySelectorAll(`input[name="product_brand_${key}[]"]`);
+                const productLinks = document.querySelectorAll(`input[name="product_link_${key}[]"]`);
+
+                for (let i = 0; i < productNames.length; i++) {
+                    productsData.push({
+                        product_name: productNames[i].value,
+                        product_category: productCategories[i].value,
+                        brand: productBrands[i].value,
+                        purchase_link: productLinks[i].value,
+                        image_id: key
                     });
                 }
-
-                data.products.forEach(product => {
-                    productsData.push({
-                        product_name: product.name,
-                        product_category: product.category,
-                        brand: product.brand,
-                        purchase_link: product.link,
-                        image_id: page // page_index
-                    });
-                });
-            }
+            });
 
             fetch('/post/update', {
-                method: 'POST',
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
                 },
@@ -350,13 +267,20 @@
             })
             .then(response => response.json())
             .then(data => {
-                console.log('Success:', data);
+                if (data.success) {
+                    console.log('Success:', data);
+                    window.location.href = data.redirect; // 서버로부터 받은 리디렉션 URL로 이동
+                } else {
+                    console.error('Failed to update post:', data.error);
+                    // 실패 처리, 서버로부터 받은 오류 메시지를 표시할 수 있음
+                }
             })
             .catch((error) => {
-                console.error('Error:', error);
-                // 에러 시 처리 로직 추가
+                console.error('Network Error:', error);
+                // 네트워크 오류 처리, 사용자에게 네트워크 오류 메시지를 표시할 수 있음
             });
         }
+
     </script>
 </body>
 </html>

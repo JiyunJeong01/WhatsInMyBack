@@ -23,10 +23,10 @@ router.get("/:postId/detail", postController.getPostDetail);
 router.get("/search/:sortBy", postController.findQuery);
 
 
-/*
+
 // 게시글 삭제
-router.delete("/:postId", postController.deletePost);
-*/
+router.post("/:postId/delete", postController.deletePost); // delete 인식이 안되서 일단 post으로 바꿔두었습니다
+
 
 
 //댓글 작성
