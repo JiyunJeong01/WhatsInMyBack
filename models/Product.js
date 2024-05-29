@@ -35,3 +35,16 @@ exports.findByPostId = async (postId) => {
         console.error("Product.findByPostId() 쿼리 실행 중 오류:", error);
     }
 };
+
+exports.delete = async (postId) => {
+    try {
+        const db = await require('../main').connection(); 
+
+        let sql = `DELETE FROM product WHERE post_id = ?`;
+        await db.query(sql, [postId]);
+        return;
+
+    } catch (error) {
+        console.error("Post.registerPost() 쿼리 실행 중 오류:", error);
+    }
+}
