@@ -36,8 +36,7 @@ app.set("view engine", "ejs");
 app.use(session({
   secret: process.env.SECRET_KEY,
   resave: false,
-  saveUninitialized: true,
-  cookie: { secure: true }
+  saveUninitialized: true
 }));
 
 router.use(
@@ -59,8 +58,28 @@ router.use(express.json());
 router.get("/", homeController.index);
 router.get("/login", userController.loginPage);
 router.get("/signup", userController.signupPage);
-router.post("/signup", userController.signup);
 router.post("/login", userController.login);
+router.post("/signup", userController.signup);
+
+
+// 로그아웃 (임시)
+router.get('/logout', userController.logout);
+
+/////////////////////////////////////////
+// 테스트 : 세션 확인
+app.get('/session-data', (req, res) => {
+  if (req.session.user) {
+      res.json({
+          message: '세션 데이터가 있습니다.',
+          user: req.session.user
+      });
+  } else {
+      res.json({
+          message: '세션 데이터가 없습니다.'
+      });
+  }
+});
+/////////////////////////////////////////
 
 // 오류 미들웨어
 router.use(errorController.logErrors);

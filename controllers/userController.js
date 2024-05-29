@@ -18,7 +18,6 @@ exports.signupPage = async (req, res) => {
     
 };
 
-
 // POST: 회원가입 데이터 처리
 exports.signup = async (req, res) => {
     const { email, password, username, nickname, job, gender, age, themes } = req.body;
@@ -55,8 +54,6 @@ exports.signup = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
-
-
 
 ///////////////////////////////////////////
 
@@ -97,4 +94,16 @@ exports.login = async (req, res) => {
         console.error("로그인 중 오류:", error);
         res.status(500).json({ error: 'Failed to log in' });
     }
+};
+
+///////////////////////////////////////////
+
+// 로그아웃 (임시)
+exports.logout = (req, res) => {
+    req.session.destroy(err => {
+        if (err) {
+            return res.status(500).json({ error: 'Failed to log out' });
+        }
+        res.redirect('/login');
+    });
 };
