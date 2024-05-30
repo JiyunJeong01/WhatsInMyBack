@@ -45,17 +45,47 @@
             color: black;
             text-decoration: none;
         }
+        .error-message {
+            color: red;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="title">로그인</div>
-        <form action="/login" method="post">
-            <input type="text" name="email" class="input-field" placeholder="이메일">
-            <input type="password" name="password" class="input-field" placeholder="비밀번호">
+        <div id="error-message" class="error-message"></div>
+        <form id="login-form">
+            <input type="text" id="email" name="email" class="input-field" placeholder="이메일">
+            <input type="password" id="password" name="password" class="input-field" placeholder="비밀번호">
             <button type="submit" class="login-button">로그인</button>
         </form>
         <a href="/signup" class="signup-link">회원가입</a>
     </div>
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password })
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                document.getElementById('error-message').innerText = result.error;
+                document.getElementById('email').value = '';
+                document.getElementById('password').value = '';
+            } else {
+                window.location.href = '/';
+            }
+        });
+    </script>
 </body>
 </html>

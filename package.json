@@ -17,6 +17,7 @@
     "express-session": "^1.18.0",
     "http-status-codes": "^2.3.0",
     "method-override": "^3.0.0",
-    "mysql2": "^3.9.7"
+    "mysql2": "^3.9.7",
+    "validator": "^13.12.0"
   }
 }

@@ -37,7 +37,7 @@ app.use(session({
   secret: process.env.SECRET_KEY,
   resave: false,
   saveUninitialized: true,
-  cookie: { secure: true }
+  cookie: { secure: false } //임의로 변경함
 }));
 
 router.use(
