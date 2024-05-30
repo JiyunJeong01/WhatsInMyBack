@@ -13,20 +13,20 @@ router.post("/register", postController.registerPost);
 router.get('/:postId/edit', postController.editPost);
 router.put("/update", postController.updatePost);
 
-
 // 게시글 목록 조회
 router.get("/posts", postController.getPosts);
 //게시글 열람
 router.get("/:postId/detail", postController.getPostDetail);
-
 // 게시글 검색
 router.get("/search/:sortBy", postController.findQuery);
-
-
-
 // 게시글 삭제
 router.post("/:postId/delete", postController.deletePost); // delete 인식이 안되서 일단 post으로 바꿔두었습니다
 
+
+// 좋아요 등록
+router.post("/like", postController.toggleLike);
+// 북마크 등록
+router.post("/bookmark", postController.toggleBookmark);
 
 
 //댓글 작성
@@ -48,8 +48,6 @@ router.put("/:postId/comment/:commentId/reply/:replyId", commentController.updat
 // 대댓글 삭제
 router.delete("/:postId/comment/:commentId/reply/:replyId", commentController.deleteReply);
 
-// 좋아요 등록/취소
-router.post("/:postId/like", postController.toggleLike);
 */
 
 
