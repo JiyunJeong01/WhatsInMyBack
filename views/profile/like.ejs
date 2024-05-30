@@ -2,8 +2,8 @@
     <h1>좋아요한 글</h1>
     <div class="collect_user">
         <div class="profilePhoto" style=" cursor: pointer;" onclick="location.href='/profile/<%= member.member_id %>';">
-            <img src="https://mblogthumb-phinf.pstatic.net/MjAyMTA5MjBfMjM5/MDAxNjMyMTA3ODMwNDY3.lav9M9WIJhXyFFzx6TBHTOa38F6KxBJvLPwym1nu5J0g.aCiuGlZBo_wkFHKTJjUaAeLX1sZVQE6VcReLMnUPdCEg.PNG.adasa69/%EA%B9%80%EA%B3%A0%EC%9D%801.png?type=w800"
-                alt="프로필 이미지">
+            <img id="profileImage" alt="프로필 이미지">
+            <input type="hidden" id="picture_base64" name="picture_base64" value="<%= member.picture_base64 %>">
         </div>
         <h1>
             <%= member.nickname %>
@@ -37,3 +37,18 @@
         <% }; %>
     </div>
 </div>
+
+<script>
+    window.addEventListener('DOMContentLoaded', (event) => {
+        const profileImage = document.getElementById('profileImage');
+        const pictureBase64Input = document.getElementById('picture_base64');
+
+        if (pictureBase64Input && pictureBase64Input.value) {
+            profileImage.src = pictureBase64Input.value;
+        } else {
+
+            const defaultImagePath = "/images/default_profile.jpg"
+            profileImage.src = defaultImagePath;
+        }
+    });
+</script>
