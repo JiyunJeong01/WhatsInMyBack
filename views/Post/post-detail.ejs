@@ -20,8 +20,8 @@
 <% } %>
 <hr />
 
-<!-- 좋아요/북마크 -->
-<!-- 좋아요/북마크 버튼 컨테이너 -->
+
+<!--좋아요/북마크-->
 <div class="d-flex justify-content-end mb-3">
   <button id="likeButton" class="btn btn-outline-success btn-sm mr-2">
     좋아요 (<span id="likeCount"><%= post.like_count %></span>)
@@ -87,7 +87,6 @@
 
 
 
-
 <!-- 수정 및 삭제 버튼 -->
 <div class="d-flex justify-content-end mb-3">
   <a href="/post/<%= post.post_id %>/edit" class="btn btn-primary btn-sm mr-2">게시글 수정</a>
@@ -97,25 +96,10 @@
 </div>
 
 <script>
-  document.getElementById('deleteForm').onsubmit = function(event) {
-      return confirm('Are you sure you want to delete this post?');
-  };
-  </script>
+  // ... 기존 게시글 삭제 관련 스크립트 코드 ...
+</script>
 
-<!-- 댓글 입력 폼 수정 아전
-  <h4>댓글 작성</h4>
-  <form id="comment-form">
-    <div>
-      <textarea id="comment-input" placeholder="댓글을 입력하세요"></textarea>
-    </div>
-    <button type="submit">댓글 작성</button>
-  </form>
-</div>
--->
-
-
-
-<!-- 댓글 입력 폼 수정-->
+<!-- 댓글 입력 폼 -->
 <div class="mb-3">
   <h4>댓글 작성</h4>
   <form id="comment-form" class="d-flex">
@@ -127,80 +111,111 @@
 </div>
 
 <script>
-  // 댓글 작성 폼 submit 이벤트 핸들러
-  const commentForm = document.getElementById('comment-form');
-  const commentInput = document.getElementById('comment-input');
-  const commentList = document.getElementById('comment-list');
-
-  commentForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const postId = '<%= post.post_id %>'; // 게시글 ID 가져오기
-    const memberId = '1'; // 로그인한 사용자의 ID 가져오기
-    const commentContent = commentInput.value.trim();
-
-    if (!commentContent) return; // 댓글 내용이 없으면 함수 종료
-
-    try {
-      const response = await fetch(`/post/${postId}/comment`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ member_id: memberId, comment_content: commentContent }),
-      });
-
-      if (response.ok) {
-        // 댓글 렌더링 영역 업데이트
-        const newComment = await response.json();
-        renderComment(newComment);
-        commentInput.value = ''; // 입력 필드 초기화
-      } else {
-        console.error('Failed to create comment');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  });
-
-  // 새 댓글 렌더링 함수
-  function renderComment(comment) {
-    const commentElement = document.createElement('div');
-    commentElement.classList.add('list-group-item');
-    commentElement.innerHTML = `
-      <div class="d-flex align-items-center">
-        <img src="${comment.profile_picture}" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
-        <div>
-          <h6 class="mb-0">${comment.username} (${comment.nickname})</h6>
-          <small class="text-muted">${comment.created_at}</small>
-        </div>
-      </div>
-      <p class="mt-2 mb-0">${comment.comment_content}</p>
-    `;
-    commentList.appendChild(commentElement);
-  }
+  // ... 기존 댓글 작성 관련 스크립트 코드 ...
 </script>
 
 <h4>댓글 목록</h4>
 <p><%= post.comment_count %></p>
 <div id="comment-list">
-  <!-- 기존 댓글 렌더링 코드 -->
   <% if (comments.length === 0) { %>
   <p>등록된 댓글이 없습니다.</p>
   <% } else { %>
   <div class="list-group">
     <% comments.forEach(comment => { %>
+    <% if (comment.parent_comment_id === null) { %>
     <div class="list-group-item">
       <div class="d-flex align-items-center">
-        <img src="<%= comment.profile_picture %>" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
+        <img src="<%= comment.picture_base64 %>" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
         <div>
           <h6 class="mb-0"><%= comment.username %> (<%= comment.nickname %>)</h6>
           <small class="text-muted"><%= comment.created_at %></small>
         </div>
       </div>
       <p class="mt-2 mb-0"><%= comment.comment_content %></p>
+      <!-- 대댓글 작성 폼 -->
+      <div class="mt-2">
+        <a href="#" class="btn btn-sm btn-outline-secondary" onclick="showReplyForm('<%= comment.comment_id %>')">대댓글 작성</a>
+        <form id="reply-form-<%= comment.comment_id %>" class="d-none mt-2">
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="대댓글을 입력하세요">
+            <div class="input-group-append">
+              <button type="submit" class="btn btn-outline-secondary">작성</button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <!-- 대댓글 목록 -->
+      <div id="reply-list-<%= comment.comment_id %>" class="mt-2">
+        <% comment.replies.forEach(reply => { %>
+        <div class="list-group-item">
+          <div class="d-flex align-items-center">
+            <img src="<%= reply.picture_base64 %>" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
+            <div>
+              <h6 class="mb-0"><%= reply.username %> (<%= reply.nickname %>)</h6>
+              <small class="text-muted"><%= reply.created_at %></small>
+            </div>
+          </div>
+          <p class="mt-2 mb-0"><%= reply.comment_content %></p>
+        </div>
+        <% }) %>
+      </div>
     </div>
+    <% } %>
     <% }) %>
   </div>
   <% } %>
 </div>
+
+<script>
+  // 대댓글 작성 폼 표시/숨김 함수
+  function showReplyForm(commentId) {
+    const replyForm = document.getElementById(`reply-form-${commentId}`);
+    replyForm.classList.toggle('d-none');
+  }
+
+  // 대댓글 작성 폼 제출 이벤트 핸들러
+  document.querySelectorAll('[id^="reply-form-"]').forEach(form => {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const commentId = form.id.split('-')[2];
+      const replyInput = form.querySelector('input[type="text"]');
+      const replyContent = replyInput.value.trim();
+
+      if (!replyContent) return;
+
+      try {
+        const response = await fetch(`/post/<%= post.post_id %>/comment/${commentId}/reply`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ member_id: '<%= member.member_id %>', comment_content: replyContent }),
+        });
+
+        if (response.ok) {
+          const newReply = await response.json();
+          const replyList = document.getElementById(`reply-list-${commentId}`);
+          const replyElement = document.createElement('div');
+          replyElement.classList.add('list-group-item');
+          replyElement.innerHTML = `
+            <div class="d-flex align-items-center">
+              <img src="${newReply.picture_base64}" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
+              <div>
+                <h6 class="mb-0">${newReply.username} (${newReply.nickname})</h6>
+                <small class="text-muted">${newReply.created_at}</small>
+              </div>
+            </div>
+            <p class="mt-2 mb-0">${newReply.comment_content}</p>
+          `;
+          replyList.appendChild(replyElement);
+          replyInput.value = '';
+        } else {
+          console.error('Failed to create reply');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    });
+  });
+</script>
