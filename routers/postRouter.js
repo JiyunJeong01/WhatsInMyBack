@@ -38,7 +38,10 @@ router.put("/:postId/comment/:commentId", commentController.updateComment);
 //댓글 삭제
 router.delete("/:postId/comment/:commentId", commentController.deleteComment);
 
-/*
+
+
+//대댓글 라우터 수정--------
+
 // 대댓글 작성
 router.post("/:postId/comment/:commentId/reply", commentController.createReply);
 
@@ -47,6 +50,8 @@ router.put("/:postId/comment/:commentId/reply/:replyId", commentController.updat
 
 // 대댓글 삭제
 router.delete("/:postId/comment/:commentId/reply/:replyId", commentController.deleteReply);
+
+/*
 
 // 좋아요 등록/취소
 router.post("/:postId/like", postController.toggleLike);

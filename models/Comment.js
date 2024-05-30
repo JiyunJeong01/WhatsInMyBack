@@ -1,17 +1,38 @@
-// findById
+// findById 수정 = parent_comment_id가 null인 댓글만 가져온다.
+
 exports.findByPostId = async (postId) => {
     try {
-        const db = await require('../main').connection(); 
-        
+        const db = await require('../main').connection();
+
         let sql = `
             SELECT c.comment_id, c.member_id, c.post_id, c.parent_comment_id, c.comment_content, c.created_at,
                 m.username, m.nickname, m.picture_base64
             FROM comment c
             JOIN member m ON c.member_id = m.member_id
-            WHERE c.post_id = ?
+            WHERE c.post_id = ? AND c.parent_comment_id IS NULL
             ORDER BY c.created_at DESC
         `;
         const [rows] = await db.query(sql, [postId]);
+
+        // 대댓글 데이터를 가져오기 위한 쿼리
+        const commentIds = rows.map(comment => comment.comment_id);
+        if (commentIds.length > 0) {
+            let replySql = `
+                SELECT r.comment_id, r.member_id, r.parent_comment_id, r.comment_content, r.created_at,
+                    m.username, m.nickname, m.picture_base64
+                FROM comment r
+                JOIN member m ON r.member_id = m.member_id
+                WHERE r.parent_comment_id IN (?)
+                ORDER BY r.created_at DESC
+            `;
+            const [replyRows] = await db.query(replySql, [commentIds]);
+
+            // 댓글 객체에 대댓글 데이터 추가
+            rows.forEach(comment => {
+                comment.replies = replyRows.filter(reply => reply.parent_comment_id === comment.comment_id);
+            });
+        }
+
         return rows;
 
     } catch (error) {
@@ -19,16 +40,21 @@ exports.findByPostId = async (postId) => {
     }
 };
 
+
+
+//대댓글을 위해 create 메서드 수정(parent_comment_id 컬럼추가)
+
 exports.create = async (comment) => {
     try {
-        const db = await require('../main').connection(); 
+        const db = await require('../main').connection();
 
         let sql = `
-          INSERT INTO comment (post_id, member_id, comment_content)
-          VALUES (?, ?, ?)`;
+          INSERT INTO comment (post_id, member_id, parent_comment_id, comment_content)
+          VALUES (?, ?, ?, ?)`;
         await db.query(sql, [
             comment.post_id,
             comment.member_id,
+            comment.parent_comment_id,
             comment.comment_content
         ]);
 
@@ -36,6 +62,7 @@ exports.create = async (comment) => {
         console.error("Comment.create() 쿼리 실행 중 오류:", error);
     }
 };
+
 
 exports.update = async (comment) => {
     try {
