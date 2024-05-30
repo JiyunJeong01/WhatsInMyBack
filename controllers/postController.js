@@ -10,7 +10,7 @@ const PostInteractionModel = require('../models/PostInteraction');
 // 게시글 목록 조회
 exports.getPosts = async (req, res) => {
     const Previews = await PostModel.findByQueryAndSortBy('', 'date');
-    res.render('Post/posts', { Previews });
+    res.render('Post/posts', { Previews, formatDate });
 };
 
 // get: 새 게시글 작성 페이지 반환
