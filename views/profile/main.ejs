@@ -4,8 +4,7 @@
             <%= member.nickname %>
         </h1>
         <div class="profilePhoto">
-            <img src="https://mblogthumb-phinf.pstatic.net/MjAyMTA5MjBfMjM5/MDAxNjMyMTA3ODMwNDY3.lav9M9WIJhXyFFzx6TBHTOa38F6KxBJvLPwym1nu5J0g.aCiuGlZBo_wkFHKTJjUaAeLX1sZVQE6VcReLMnUPdCEg.PNG.adasa69/%EA%B9%80%EA%B3%A0%EC%9D%801.png?type=w800"
-                alt="프로필 이미지">
+            <img id="profileImage" alt="프로필 이미지">
         </div>
         <div class="prifileBio">
             <%= member.bio %>
@@ -20,29 +19,26 @@
             <div class="follow_container" , id="follow_container">
                 <% followees.forEach(followee=> { %>
                     <div class="follow_profile">
-                        <div class="photo" style=" cursor: pointer;" onclick="location.href='/profile/<%= followee.member_id %>';">
-                            <img src="https://i.namu.wiki/i/YrgbR0y6Q9LAd2ij9Yu7b1IxViYEzXmxOm6lH617nsOkVwa13wp4sEIwFwwTqoAqc_rqhft21sdcO388UKcGZw.webp"
-                                alt="프로필 이미지">
+                        <div class="photo" style=" cursor: pointer;"
+                            onclick="location.href='/profile/<%= followee.member_id %>';">
+                            <img id="followImage" alt="프로필 이미지" src="/images/default_profile.jpg">
                         </div>
                         <a href="/profile/<%= followee.member_id %>" class="follow_name">
                             <%= followee.nickname %>
                         </a>
-
-                        <% if (followee.is_following) { %>
-                            <a class="button"
-                                href="/profile/<%= member.member_id %>/<%= followee.member_id %>?_method=DELETE"
-                                onclick="return confirm('정말로 언팔로우 하겠습니까?')">언팔로우</a>
-                            <% } else { %>
-                                <a class="button"
-                                    href="/profile/<%= member.member_id %>/<%= followee.member_id %>?_method=PUT"
-                                    onclick="return confirm('팔로우 하겠습니까?')">팔로우</a>
-                                <% } %>
+                        <button onclick="followb_click(<%= member.member_id %>, <%= followee.member_id %>, this)">
+                            <% if (followee.is_following) { %>
+                                언팔로우
+                                <% } else { %>
+                                    팔로우
+                                    <% } %>
+                        </button>
                     </div>
                     <% }); %>
             </div>
         </div>
         <div class="profileCon">
-            
+
             <a href="/profile/<%= member.member_id %>/collectComment/1">
                 <span class="button">내가 쓴 댓글</span>
             </a>
@@ -59,17 +55,21 @@
     </div>
     <div class="right">
         <div class="post_container">
-            <% if (posts.length !== 0) { %>
+            <% if (posts.length !==0) { %>
                 <div id="card" class="row row-cols-1 row-cols-md-2 g-4">
                     <% posts.forEach(post=> { %>
                         <div class="col">
                             <div class="post">
                                 <div class="postPhoto">
                                     <img src="https://2.bp.blogspot.com/-svDfXHlWFXc/UxWxzy1zzXI/AAAAAAAACAE/3NmmqvGgnjo/s1600/[Whats+in+my+bag+blogger].jpg"
-                                    alt="게시글 이미지">
+                                        alt="게시글 이미지">
                                 </div>
-                                <h5 class="post_title"><%= post.post_title %></h5>
-                                <p class="card-text"><%= post.theme_name %></p>
+                                <h5 class="post_title">
+                                    <%= post.post_title %>
+                                </h5>
+                                <p class="card-text">
+                                    <%= post.theme_name %>
+                                </p>
                             </div>
                         </div>
                         <% }); %>
@@ -78,13 +78,41 @@
                     <div class="center-container">
                         <p>작성한 게시글이 없습니다.</p>
                     </div>
-                <% }; %>
+                    <% }; %>
         </div>
 
     </div>
 </div>
 
 <script>
+    window.addEventListener('DOMContentLoaded', (event) => {
+        const profileImage = document.getElementById('profileImage');
+        const pictureBase64Input = document.getElementById('picture_base64');
+        const defaultImagePath = "/images/default_profile.jpg"
+
+        if (pictureBase64Input && pictureBase64Input.value) {
+            profileImage.src = pictureBase64Input.value;
+        } else {
+            profileImage.src = defaultImagePath;
+        }
+    });
+
+    function followb_click(member_id, follow_id, button) {
+        is_following = (button.innerText == '언팔로우') ? true : false;
+        const followUrl = `/profile/${member_id}/${follow_id}`;
+        const config = {
+            method: is_following ? "DELETE" : "PUT"
+        };
+
+        fetch(followUrl, config)
+            .then(response => response.json())
+            .catch(error => console.log('Fetch error: ', error));
+        
+        is_following = !is_following
+        button.innerText = is_following ? '언팔로우' : '팔로우';
+    }
+
+    //팔로잉 보기 또는 팔로워 보기 컨트롤
     function fbtn_click(check) {
         if (check == "following") {
             let container = document.getElementById('follow_container');
@@ -94,14 +122,16 @@
                 html += `
                 <div class="follow_profile">
                     <div class="photo" style=" cursor: pointer;" onclick="location.href='/profile/<%= followee.member_id %>';">
-                        <img src="https://i.namu.wiki/i/YrgbR0y6Q9LAd2ij9Yu7b1IxViYEzXmxOm6lH617nsOkVwa13wp4sEIwFwwTqoAqc_rqhft21sdcO388UKcGZw.webp" alt="프로필 이미지">
+                        <img id= "followImage" alt="프로필 이미지" src="/images/default_profile.jpg">
                     </div>
                     <a href="/profile/<%= followee.member_id %>" class="follow_name"><%= followee.nickname %></a>
-                    <% if (followee.is_following) { %>
-                        <a class="button" href="/profile/<%= member.member_id %>/<%= followee.member_id %>?_method=DELETE" onclick="return confirm('정말로 언팔로우 하겠습니까?')">언팔로우</a>
-                    <% } else { %>
-                        <a class="button" href="/profile/<%= member.member_id %>/<%= followee.member_id %>?_method=PUT" onclick="return confirm('팔로우 하겠습니까?')">팔로우</a>
-                    <% } %>
+                    <button onclick="followb_click(<%= member.member_id %>, <%= followee.member_id %>, this)">
+                            <% if (followee.is_following) { %>
+                            언팔로우
+                            <% } else { %>
+                            팔로우
+                            <% } %>
+                        </button>
                 </div>`;
         <% }); %>
                 container.innerHTML = html;
@@ -114,18 +144,21 @@
                 html += `
                 <div class="follow_profile">
                     <div class="photo" style=" cursor: pointer;" onclick="location.href='/profile/<%= follower.member_id %>';">
-                        <img src="https://i.namu.wiki/i/YrgbR0y6Q9LAd2ij9Yu7b1IxViYEzXmxOm6lH617nsOkVwa13wp4sEIwFwwTqoAqc_rqhft21sdcO388UKcGZw.webp" alt="프로필 이미지">
+                        <img id= "followImage" alt="프로필 이미지" src="/images/default_profile.jpg">
                     </div>
                     <a href="/profile/<%= follower.member_id %>" class="follow_name"><%= follower.nickname %></a>
-                    <% if (follower.is_following) { %>
-                        <a class="button" href="/profile/<%= member.member_id %>/<%= follower.member_id %>?_method=DELETE" onclick="return confirm('정말로 언팔로우 하겠습니까?')">언팔로우</a>
-                    <% } else { %>
-                        <a class="button" href="/profile/<%= member.member_id %>/<%= follower.member_id %>?_method=PUT" onclick="return confirm('팔로우 하겠습니까?')">팔로우</a>
-                    <% } %>
+                    <button onclick="followb_click(<%= member.member_id %>, <%= follower.member_id %>, this)">
+                            <% if (follower.is_following) { %>
+                            언팔로우
+                            <% } else { %>
+                            팔로우
+                            <% } %>
+                        </button>
                 </div>`;
         <% }); %>
 
                 container.innerHTML = html;
         }
-    }
+    };
+
 </script>
