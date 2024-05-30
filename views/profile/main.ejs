@@ -5,6 +5,7 @@
         </h1>
         <div class="profilePhoto" style=" cursor: pointer;" onclick="location.href='/profile/<%= member.member_id %>';">
             <img id="profileImage" alt="프로필 이미지">
+            <input type="hidden" id="picture_base64" name="picture_base64" value="<%= member.picture_base64 %>">
         </div>
         <div class="prifileBio">
             <%= member.bio %>
@@ -66,11 +67,12 @@
     window.addEventListener('DOMContentLoaded', (event) => {
         const profileImage = document.getElementById('profileImage');
         const pictureBase64Input = document.getElementById('picture_base64');
-        const defaultImagePath = "/images/default_profile.jpg"
 
         if (pictureBase64Input && pictureBase64Input.value) {
             profileImage.src = pictureBase64Input.value;
         } else {
+
+            const defaultImagePath = "/images/default_profile.jpg"
             profileImage.src = defaultImagePath;
         }
     });

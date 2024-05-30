@@ -53,12 +53,14 @@ exports.findById = async (userId) => {
             username: row.username,
             nickname: row.nickname,
             email: row.email,
-            password: row.password,
             age: row.age,
             gender: row.gender,
             job: row.job,
-            notification_setting: row.notification_setting,
-            profile_picture: row.profile_picture,
+            follow_notification: row.follow_notification,
+            like_notification: row.like_notification,
+            comment_notification: row.comment_notification,
+            recommend_notification: row.recommend_notification,
+            picture_base64: row.picture_base64,
             bio: row.bio,
             followeeCount: followeeCount,
             followerCount: followerCount,
@@ -74,12 +76,13 @@ exports.findById = async (userId) => {
 exports.findFolloweeById = async (userId) => {
     try {
         const db = await require('../main').connection();
-        let sql = `SELECT m.member_id, m.nickname, CASE WHEN f2.follower_id IS NOT NULL THEN TRUE ELSE FALSE END AS is_following FROM member m JOIN follow f ON m.member_id = f.followee_id LEFT JOIN follow f2 ON m.member_id = f2.followee_id AND f2.follower_id = '${userId}' WHERE f.follower_id = '${userId}' ORDER BY f.followed_at;`;
+        let sql = `SELECT m.member_id, m.nickname, m.picture_base64, CASE WHEN f2.follower_id IS NOT NULL THEN TRUE ELSE FALSE END AS is_following FROM member m JOIN follow f ON m.member_id = f.followee_id LEFT JOIN follow f2 ON m.member_id = f2.followee_id AND f2.follower_id = '${userId}' WHERE f.follower_id = '${userId}' ORDER BY f.followed_at;`;
 
         let [rows, fields] = await db.query(sql);
         let follows = rows.map(row => ({
             member_id: row.member_id,
             nickname: row.nickname,
+            picture_base64: row.picture_base64,
             is_following: row.is_following,
         }));
 
@@ -93,12 +96,13 @@ exports.findFolloweeById = async (userId) => {
 exports.findFollowerById = async (userId) => {
     try {
         const db = await require('../main').connection();
-        let sql = `SELECT m.member_id, m.nickname, CASE WHEN f2.follower_id IS NOT NULL THEN TRUE ELSE FALSE END AS is_following FROM member m JOIN follow f ON m.member_id = f.follower_id LEFT JOIN follow f2 ON m.member_id = f2.followee_id AND f2.follower_id = '${userId}' WHERE f.followee_id = '${userId}' ORDER BY f.followed_at;`;
+        let sql = `SELECT m.member_id, m.nickname, m.picture_base64, CASE WHEN f2.follower_id IS NOT NULL THEN TRUE ELSE FALSE END AS is_following FROM member m JOIN follow f ON m.member_id = f.follower_id LEFT JOIN follow f2 ON m.member_id = f2.followee_id AND f2.follower_id = '${userId}' WHERE f.followee_id = '${userId}' ORDER BY f.followed_at;`;
 
         let [rows, fields] = await db.query(sql);
         let follows = rows.map(row => ({
             member_id: row.member_id,
             nickname: row.nickname,
+            picture_base64: row.picture_base64,
             is_following: row.is_following,
         }));
 

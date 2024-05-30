@@ -4,7 +4,8 @@
             <%= member.nickname %>
         </h1>
         <div class="profilePhoto" style=" cursor: pointer;" onclick="location.href='/profile/<%= member.member_id %>';">
-            <img id="profileImage" alt="프로필 이미지">
+            <img class="profileImage" alt="프로필 이미지">
+            <input type="hidden" class="picture_base64" name="picture_base64" value="<%= member.picture_base64 %>">
         </div>
         <div class="prifileBio">
             <%= member.bio %>
@@ -37,7 +38,8 @@
                 <div class="follow_profile">
                     <div class="photo" style=" cursor: pointer;"
                         onclick="location.href='/profile/<%= follow.member_id %>';">
-                        <img id="followImage" alt="프로필 이미지" src="/images/default_profile.jpg">
+                        <img class="profileImage" alt="프로필 이미지">
+                        <input type="hidden" class="picture_base64" name="picture_base64" value="<%= follow.picture_base64 %>">
                     </div>
                     <a href="/profile/<%= follow.member_id %>" class="follow_name">
                         <%= follow.nickname %>
@@ -57,16 +59,20 @@
 
 <script>
     window.addEventListener('DOMContentLoaded', (event) => {
-        const profileImage = document.getElementById('profileImage');
-        const pictureBase64Input = document.getElementById('picture_base64');
-        const defaultImagePath = "/images/default_profile.jpg"
+    const profileImages = document.querySelectorAll('.profileImage');
+    const pictureBase64Inputs = document.querySelectorAll('.picture_base64');
+
+    profileImages.forEach((profileImage, index) => {
+        const pictureBase64Input = pictureBase64Inputs[index];
 
         if (pictureBase64Input && pictureBase64Input.value) {
             profileImage.src = pictureBase64Input.value;
         } else {
+            const defaultImagePath = "/images/default_profile.jpg";
             profileImage.src = defaultImagePath;
         }
     });
+});
 
     function followb_click(member_id, follow_id, button) {
         is_following = (button.innerText == '언팔로우') ? true : false;
