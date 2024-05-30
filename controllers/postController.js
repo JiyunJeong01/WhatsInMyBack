@@ -4,6 +4,8 @@ const ProductModel = require('../models/Product');
 const ThemeModel = require('../models/Theme');
 const MemberModel = require('../models/Member');
 const CommentModel = require('../models/Comment');
+const PostInteractionModel = require('../models/PostInteraction');
+const { response } = require('express');
 
 
 // 게시글 목록 조회
@@ -170,7 +172,7 @@ exports.getPostDetail = async (req, res) => {
         console.log(req.url);
 
         const postId = req.params.postId;
-        const member_id = 2; // 임시 
+        const memberId = 1; // 임시 
 
         // 로그인된 사용자 id == 게시글 작성자 id -> 수정 삭제 버튼 표시
         // 로그인된 사용자 id != 게시글 작성자 id -> 게시글 열람 & 댓글 작성 가능
@@ -181,6 +183,12 @@ exports.getPostDetail = async (req, res) => {
         const post = await PostModel.findByPostId(postId);
         const member = await MemberModel.findByMemberId(post.member_id);
         const comments = await CommentModel.findByPostId(postId);
+
+        /*
+        let myInteraction = { liked : false, bookmarked : false };
+        if (await PostInteractionModel.findLikeByMemberAndPost(postId, memberId) !== null) myInteraction.liked = true;
+        if (await PostInteractionModel.findBookmarkByMemberAndPost(postId, memberId) !== null) myInteraction.bookmarked = true;
+        */
     
         res.render('Post/post-detail', { post, member, comments })
 
@@ -190,32 +198,46 @@ exports.getPostDetail = async (req, res) => {
     }
 }
 
-// 좋아요 
-
-
-// 북마크 추가
-exports.post = async (req, res) => { //:postId 필요함?
+// 좋아요 토글 
+exports.toggleLike = async (req, res) => { 
     try {
-        const { postId, memberId } = req.body;
+        let { postId, memberId } = req.body;
+        postId = parseInt(postId); // 추출한 body값을 정수로 변환
+        memberId = parseInt(memberId);
+        let liked = true;
 
-        // 북마크 모델.추가
-
-
-        return res.json({ bookmarked: true });
+        if (await PostInteractionModel.findLikeByMemberAndPost(postId, memberId) == null) { // 좋아요 추가
+            PostInteractionModel.createLike(postId, memberId);
+        }
+        else { // 좋아요 삭제
+            PostInteractionModel.deleteLike(postId, memberId);
+            liked = false;
+        }
+    
+        return res.json({ response: true, liked });
     } catch (error) {
-        console.error("북마크 오류:", error);
+        console.error("좋아요 오류:", error);
     }
   }
-  
-  // 북마크 삭제
-  exports.post = async (req, res) => {
+
+
+// 북마크 토글
+exports.toggleBookmark = async (req, res) => {
     try {
-        const { postId, memberId } = req.body;
+        let { postId, memberId } = req.body;
+        postId = parseInt(postId); // 추출한 body값을 정수로 변환
+        memberId = parseInt(memberId);
+        let bookmarked = true;
 
-        // 북마크 모델.삭제
+        if (await PostInteractionModel.findBookmarkByMemberAndPost(postId, memberId) == null) { // 북마크 추가
+            PostInteractionModel.createBookmark(postId, memberId);
+        }
+        else { // 북마크 삭제
+            PostInteractionModel.deleteBookmark(postId, memberId);
+            bookmarked = false;
+        }
 
-
-        return res.json({ bookmarked: false });
+        return res.json({ response: true, bookmarked });
     } catch (error) {
         console.error("북마크 오류:", error);
     }
