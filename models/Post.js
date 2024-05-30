@@ -17,7 +17,10 @@ exports.findByPostId = async (postId) => {
     try {
         const db = await require('../main').connection(); 
 
-        let sql = 'SELECT * FROM post WHERE post_id = ?';
+        let sql = `SELECT *, 
+            (SELECT COUNT(*) FROM bookmark WHERE post_id = p.post_id) AS bookmark_count,
+            (SELECT COUNT(*) FROM post_like WHERE post_id = p.post_id) AS like_count
+            FROM post p WHERE post_id = ?`;
         const [rows] = await db.query(sql, [postId]);
         return rows.length > 0 ? rows[0] : null;
 
@@ -39,8 +42,6 @@ exports.findByMemberId = async (memberId) => {
     }
 };
 
-
-// post 객체 받아서 DB에 등록
 exports.create = async (post) => {
     try {
         const db = await require('../main').connection(); 
@@ -103,8 +104,6 @@ exports.delete = async (postId) => {
 }
 
 
-// 검색어 검색 쿼리
-
 // 조회수 증가 
 exports.increasedViews = async (postId) => {
     try {
@@ -118,6 +117,7 @@ exports.increasedViews = async (postId) => {
     }
 };
 
+// 게시글 모아보기
 exports.findAllPreviews = async () => {
     try {
         const db = await require('../main').connection(); 
@@ -136,7 +136,7 @@ exports.findAllPreviews = async () => {
                 (SELECT COUNT(*) FROM comment WHERE post_id = p.post_id) AS comment_count,
                 (SELECT COUNT(*) FROM bookmark WHERE post_id = p.post_id) AS bookmark_count,
                 (SELECT COUNT(*) FROM post_like WHERE post_id = p.post_id) AS like_count,
-                (SELECT image_base64 FROM post_image WHERE post_id = p.post_id AND image_id = 1 LIMIT 1) AS thumbnail
+                (SELECT image_base64 FROM post_image WHERE post_id = p.post_id LIMIT 1) AS thumbnail
             FROM 
                 post p 
             JOIN 
@@ -151,7 +151,7 @@ exports.findAllPreviews = async () => {
 }
 
 
-
+// 검색
 exports.findByQueryAndSortBy = async (query, sortBy) => {
     try {
         const db = await require('../main').connection();        

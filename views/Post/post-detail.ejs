@@ -20,19 +20,72 @@
 <% } %>
 <hr />
 
+
 <!--좋아요/북마크-->
 <div class="d-flex justify-content-end mb-3">
   <button id="likeButton" class="btn btn-outline-success btn-sm mr-2">
     좋아요 (<span id="likeCount"><%= post.like_count %></span>)
   </button>
   <button id="bookmarkButton" class="btn btn-outline-info btn-sm">
-    북마크 (<span id="likeCount"><%= post.bookmark_count %></span>)
+    북마크 (<span id="bookmarkCount"><%= post.bookmark_count %></span>)
   </button>
 </div>
 
 <script>
-  // ... 기존 좋아요/북마크 관련 스크립트 코드 ...
+  const likeButton = document.getElementById('likeButton');
+  const bookmarkButton = document.getElementById('bookmarkButton');
+  const likeCount = document.getElementById('likeCount');
+  const bookmarkCount = document.getElementById('bookmarkCount');
+  const postId = '<%= post.post_id %>';
+  const memberId = '<%= member.member_id %>';
+
+
+  // 사용자의 초기 상호작용 상태 (서버에서 EJS로 전달)
+
+  // 좋아요 버튼 이벤트 리스너
+  likeButton.addEventListener('click', function() {
+    fetch('/post/like', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ postId, memberId })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.liked == true) {
+        likeCount.innerText = parseInt(likeCount.innerText) + 1;
+        alert(`좋아요를 등록했습니다`);
+      }
+      else if (data.liked == false) {
+        likeCount.innerText = parseInt(likeCount.innerText) - 1;
+        alert(`좋아요 등록을 해제했습니다`);
+      }
+    })
+    .catch(error => console.error('좋아요 변경 중 오류 발생:', error));
+  });
+
+  // 북마크 버튼 이벤트 리스너
+  bookmarkButton.addEventListener('click', function() {
+    fetch('/post/bookmark', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ postId, memberId })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.bookmarked == true) {
+        bookmarkCount.innerText = parseInt(bookmarkCount.innerText) + 1;
+        alert(`북마크를 등록했습니다`);
+      }
+      else if (data.bookmarked == false) {
+        bookmarkCount.innerText = parseInt(bookmarkCount.innerText) - 1;
+        alert(`북마크 등록을 해제했습니다`);
+      }
+    })
+    .catch(error => console.error('북마크 변경 중 오류 발생:', error));
+  });
 </script>
+
+
 
 <!-- 수정 및 삭제 버튼 -->
 <div class="d-flex justify-content-end mb-3">

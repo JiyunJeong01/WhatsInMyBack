@@ -17,7 +17,9 @@ exports.connection = async () => {
             port: process.env.DB_PORT,
             database: process.env.DB_NAME,
             waitForConnections: true,
-            insecureAuth: true
+            insecureAuth: true,
+            connectionLimit: 30,
+            queueLimit: 10
         });
         return db; // 연결된 데이터베이스 객체 반환
     } catch (error) {
