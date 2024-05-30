@@ -9,7 +9,7 @@ const CommentModel = require('../models/Comment');
 // 게시글 목록 조회
 exports.getPosts = async (req, res) => {
     const Previews = await PostModel.findAllPreviews();
-    res.render('Post/posts', { Previews });
+    res.render('Post/posts', { Previews, formatDate });
 };
 
 // get: 새 게시글 작성 페이지 반환
@@ -240,3 +240,12 @@ exports.findQuery = async (req, res) => {
     }
 }
 
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    return `${year}/${month}/${day} 작성시간:${hours}시 ${minutes}분`;
+}
