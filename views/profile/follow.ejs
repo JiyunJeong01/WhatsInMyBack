@@ -32,33 +32,26 @@
         </div>
     </div>
     <div class="right">
-        <div class="post_container">
-            <% if (posts.length !==0) { %>
-                <div id="card" class="row row-cols-1 row-cols-md-2 g-4">
-                    <% posts.forEach(post=> { %>
-                        <div class="col">
-                            <div class="post">
-                                <div class="postPhoto">
-                                    <img src="https://2.bp.blogspot.com/-svDfXHlWFXc/UxWxzy1zzXI/AAAAAAAACAE/3NmmqvGgnjo/s1600/[Whats+in+my+bag+blogger].jpg"
-                                        alt="게시글 이미지">
-                                </div>
-                                <h5 class="post_title">
-                                    <%= post.post_title %>
-                                </h5>
-                                <p class="card-text">
-                                    <%= post.theme_name %>
-                                </p>
-                            </div>
-                        </div>
-                        <% }); %>
-                </div>
-                <% } else { %>
-                    <div class="center-container">
-                        <p>작성한 게시글이 없습니다.</p>
+        <div class="follow_container" , id="follow_container">
+            <% follows.forEach(follow=> { %>
+                <div class="follow_profile">
+                    <div class="photo" style=" cursor: pointer;"
+                        onclick="location.href='/profile/<%= follow.member_id %>';">
+                        <img id="followImage" alt="프로필 이미지" src="/images/default_profile.jpg">
                     </div>
-                    <% }; %>
+                    <a href="/profile/<%= follow.member_id %>" class="follow_name">
+                        <%= follow.nickname %>
+                    </a>
+                    <button onclick="followb_click(<%= member.member_id %>, <%= follow.member_id %>, this)">
+                        <% if (follow.is_following) { %>
+                            언팔로우
+                            <% } else { %>
+                                팔로우
+                                <% } %>
+                    </button>
+                </div>
+                <% }); %>
         </div>
-
     </div>
 </div>
 
@@ -74,4 +67,18 @@
             profileImage.src = defaultImagePath;
         }
     });
+
+    function followb_click(member_id, follow_id, button) {
+        is_following = (button.innerText == '언팔로우') ? true : false;
+        const followUrl = `/profile/${member_id}/${follow_id}`;
+        const config = {
+            method: is_following ? "DELETE" : "PUT"
+        };
+
+        fetch(followUrl, config)
+            .then(response => response.json())
+            .catch(error => console.log('Fetch error: ', error));
+        
+        button.innerText = is_following ? '팔로우' : '안팔로우';
+    }
 </script>

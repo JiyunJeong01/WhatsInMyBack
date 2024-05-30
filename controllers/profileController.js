@@ -6,27 +6,11 @@ Preference = db.Preference;
 
 module.exports = {
     /*지윤 작업 부분*/ 
-    profile: async (req, res, next) => {
+    profilePage: async (req, res, next) => {
         let userId = req.params.userId;
         await Member.findById(userId)
             .then(member => {
                 res.locals.member = member;
-            })
-            .catch(error => {
-                console.log(`Error fetching member by ID: ${error.message}`);
-                next(error);
-            });
-        await Member.findFolloweeById(userId)
-            .then(followees => {
-                res.locals.followees = followees;
-            })
-            .catch(error => {
-                console.log(`Error fetching member by ID: ${error.message}`);
-                next(error);
-            });
-        await Member.findFollowerById(userId)
-            .then(followers => {
-                res.locals.followers = followers;
             })
             .catch(error => {
                 console.log(`Error fetching member by ID: ${error.message}`);
@@ -37,6 +21,7 @@ module.exports = {
                 res.locals.posts = posts;
                 next();
             })
+            
             .catch(error => {
                 console.log(`Error fetching member by ID: ${error.message}`);
                 next(error);
@@ -50,6 +35,71 @@ module.exports = {
         }
         res.render('profile/main', {
             member: res.locals.member
+        });
+    },
+
+    followeePage: async (req,res,next) =>{
+        let userId = req.params.userId;
+        await Member.findById(userId)
+            .then(member => {
+                res.locals.member = member;
+            })
+            .catch(error => {
+                console.log(`Error fetching member by ID: ${error.message}`);
+                next(error);
+            });
+        await Member.findFolloweeById(userId)
+            .then(followees => {
+                res.locals.followees = followees;
+                next();
+            })
+            .catch(error => {
+                console.log(`Error fetching member by ID: ${error.message}`);
+                next(error);
+            });
+    },
+
+    followeeShow: (req, res) => {
+        if (!res.locals.followees) {
+            res.status(404).send('followee not found');
+            return;
+        }
+        res.render('profile/follow', {
+            member: res.locals.member,
+            follows: res.locals.followees
+        });
+    },
+
+    followerPage: async (req,res,next) =>{
+        let userId = req.params.userId;
+        await Member.findById(userId)
+            .then(member => {
+                res.locals.member = member;
+            })
+            .catch(error => {
+                console.log(`Error fetching member by ID: ${error.message}`);
+                next(error);
+            });
+        await Member.findFollowerById(userId)
+            .then(followers => {
+                member: res.locals.member
+                res.locals.followers = followers;
+                next();
+            })
+            .catch(error => {
+                console.log(`Error fetching member by ID: ${error.message}`);
+                next(error);
+            });
+    },
+
+    followerShow: (req, res) => {
+        if (!res.locals.followers) {
+            res.status(404).send('followee not found');
+            return;
+        }
+        res.render('profile/follow', {
+            member: res.locals.member,
+            follows: res.locals.followers
         });
     },
 

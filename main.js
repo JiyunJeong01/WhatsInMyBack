@@ -65,7 +65,9 @@ router.use(express.json());
 router.get("/", homeController.index);
 
 /*프로필 라우팅*/
-router.get("/profile/:userId", profileController.profile, profileController.profileShow);
+router.get("/profile/:userId", profileController.profilePage,profileController.profileShow);
+router.get("/profile/:userId/followee", profileController.followeePage, profileController.followeeShow);
+router.get("/profile/:userId/follower",profileController.followerPage, profileController.followerShow);
 router.delete("/profile/:userId/:follow", profileController.unfollow);
 router.put("/profile/:userId/:follow", profileController.follow);
 router.get("/profile/:userId/collectBookmark", profileController.collectBookmark, profileController.collectBookmarkShow);
