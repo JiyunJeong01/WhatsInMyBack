@@ -5,12 +5,11 @@ const ThemeModel = require('../models/Theme');
 const MemberModel = require('../models/Member');
 const CommentModel = require('../models/Comment');
 const PostInteractionModel = require('../models/PostInteraction');
-const { response } = require('express');
 
 
 // 게시글 목록 조회
 exports.getPosts = async (req, res) => {
-    const Previews = await PostModel.findAllPreviews();
+    const Previews = await PostModel.findByQueryAndSortBy('', 'date');
     res.render('Post/posts', { Previews });
 };
 
@@ -48,10 +47,9 @@ exports.registerPost = async (req, res) => {
         // image등록
         for (const imageData of imagesData) {
             imageData.post_id = savedPostId;
-            console.log(imageData);
             await ImageModel.create(imageData);
         }
-    
+
         // product등록
         for (const productData of productsData) {
             productData.post_id = savedPostId;
@@ -100,8 +98,6 @@ exports.editPost = async (req, res) => {
                 link: product.purchase_link
             });
         });
-
-        console.log(pages);
         res.render(`Post/editPost`, { themes, post, pages });
  
     } catch (error) {
@@ -169,8 +165,6 @@ exports.deletePost = async (req, res) => {
 // 게시글 
 exports.getPostDetail = async (req, res) => {
     try {
-        console.log(req.url);
-
         const postId = req.params.postId;
         const memberId = 1; // 임시 
 
@@ -251,9 +245,6 @@ exports.findQuery = async (req, res) => {
         const sortBy = req.params.sortBy;
 
         results = await PostModel.findByQueryAndSortBy(query, sortBy);
-
-        console.log(results);
-
         res.render('Post/searchResult', { Previews : results, sortBy, query });
 
     } catch (error) {
