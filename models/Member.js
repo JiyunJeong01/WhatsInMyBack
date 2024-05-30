@@ -77,13 +77,13 @@ exports.findFolloweeById = async (userId) => {
         let sql = `SELECT m.member_id, m.nickname, CASE WHEN f2.follower_id IS NOT NULL THEN TRUE ELSE FALSE END AS is_following FROM member m JOIN follow f ON m.member_id = f.followee_id LEFT JOIN follow f2 ON m.member_id = f2.followee_id AND f2.follower_id = '${userId}' WHERE f.follower_id = '${userId}' ORDER BY f.followed_at;`;
 
         let [rows, fields] = await db.query(sql);
-        let followees = rows.map(row => ({
+        let follows = rows.map(row => ({
             member_id: row.member_id,
             nickname: row.nickname,
             is_following: row.is_following,
         }));
 
-        return followees;
+        return follows;
     } catch (error) {
         console.error("쿼리 실행 중 오류:", error);
     }
@@ -96,13 +96,13 @@ exports.findFollowerById = async (userId) => {
         let sql = `SELECT m.member_id, m.nickname, CASE WHEN f2.follower_id IS NOT NULL THEN TRUE ELSE FALSE END AS is_following FROM member m JOIN follow f ON m.member_id = f.follower_id LEFT JOIN follow f2 ON m.member_id = f2.followee_id AND f2.follower_id = '${userId}' WHERE f.followee_id = '${userId}' ORDER BY f.followed_at;`;
 
         let [rows, fields] = await db.query(sql);
-        let followers = rows.map(row => ({
+        let follows = rows.map(row => ({
             member_id: row.member_id,
             nickname: row.nickname,
             is_following: row.is_following,
         }));
 
-        return followers;
+        return follows;
     } catch (error) {
         console.error("쿼리 실행 중 오류:", error);
     }

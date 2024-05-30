@@ -117,7 +117,7 @@
 
 }
 
-.follow_profile>.button {
+.follow_profile>button {
         display: flex;
         align-items: center;
         justify-content: center;
@@ -130,7 +130,7 @@
         font-size: 11px;
 }
 
-.follow_profile>.button:hover {
+.follow_profile>button:hover {
     background-color: #c4c4c4;
 }
 
