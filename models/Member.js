@@ -1,3 +1,5 @@
+const bcrypt = require('bcrypt');
+
 /* 지윤 작업 부분 */
 // 전체 멤버 조회
 exports.findAll = async () => {
@@ -216,7 +218,7 @@ exports.checkPassword = async (userId, current_password) => {
             password = row.password
         });
 
-        return (current_password === password);
+        return (bcrypt.compare(current_password, password));
     }
     catch (error) {
         console.error("쿼리 실행 중 오류:", error);
@@ -225,8 +227,10 @@ exports.checkPassword = async (userId, current_password) => {
 
 exports.updatePassword = async (userId, new_password) => {
     try {
+        const hashedPassword = await bcrypt.hash(new_password, 10);
+
         const db = await require('../main').connection();
-        const [result] = await db.execute('UPDATE member SET password = ? WHERE member_id = ?', [new_password, userId]);
+        const [result] = await db.execute('UPDATE member SET password = ? WHERE member_id = ?', [hashedPassword, userId]);
 
         return (result.affectedRows===1);
     }
