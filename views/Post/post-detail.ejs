@@ -1,6 +1,29 @@
-<%- include('../layouts/main') %>
+<head>
+  <link rel="stylesheet" href="./styles/post-detail.css">
+<style>
+    /* 내용과 해시태그 섹션 스타일 */
+    .content {
+      display: flex;
+    }
+
+    .left {
+      flex: 1;
+      margin-right: 20px; /* 오른쪽 섹션과의 간격 */
+    }
+
+    .right {
+      flex: 1;
+      margin: 15px;
+    }
+
+    .section {
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+
+<h5><%= post.theme_name %></h5>
 <h1><%= post.post_title %></h1>
-<p>조회수 <%= post.views %></p>
 <div class="d-flex align-items-center mb-3">
   <img src="<%= member.profile_picture %>" alt="Profile Picture" class="rounded-circle mr-3" style="width: 50px; height: 50px" />
   <div>
@@ -8,25 +31,60 @@
     <small class="text-muted"><%= member.nickname %></small>
   </div>
 </div>
-<p><%= post.post_content %></p>
-<% if (post.images) { %>
-<div class="row">
-  <% post.images.split(',').forEach(image => { %>
-  <div class="col-md-4 mb-3">
-    <img src="<%= image %>" alt="Post Image" class="img-fluid" />
-  </div>
-  <% }) %>
-</div>
+<p>조회수 <%= post.views %></p> 
+<p>작성일 <%= post.created_at %></p> 
+<% if (post.updated_at) { %>
+  <p>수정일 <%= post.updated_at %></p>
 <% } %>
-<hr />
+<div class="content">
+  <div class="left">
+      <hr>
+      <% Object.keys(pages).forEach(function(key) { %>
+          <div class="upload-detail-container mb-4"  data-index="<%= key %>">
+              <div class="upload-section mb-2">
+                  <div id="uploadedImage<%= key %>">
+                      <% if (pages[key].image) { %>
+                          <img src="<%= pages[key].image %>" alt="Uploaded Image" style="width: 100%;">
+                      <% } %>
+                  </div>
+              </div>
+              <div class="detail-section">
+                  <div id="productList<%= key %>">
+                      <hr>
+                      <% pages[key].products.forEach(function(product) { %>
+                          <div class="d-flex justify-content-between product-item">
+                              <small class="text-muted">제품명: <%= product.name %></small>
+                              <small class="text-muted">제품카테고리: <%= product.category %></small>
+                              <small class="text-muted">제품브랜드: <%= product.brand %></small>
+                              <small class="text-muted">제품링크: <a href="<%= product.link %>">링크</a></small>
+                          </div>
+                          <hr>
+                      <% }); %>
+                  </div>
+              </div>
+          </div>
+          <hr>
+      <% }); %>
+  </div>
+  <div class="right">
+      <div class="section">
+          <h5>내용:</h5>
+          <p><%= post.post_content %></p>
+      </div>
+      <div class="section">
+          <h5>해시태그:</h5>
+          <p><%= post.hashtags %></p>
+      </div>
+  </div>
+</div>
 
 
 <!--좋아요/북마크-->
 <div class="d-flex justify-content-end mb-3">
-  <button id="likeButton" class="btn btn-outline-success btn-sm mr-2">
+  <button id="likeButton" class="btn btn-outline-success btn-sm mr-2" style="margin-right: 10px;" >
     좋아요 (<span id="likeCount"><%= post.like_count %></span>)
   </button>
-  <button id="bookmarkButton" class="btn btn-outline-info btn-sm">
+  <button id="bookmarkButton" class="btn btn-outline-info btn-sm" >
     북마크 (<span id="bookmarkCount"><%= post.bookmark_count %></span>)
   </button>
 </div>
@@ -37,7 +95,7 @@
   const likeCount = document.getElementById('likeCount');
   const bookmarkCount = document.getElementById('bookmarkCount');
   const postId = '<%= post.post_id %>';
-  const memberId = '<%= member.member_id %>';
+  const memberId = 20; // 로그인된 사용자의 id를 넣어야 함 
 
 
   // 사용자의 초기 상호작용 상태 (서버에서 EJS로 전달)
@@ -89,7 +147,7 @@
 
 <!-- 수정 및 삭제 버튼 -->
 <div class="d-flex justify-content-end mb-3">
-  <a href="/post/<%= post.post_id %>/edit" class="btn btn-primary btn-sm mr-2">게시글 수정</a>
+  <a href="/post/<%= post.post_id %>/edit" class="btn btn-primary btn-sm mr-2" style="margin-right: 10px;">게시글 수정</a>
   <form id="deleteForm" action="/post/<%= post.post_id %>/delete" method="POST" class="mr-2">
     <button type="submit" class="btn btn-danger btn-sm">게시글 삭제</button>
   </form>

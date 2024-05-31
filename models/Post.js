@@ -18,6 +18,7 @@ exports.findByPostId = async (postId) => {
         const db = await require('../main').connection(); 
 
         let sql = `SELECT *, 
+            (SELECT theme_name FROM theme WHERE theme_id = p.theme_id) AS theme_name,
             (SELECT COUNT(*) FROM bookmark WHERE post_id = p.post_id) AS bookmark_count,
             (SELECT COUNT(*) FROM post_like WHERE post_id = p.post_id) AS like_count
             FROM post p WHERE post_id = ?`;
