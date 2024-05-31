@@ -1,8 +1,8 @@
 const db = require("../models/Index"),
-validator = require('validator'),
-Comment = db.Comment,
-Member = db.Member,
-Preference = db.Preference;
+    validator = require('validator'),
+    Comment = db.Comment,
+    Member = db.Member,
+    Preference = db.Preference;
 
 module.exports = {
     /*지윤 작업 부분*/ 
