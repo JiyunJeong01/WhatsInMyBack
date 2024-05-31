@@ -1,10 +1,9 @@
-<%- include('../layouts/main') %>
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1>게시글</h1>
   <div class="d-flex justify-content-between align-items-center mb-3">
     <input type="hidden" id="query" value="<%= query %>">
     <h4>게시글 - <%= query %> 검색 결과</h4>
-    <select id="sortSelect" onchange="sortPosts()">
+    <select id="sortSelect" onchange="sortPosts()" style = "margin: 10px;">
         <option value="latest">최신순</option>
         <option value="views">조회순</option>
         <option value="comments">댓글순</option>

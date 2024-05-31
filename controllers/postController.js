@@ -122,7 +122,6 @@ exports.updatePost = async (req, res) => {
         // image등록
         for (const imageData of imagesData) {
             imageData.post_id = postId;
-
             if (imageData.image_base64.data) {
                 const uint8Array = new Uint8Array(imageData.image_base64.data);
                 imageData.image_base64 = Buffer.from(uint8Array);
@@ -166,7 +165,7 @@ exports.deletePost = async (req, res) => {
 exports.getPostDetail = async (req, res) => {
     try {
         const postId = req.params.postId;
-        const memberId = 1; // 임시 
+        const memberId = 20; // 임시 
 
         // 로그인된 사용자 id == 게시글 작성자 id -> 수정 삭제 버튼 표시
         // 로그인된 사용자 id != 게시글 작성자 id -> 게시글 열람 & 댓글 작성 가능
@@ -178,13 +177,29 @@ exports.getPostDetail = async (req, res) => {
         const member = await MemberModel.findByMemberId(post.member_id);
         const comments = await CommentModel.findByPostId(postId);
 
-        /*
-        let myInteraction = { liked : false, bookmarked : false };
-        if (await PostInteractionModel.findLikeByMemberAndPost(postId, memberId) !== null) myInteraction.liked = true;
-        if (await PostInteractionModel.findBookmarkByMemberAndPost(postId, memberId) !== null) myInteraction.bookmarked = true;
-        */
+        const images = await ImageModel.findByPostId(postId); 
+        const products = await ProductModel.findByPostId(postId); 
+        // 기존 데이터를 페이지 객체에 저장
+        const pages = {};
+        images.forEach(function(post_image) {
+            if (!pages[post_image.image_id]) {
+                pages[post_image.image_id] = { products: [], image: '' };
+            }
+            pages[post_image.image_id].image = post_image.image_base64;
+        });
+        products.forEach(function(product) {
+            if (!pages[product.image_id]) {
+                pages[product.image_id] = { products: [], image: '' };
+            }
+            pages[product.image_id].products.push({
+                name: product.product_name,
+                category: product.product_category,
+                brand: product.brand,
+                link: product.purchase_link
+            });
+        });
     
-        res.render('Post/post-detail', { post, member, comments })
+        res.render('Post/post-detail', { post, member, comments, pages })
 
     } catch (error) {
         console.error("게시글 보기 중 오류:", error);
