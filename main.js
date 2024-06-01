@@ -1,10 +1,8 @@
 const express = require("express");
 const app = express();
-const router = express.Router();
 const layouts = require("express-ejs-layouts");
-const homeController = require("./controllers/homeController");
-const errorController = require("./controllers/errorController");
-const authController = require("./controllers/authController");
+const bodyParser = require('body-parser');
+const morgan = require('morgan');
 const mysql = require('mysql2/promise');
 const methodOverride = require("method-override");
 const session = require('express-session');
@@ -39,54 +37,28 @@ app.use(session({
   saveUninitialized: true
 }));
 
-router.use(
-    methodOverride("_method", {
-      methods: ["POST", "GET"]
-    })
-);
+// JSON데이터의 최대 크기 설정
+app.use(bodyParser.json({ limit: '50mb' })); 
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
-router.use(layouts);
-router.use(express.static("public"));
-
-router.use(
-  express.urlencoded({
-    extended: false
-  })
-);
-router.use(express.json());
-
-router.get("/", homeController.index);
-router.get("/login", authController.loginPage);
-router.get("/signup", authController.signupPage);
-router.post("/login", authController.login);
-router.post("/signup", authController.signup);
+app.use(morgan('dev'));
+app.use(methodOverride("_method", {methods: ["POST", "GET"]}));
+app.use(layouts); //layouts파일사용
+app.use(express.static("public"));
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
 
 
 // 로그아웃 (임시)
-router.get('/logout', authController.logout);
+// router.get('/logout', authController.logout);
 
-/////////////////////////////////////////
-// 테스트 : 세션 확인
-app.get('/session-data', (req, res) => {
-  if (req.session.user) {
-      res.json({
-          message: '세션 데이터가 있습니다.',
-          user: req.session.user
-      });
-  } else {
-      res.json({
-          message: '세션 데이터가 없습니다.'
-      });
-  }
-});
-/////////////////////////////////////////
+const authRouter = require('./routers/authRouter');
+const homeRouter = require('./routers/homeRouter');
+const errorRouter = require('./routers/errorRouter');
 
-// 오류 미들웨어
-router.use(errorController.logErrors);
-router.use(errorController.respondNoResourceFound);
-router.use(errorController.respondInternalError);
-
-app.use("/", router);
+app.use("/", homeRouter);
+app.use("/auth", authRouter);
+app.use(errorRouter);
 
 app.listen(app.get("port"), () => {
     console.log(`Server running at http://localhost:${app.get("port")}`);
