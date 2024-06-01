@@ -43,7 +43,7 @@
         <h1>게시글</h1>
         <a href="/post/new" class="btn btn-outline-dark">글쓰기</a>
     </div>
-    <% if (Previews.length === 0) { %>
+    <% if (!Previews || Previews.length === 0) { %>
         <p>No posts found.</p>
     <% } else { %>
         <div class="row">
