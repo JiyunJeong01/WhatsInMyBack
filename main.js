@@ -4,7 +4,7 @@ const router = express.Router();
 const layouts = require("express-ejs-layouts");
 const homeController = require("./controllers/homeController");
 const errorController = require("./controllers/errorController");
-const userController = require("./controllers/userController");
+const authController = require("./controllers/authController");
 const mysql = require('mysql2/promise');
 const methodOverride = require("method-override");
 const session = require('express-session');
@@ -56,14 +56,14 @@ router.use(
 router.use(express.json());
 
 router.get("/", homeController.index);
-router.get("/login", userController.loginPage);
-router.get("/signup", userController.signupPage);
-router.post("/login", userController.login);
-router.post("/signup", userController.signup);
+router.get("/login", authController.loginPage);
+router.get("/signup", authController.signupPage);
+router.post("/login", authController.login);
+router.post("/signup", authController.signup);
 
 
 // 로그아웃 (임시)
-router.get('/logout', userController.logout);
+router.get('/logout', authController.logout);
 
 /////////////////////////////////////////
 // 테스트 : 세션 확인
