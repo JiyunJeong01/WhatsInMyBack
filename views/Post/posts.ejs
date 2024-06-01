@@ -1,68 +1,94 @@
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h1>게시글</h1>
-  <a href="/post/new" class="btn btn-outline-dark">글쓰기</a>
-</div>
-<% if (Previews.length === 0) { %>
-  <p>No posts found.</p>
-<% } else { %>
-  <div class="row">
-    <% Previews.forEach(Preview => { %>
-      <div class="col-md-4 mb-3">
-        <a href="/post/<%= Preview.post_id %>/detail" class="card-link">
-          <div class="card">
-            <div class="card-img-container">
-              <img src="<%= Preview.thumbnail %>" class="card-img-top" alt="Post Image">
-            </div>
-            <div class="card-body">
-              <h5 class="card-title"><%= Preview.post_title %></h5>
-              <p style="font-size: 12px" class="card-text"><%= Preview.post_content.substring(0, 100) %>...</p>
-              <div class="mb-2" style="display: flex; flex-wrap: wrap;">
-                <% Preview.hashtags.split(' ').forEach(hashtag => { %>
-                  <span class="badge badge-pill badge-secondary mr-1"><%= hashtag %></span>
-                <% }) %>
-              </div>
-              <p style="font-size: 12px" class="card-text">작성자: <%= Preview.nickname %></p>
-              <p style="font-size: 12px" class="card-text">작성일: <%= formatDate(Preview.created_at) %></p>
-              <div class="d-flex justify-content-between align-items-center mt-2">
-                <small class="text-muted">조회수: <%= Preview.views %></small>
-                <small class="text-muted">댓글: <%= Preview.comment_count %></small>
-                <small class="text-muted">북마크: <%= Preview.bookmark_count %></small>
-                <small class="text-muted">좋아요: <%= Preview.like_count %></small>
-              </div>
-            </div>
-          </div>
-        </a>
-      </div>
-    <% }) %>
-  </div>
-<% } %>
-<input type="hidden" id="Datas" value='<%= JSON.stringify(Previews) %>'>
-<style>
-  .card-link {
-    text-decoration: none;
-    color: inherit;
-  }
-  .card-img-container {
-    height: 300px;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  .card-img-top {
-    width: 100%;
-    height: auto;
-    object-fit: cover;
-  }
-</style>
-<script>
-  function formatDate(dateString) {
-    const date = new Date(dateString);
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-    const hours = date.getHours();
-    const minutes = date.getMinutes();
-    return `${year}/${month}/${day} 작성시간:${hours}시 ${minutes}분`;
-  }
-</script>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Posts</title>
+    <link rel="stylesheet" href="/public/bootstrap.min.css">
+    <style>
+        .card-link {
+            text-decoration: none;
+            color: inherit;
+        }
+        .card-img-container {
+            height: 300px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .card-img-top {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+        }
+
+        /*css 파일에서 변경 시도했으나 색상변경안됨. posts.ejs에서 변경시도함*/
+        .hashtag-button {
+          display: inline-block;
+          background-color: #ffffff; /* 백그라운드 색상을 하얀색으로 변경 */
+          color: #6c757d; /* 텍스트 색상을 회색으로 유지 */
+          padding: 0.25rem 0.5rem;
+          font-size: 0.875rem;
+          border-radius: 0.25rem;
+          margin-right: 0.5rem;
+          margin-bottom: 0.5rem;
+          border: 1px solid #6c757d; /* 1px 두께의 회색 테두리 */
+          border-radius: 1rem; /* 모서리 라운드로 만들기 */
+      }
+      
+    </style>
+</head>
+<body>
+    <%- include('../layouts/main') %>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1>게시글</h1>
+        <a href="/post/new" class="btn btn-outline-dark">글쓰기</a>
+    </div>
+    <% if (Previews.length === 0) { %>
+        <p>No posts found.</p>
+    <% } else { %>
+        <div class="row">
+            <% Previews.forEach(Preview => { %>
+                <div class="col-md-4 mb-3">
+                    <a href="/post/<%= Preview.post_id %>/detail" class="card-link">
+                        <div class="card">
+                            <div class="card-img-container">
+                                <img src="<%= Preview.thumbnail %>" class="card-img-top" alt="Post Image">
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title"><%= Preview.post_title %></h5>
+                                <p style="font-size: 12px" class="card-text"><%= Preview.post_content.substring(0, 100) %>...</p>
+                                <div class="mb-2">
+                                    <% Preview.hashtags.split(' ').forEach(hashtag => { %>
+                                        <span class="hashtag-button"><%= hashtag %></span>
+                                    <% }) %>
+                                </div>
+                                <p style="font-size: 12px" class="card-text">작성자: <%= Preview.nickname %></p>
+                                <p style="font-size: 12px" class="card-text">작성일: <%= formatDate(Preview.created_at) %></p>
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <small class="text-muted">조회수: <%= Preview.views %></small>
+                                    <small class="text-muted">댓글: <%= Preview.comment_count %></small>
+                                    <small class="text-muted">북마크: <%= Preview.bookmark_count %></small>
+                                    <small class="text-muted">좋아요: <%= Preview.like_count %></small>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            <% }) %>
+        </div>
+    <% } %>
+    <input type="hidden" id="Datas" value='<%= JSON.stringify(Previews) %>'>
+    <script>
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            const hours = date.getHours();
+            const minutes = date.getMinutes();
+            return `${year}/${month}/${day} 작성시간:${hours}시 ${minutes}분`;
+        }
+    </script>
+</body>
+</html>
