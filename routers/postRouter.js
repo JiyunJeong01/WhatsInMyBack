@@ -18,7 +18,7 @@ router.get("/posts", postController.getPosts);
 //게시글 열람
 router.get("/:postId/detail", postController.getPostDetail);
 // 게시글 검색
-router.get("/search/:sortBy", postController.findQuery);
+router.get("/search/:sortBy/:theme", postController.findQuery);
 // 게시글 삭제
 router.post("/:postId/delete", postController.deletePost);
 
