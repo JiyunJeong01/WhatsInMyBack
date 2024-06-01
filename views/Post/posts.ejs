@@ -6,7 +6,7 @@
   <p>No posts found.</p>
 <% } else { %>
   <div class="row">
-    <% Previews.reverse().forEach(Preview => { %>
+    <% Previews.forEach(Preview => { %>
       <div class="col-md-4 mb-3">
         <a href="/post/<%= Preview.post_id %>/detail" class="card-link">
           <div class="card">
