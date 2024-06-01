@@ -55,7 +55,16 @@ exports.signup = async (req, res) => {
             await PreferenceModel.addPreference(memberId, themeId);
         }
 
-        res.status(201).json({ message: 'User created successfully', memberId });
+
+        // 회원가입 성공 시, 세션에 사용자 정보 저장
+        req.session.user = {
+            id: user.member_id,
+            email: user.email,
+            username: user.username
+        };
+
+
+        return res.status(200).json({ message: 'Login successful' });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -88,13 +97,13 @@ exports.login = async (req, res) => {
 
         // 사용자가 존재하지 않는 경우
         if (!user) {
-            return res.status(404).json({ error: 'User not found' });
+            return res.status(404).json({ error: '회원정보를 찾을 수 없습니다.' });
         }
 
         // 비밀번호가 일치하지 않는 경우
         const passwordMatch = await bcrypt.compare(password, user.password); // 비밀번호 비교
         if (!passwordMatch) {
-            return res.status(401).json({ error: 'Invalid credentials' });
+            return res.status(401).json({ error: '비밀번호가 일치하지 않습니다.' });
         }
 
         // 로그인 성공 시, 세션에 사용자 정보 저장
@@ -105,7 +114,7 @@ exports.login = async (req, res) => {
         };
 
         // 로그인 성공
-        return res.status(200).json({ message: 'Login successful' });
+        return res.status(200).json({ message: '로그인 되었습니다.' });
         //res.redirect('/'); // 로그인 성공 후 메인 페이지로 리디렉션
     } catch (error) {
         console.error("로그인 중 오류:", error);
