@@ -1,18 +1,28 @@
-<%- include('../layouts/main') %>
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1>게시글</h1>
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h4>게시글 - <%= query %> 검색 결과  </h4>
-    <select id="sortSelect" onchange="sortPosts()">
+    <input type="hidden" id="query" value="<%= query %>">
+    <h4>게시글 - <%= query %> 검색 결과</h4>
+    <select id="sortSelect" onchange="sortPosts()" style = "margin: 10px;">
         <option value="latest">최신순</option>
         <option value="views">조회순</option>
+        <option value="comments">댓글순</option>
         <option value="likes">좋아요순</option>
+        <option value="bookmarks">북마크순</option>
     </select>
   </div>
 </div>
+<script>
+  function sortPosts() {
+      var sortValue = document.getElementById("sortSelect").value;
+      var query = encodeURIComponent(document.getElementById("query").value);
+      window.location.href = "/post/search/" + sortValue + "/?query=" + query;
+  }
 
-<% if (Previews.length === 0) { %>
-  <p>No posts found.</p>
+</script>
+
+<% if (!Previews || Previews.length === 0) { %>
+  <p>검색된 게시글이 없습니다.</p>
 <% } else { %>
   <div class="row">
     <% Previews.forEach(Preview => { %>
@@ -42,13 +52,3 @@
 <% } %>
 
 <input type="hidden" id="Datas" value='<%= JSON.stringify(Previews) %>'>
-
-<script>
-
-    function sortPosts() {
-        var sortValue = document.getElementById("sortSelect").value;
-        var query = encodeURIComponent(document.getElementById("query").value);
-        window.location.href = "/search/" + sortValue + "/?query=" + query;
-    }
-
-</script>
