@@ -37,7 +37,7 @@ app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
 app.use(morgan('dev'));
 app.use(methodOverride("_method", {methods: ["POST", "GET"]}));
-app.use(layouts);
+app.use(layouts); //layouts파일사용
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
