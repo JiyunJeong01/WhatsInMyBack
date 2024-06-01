@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
-const UserModel = require('../models/User');
+const MemberModel = require('../models/Member');
 const ThemeModel = require('../models/Theme');
+const PreferenceModel = require('../models/Preference')
 
 // GET: 회원가입 페이지 반환
 exports.signupPage = async (req, res) => {
@@ -43,10 +44,10 @@ exports.signup = async (req, res) => {
             age,
         };
 
-        const memberId = await UserModel.createUser(user);
+        const memberId = await MemberModel.createUser(user);
         
         for (const themeId of themes) {
-            await UserModel.addPreference(memberId, themeId);
+            await PreferenceModel.addPreference(memberId, themeId);
         }
 
         res.status(201).json({ message: 'User created successfully', memberId });
@@ -68,7 +69,7 @@ exports.login = async (req, res) => {
 
     try {
         // 입력된 이메일로 사용자 찾기
-        const user = await UserModel.findByEmail(email);
+        const user = await MemberModel.getUserByEmail(email);
 
         // 사용자가 존재하지 않는 경우
         if (!user) {
