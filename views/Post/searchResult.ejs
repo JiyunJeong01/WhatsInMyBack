@@ -6,7 +6,7 @@
 
     <label for="theme_id">테마 선택: </label>
     <select name="theme_id" id="theme_id" onchange="searchPosts()" style="margin: 10px;">
-      <option value="null" <%= !selectedOpt.theme ? 'selected' : '' %>>전체</option>
+      <option value="all" <%= !selectedOpt.theme ? 'selected' : '' %>>전체</option>
       <% themes.forEach(function(theme) { %>
         <option value="<%= theme.theme_id %>" <%= theme.theme_id == selectedOpt.theme ? 'selected' : '' %>><%= theme.theme_name %></option>
       <% }); %>
