@@ -1,0 +1,90 @@
+<div class="profileBord">
+    <div class="left">
+        <h1>
+            <%= member.nickname %>
+        </h1>
+        <div class="profilePhoto" style=" cursor: pointer;" onclick="location.href='/profile/<%= member.member_id %>';">
+            <img class="profileImage" alt="프로필 이미지">
+            <input type="hidden" class="picture_base64" name="picture_base64" value="<%= member.picture_base64 %>">
+        </div>
+        <div class="prifileBio">
+            <%= member.bio %>
+        </div>
+        <div class="profileFollow">
+            <div class="select">
+                <a href="/profile/<%= member.member_id %>/followee" class="followee">팔로잉 <%= member.followeeCount %></a>
+                <a href="/profile/<%= member.member_id %>/follower" class="follower">팔로워 <%=member.followerCount %></a>
+            </div>
+        </div>
+        <div class="profileCon">
+
+            <a href="/profile/<%= member.member_id %>/collectComment/1">
+                <span class="button">내가 쓴 댓글</span>
+            </a>
+            <a href="/profile/<%= member.member_id %>/collectBookmark">
+                <span class="button">북마크한 글</span>
+            </a>
+            <a href="/profile/<%= member.member_id %>/collectLike">
+                <span class="button">좋아요 한 글</span>
+            </a>
+            <a href="/profile/<%= member.member_id %>/profileModified">
+                <span class="button">설정</span>
+            </a>
+        </div>
+    </div>
+    <div class="right">
+        <div class="follow_container" , id="follow_container">
+            <% follows.forEach(follow=> { %>
+                <div class="follow_profile">
+                    <div class="photo" style=" cursor: pointer;"
+                        onclick="location.href='/profile/<%= follow.member_id %>';">
+                        <img class="profileImage" alt="프로필 이미지">
+                        <input type="hidden" class="picture_base64" name="picture_base64" value="<%= follow.picture_base64 %>">
+                    </div>
+                    <a href="/profile/<%= follow.member_id %>" class="follow_name">
+                        <%= follow.nickname %>
+                    </a>
+                    <button onclick="followb_click(<%= member.member_id %>, <%= follow.member_id %>, this)">
+                        <% if (follow.is_following) { %>
+                            언팔로우
+                            <% } else { %>
+                                팔로우
+                                <% } %>
+                    </button>
+                </div>
+                <% }); %>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.addEventListener('DOMContentLoaded', (event) => {
+    const profileImages = document.querySelectorAll('.profileImage');
+    const pictureBase64Inputs = document.querySelectorAll('.picture_base64');
+
+    profileImages.forEach((profileImage, index) => {
+        const pictureBase64Input = pictureBase64Inputs[index];
+
+        if (pictureBase64Input && pictureBase64Input.value) {
+            profileImage.src = pictureBase64Input.value;
+        } else {
+            const defaultImagePath = "/images/default_profile.jpg";
+            profileImage.src = defaultImagePath;
+        }
+    });
+});
+
+    function followb_click(member_id, follow_id, button) {
+        is_following = (button.innerText == '언팔로우') ? true : false;
+        const followUrl = `/profile/${member_id}/${follow_id}`;
+        const config = {
+            method: is_following ? "DELETE" : "PUT"
+        };
+
+        fetch(followUrl, config)
+            .then(response => response.json())
+            .catch(error => console.log('Fetch error: ', error));
+        
+        button.innerText = is_following ? '팔로우' : '안팔로우';
+    }
+</script>
