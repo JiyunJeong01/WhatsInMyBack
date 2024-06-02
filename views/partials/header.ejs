@@ -4,9 +4,17 @@
     <meta charset="UTF-8">
     <title>Header Example</title>
     <style>
-        .navbar {
-            padding-top: 10%; /* 위쪽 여백 */
+        .nav-all {
+            padding-top: 2%; /* 위쪽 여백 */
             padding-bottom: 20px; /* 아래쪽 여백 */
+            position: sticky;
+            top: 0;
+            background-color: white;
+            z-index: 20;
+        }
+        .navbar {
+            width: 100%;
+            padding-left: 5%;
         }
         .header-border {
             height: 0.5px;
@@ -15,47 +23,48 @@
     </style>
 </head>
 <body>
-<ul class="nav nav-tabs">
-    <nav class="navbar navbar-expand-lg navbar-dark .bg-secondary-subtle">
-        <a class="navbar-brand" href="/">
-            <img src="https://blog.kakaocdn.net/dn/QzCrn/btsHwQaG7TZ/GMXLfXJ6apfGpN9XlC6t51/tfile.svg" alt="WIMB Logo" width="120" height="50" style="background: white;">
-        </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link" href="/" style="color: black;">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/post/posts" style="color: black;">Posts</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/profile" style="color: black;">Profile</a>
-                </li>
-            </ul>
-            <li class="nav-item">
-                <a class="nav-link" href="/login" style="color: black;">Login</a>
-            </li>
-            <li class="nav-item">
-                <form class="mb-3" action="/post/search/latest/all/" method="GET">
-                    <div class="input-group mb-3">
-                        <input type="text" class="form-control" placeholder="검색어를 입력하세요" name="query">
-                        <button class="btn btn-outline-dark" type="submit">검색</button>
-                    </div>
-                </form>
-            </li>
-        </div>
-    </nav>
-</ul>
-<div class="header-border"></div>
-
+    <div class="nav-all">
+        <ul class="nav nav-tabs">
+            <nav class="navbar navbar-expand-lg navbar-dark .bg-secondary-subtle">
+                <a class="navbar-brand" href="/">
+                    <img src="https://blog.kakaocdn.net/dn/QzCrn/btsHwQaG7TZ/GMXLfXJ6apfGpN9XlC6t51/tfile.svg" alt="WIMB Logo" width="120" height="50" style="background: white;">
+                </a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/" style="color: black;">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/post/posts" style="color: black;">Posts</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/profile" style="color: black;">Profile</a>
+                        </li>
+                    </ul>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login" style="color: black;">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <form class="mb-3" action="/post/search/latest/all/" method="GET">
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" placeholder="검색어를 입력하세요" name="query">
+                                <button class="btn btn-outline-dark" type="submit">검색</button>
+                            </div>
+                        </form>
+                    </li>
+                </div>
+            </nav>
+        </ul>
+        <div class="header-border"></div>
+    </div>
+</body>
 <script>
     function search() {
         var query = document.getElementById("searchInput").value;
         window.location.href = "/post/search/latest/all/" + query;
     }
 </script>
-</body>
 </html>
