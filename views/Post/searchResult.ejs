@@ -1,0 +1,65 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1>게시글</h1>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <input type="hidden" id="query" value="<%= selectedOpt.query %>">
+    <h4 style="margin: 15px;">게시글 - <%= selectedOpt.query %> 검색 결과</h4>
+
+    <label for="theme_id">테마 선택: </label>
+    <select name="theme_id" id="theme_id" onchange="searchPosts()" style="margin: 10px;">
+      <option value="all" <%= !selectedOpt.theme ? 'selected' : '' %>>전체</option>
+      <% themes.forEach(function(theme) { %>
+        <option value="<%= theme.theme_id %>" <%= theme.theme_id == selectedOpt.theme ? 'selected' : '' %>><%= theme.theme_name %></option>
+      <% }); %>
+    </select>
+
+    <label for="theme_id">정렬 선택: </label>
+    <select id="sortSelect" onchange="searchPosts()" style="margin: 10px;">
+      <option value="latest" <%= selectedOpt.sortBy == 'latest' ? 'selected' : '' %>>최신순</option>
+      <option value="views" <%= selectedOpt.sortBy == 'views' ? 'selected' : '' %>>조회순</option>
+      <option value="comments" <%= selectedOpt.sortBy == 'comments' ? 'selected' : '' %>>댓글순</option>
+      <option value="likes" <%= selectedOpt.sortBy == 'likes' ? 'selected' : '' %>>좋아요순</option>
+      <option value="bookmarks" <%= selectedOpt.sortBy == 'bookmarks' ? 'selected' : '' %>>북마크순</option>
+    </select>
+  </div>
+</div>
+<script>
+  function searchPosts() {
+      var sortValue = document.getElementById("sortSelect").value;
+      var themeId = document.getElementById("theme_id").value;
+      var query = encodeURIComponent(document.getElementById("query").value);
+      window.location.href = "/post/search/" + sortValue + "/" + themeId + "/?query=" + query;
+  }
+</script>
+
+
+<% if (!Previews || Previews.length === 0) { %>
+  <p>검색된 게시글이 없습니다.</p>
+<% } else { %>
+  <div class="row">
+    <% Previews.forEach(Preview => { %>
+      <div class="col-md-4 mb-3">
+        <div class="card">
+          <img src="<%= Preview.thumbnail %>" class="card-img-top" alt="Post Image">
+          <div class="card-body">
+            <h5 class="card-title"><%= Preview.post_title %></h5>
+            <p style="font-size: 12px" class="card-text"><%= Preview.post_content.substring(0, 100) %>...</p>
+            <p style="font-size: 12px" class="card-text"><%= Preview.hashtags %></p>
+            <p style="font-size: 12px" class="card-text">작성자: <%= Preview.nickname %></p>
+            <p style="font-size: 12px" class="card-text">작성일: <%= Preview.created_at %></p>
+            <div class="d-flex justify-content-between align-items-center mt-2">
+              <small class="text-muted">조회수: <%= Preview.views %></small>
+              <small class="text-muted">댓글: <%= Preview.comment_count %></small>
+              <small class="text-muted">북마크: <%= Preview.bookmark_count %></small>
+              <small class="text-muted">좋아요: <%= Preview.like_count %></small>
+            </div>
+          </div>
+          <div class="card-footer">
+            <a href="/post/<%= Preview.post_id %>/detail" class="btn btn-dark btn-sm">View Post</a>
+          </div>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+<% } %>
+
+<input type="hidden" id="Datas" value='<%= JSON.stringify(Previews) %>'>

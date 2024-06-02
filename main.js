@@ -1,6 +1,6 @@
-const express = require("express");
-const app = express();
-const layouts = require("express-ejs-layouts");
+const express = require("express");//애플리케이션에 express 모듈 추가
+const app = express();//app에 express 웹 서버 애플리케이션 할당
+const layouts = require("express-ejs-layouts");//모듈 설치
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const mysql = require('mysql2/promise');
@@ -18,9 +18,11 @@ exports.connection = async () => {
             port: process.env.DB_PORT,
             database: process.env.DB_NAME,
             waitForConnections: true,
-            insecureAuth: true
+            insecureAuth: true,
+            connectionLimit: 30,
+            queueLimit: 10
         });
-        return db;
+        return db; // 연결된 데이터베이스 객체 반환
     } catch (error) {
         console.error("데이터베이스 연결 오류:", error);
         throw error;
@@ -52,12 +54,14 @@ app.use(express.json());
 // 로그아웃 (임시)
 // router.get('/logout', authController.logout);
 
+const postRouter = require('./routers/postRouter');
 const authRouter = require('./routers/authRouter');
 const homeRouter = require('./routers/homeRouter');
 const errorRouter = require('./routers/errorRouter');
 
 app.use("/", homeRouter);
 app.use("/auth", authRouter);
+app.use("/post", postRouter);
 app.use(errorRouter);
 
 app.listen(app.get("port"), () => {

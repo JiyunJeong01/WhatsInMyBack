@@ -1,0 +1,23 @@
+<%- include('../layouts/main') %>
+<h1>My Bookmarks</h1>
+<% if (posts.length === 0) { %>
+<p>No bookmarked posts yet.</p>
+<% } else { %>
+<div class="list-group">
+  <% posts.forEach(post => { %>
+  <a
+    href="/post/<%= post.post_id %>"
+    class="list-group-item list-group-item-action"
+  >
+    <div class="d-flex w-100 justify-content-between">
+      <h5 class="mb-1"><%= post.post_title %></h5>
+      <small><%= post.created_at %></small>
+    </div>
+    <p class="mb-1"><%= post.post_content.substring(0, 100) %>...</p>
+    <small
+      >by <%= post.username %> (<%= post.nickname %>)</small
+    >
+  </a>
+  <% }) %>
+</div>
+<% } %>
