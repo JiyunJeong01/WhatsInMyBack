@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>회원가입</title>
+    <style>
+        body {
+            background-color: white;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            width: 300px;
+            margin: 0 auto;
+        }
+        .title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .input-field, .dropdown {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            box-sizing: border-box;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0px 0px 15px 0px rgba(0,0,0,0.2);
+        }
+        .signup-button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            box-sizing: border-box;
+            border: none;
+            border-radius: 5px;
+            background-color: black;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .signup-button:disabled {
+            background-color: grey;
+            cursor: not-allowed;
+        }
+        .tag {
+            display: inline-block;
+            padding: 5px 10px;
+            margin: 5px;
+            border: 1px solid black;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .tag.selected {
+            background-color: gray;
+            color: white;
+        }
+        .error-message {
+            color: red;
+            font-size: 12px;
+            display: none;
+        }
+        /* 커스텀 팝업 스타일 */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            text-align: center;
+        }
+        .popup .message {
+            margin-bottom: 20px;
+        }
+        .popup .close-button {
+            background-color: black;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">회원가입</div>
+        <form id="signup-form">
+            <input type="text" class="input-field" id="email" placeholder="이메일">
+            <div id="email-error" class="error-message"></div>
+            <input type="password" class="input-field" id="password" placeholder="비밀번호">
+            <div id="password-error" class="error-message"></div>
+            <input type="password" class="input-field" id="password-confirm" placeholder="비밀번호 확인">
+            <div id="password-match-error" class="error-message"></div>
+            <input type="text" class="input-field" id="username" placeholder="이름">
+            <input type="text" class="input-field" id="nickname" placeholder="닉네임">
+            <input type="text" class="input-field" id="job" placeholder="직업">
+            <select id="gender" class="dropdown">
+                <option value="" disabled selected>성별</option>
+                <option value="남">남</option>
+                <option value="여">여</option>
+            </select>
+            <select id="birth-year" class="dropdown">
+                <option value="" disabled selected>출생연도</option>
+            </select>
+            <div class="container">
+                <div class="title">관심 테마 설정</div>
+                <div id="theme_list">
+                    <% themes.forEach(function(theme) { %>
+                        <span class="tag" data-theme-id="<%= theme.theme_id %>"><%= theme.theme_name %></span>
+                    <% }); %>
+                </div>
+                <button type="submit" class="signup-button" id="signup-button" disabled>가입하기</button>
+            </div>
+        </form>
+        <div class="popup" id="signup-popup">
+            <div class="message">가입이 완료되었습니다!</div>
+            <button class="close-button" onclick="closePopup()">홈으로 가기</button>
+        </div>
+        <script>
+            // 출생연도 드롭다운 메뉴에 1980년부터 2024년까지 추가
+            const birthYearSelect = document.getElementById('birth-year');
+            const currentYear = new Date().getFullYear();
+            for (let year = 1980; year <= currentYear; year++) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                birthYearSelect.appendChild(option);
+            }
+
+            // 테마 클릭 이벤트
+            document.querySelectorAll('.tag').forEach(tag => {
+                tag.addEventListener('click', () => {
+                    tag.classList.toggle('selected');
+                });
+            });
+
+            // 회원가입 버튼 활성화/비활성화
+            const form = document.getElementById('signup-form');
+            const signupButton = document.getElementById('signup-button');
+            const email = document.getElementById('email');
+            const password = document.getElementById('password');
+            const passwordConfirm = document.getElementById('password-confirm');
+            const username = document.getElementById('username');
+            const nickname = document.getElementById('nickname');
+            const job = document.getElementById('job');
+            const gender = document.getElementById('gender');
+            const birthYear = document.getElementById('birth-year');
+            const emailError = document.getElementById('email-error');
+            const passwordError = document.getElementById('password-error');
+            const passwordMatchError = document.getElementById('password-match-error');
+
+            // 이메일 검증 함수
+            function validateEmail() {
+                const emailValue = email.value;
+                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailPattern.test(emailValue) || !emailValue.endsWith('.com')) {
+                    emailError.textContent = "이메일 형식이 틀립니다.";
+                    emailError.style.display = 'block';
+                    return false;
+                } else {
+                    emailError.textContent = "";
+                    emailError.style.display = 'none';
+                    return true;
+                }
+            }
+
+            // 비밀번호 검증 함수
+            function validatePassword() {
+                const passwordValue = password.value;
+                const hasMinLength = passwordValue.length >= 8;
+                const hasNumber = /\d/.test(passwordValue);
+                const hasLetter = /[a-zA-Z]/.test(passwordValue);
+
+                if (!hasMinLength) {
+                    passwordError.textContent = "비밀번호는 8자 이상이어야 합니다.";
+                    passwordError.style.display = 'block';
+                    return false;
+                } else if (!hasNumber || !hasLetter) {
+                    passwordError.textContent = "비밀번호는 문자와 숫자를 모두 포함해야 합니다.";
+                    passwordError.style.display = 'block';
+                    return false;
+                } else {
+                    passwordError.textContent = "";
+                    passwordError.style.display = 'none';
+                    return true;
+                }
+            }
+
+            // 비밀번호 일치 여부 확인 함수
+            function validatePasswordMatch() {
+                if (password.value !== passwordConfirm.value) {
+                    passwordMatchError.textContent = "비밀번호가 일치하지 않습니다.";
+                    passwordMatchError.style.display = 'block';
+                    return false;
+                } else {
+                    passwordMatchError.textContent = "";
+                    passwordMatchError.style.display = 'none';
+                    return true;
+                }
+            }
+
+            // 폼 유효성 검사 함수
+            function validateForm() {
+                const isEmailValid = validateEmail();
+                const isPasswordValid = validatePassword();
+                const isPasswordMatchValid = validatePasswordMatch();
+                const isUsernameValid = username.value.trim() !== '';
+                const isNicknameValid = nickname.value.trim() !== '';
+                const isJobValid = job.value.trim() !== '';
+                const isGenderValid = gender.value !== '';
+                const isBirthYearValid = birthYear.value !== '';
+
+                signupButton.disabled = !(isEmailValid && isPasswordValid && isPasswordMatchValid && isUsernameValid && isNicknameValid && isJobValid && isGenderValid && isBirthYearValid);
+            }
+
+            // 이벤트 리스너 등록
+            email.addEventListener('input', validateForm);
+            password.addEventListener('input', validateForm);
+            passwordConfirm.addEventListener('input', validateForm);
+            username.addEventListener('input', validateForm);
+            nickname.addEventListener('input', validateForm);
+            job.addEventListener('input', validateForm);
+            gender.addEventListener('change', validateForm);
+            birthYear.addEventListener('change', validateForm);
+
+            // 폼 제출 이벤트 처리
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const themes = Array.from(document.querySelectorAll('.tag.selected')).map(tag => tag.getAttribute('data-theme-id'));
+                const response = await fetch('/auth/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: email.value,
+                        password: password.value,
+                        username: username.value,
+                        nickname: nickname.value,
+                        job: job.value,
+                        gender: gender.value,
+                        age: birthYear.value,
+                        themes: themes
+                    })
+                });
+
+                if (response.ok) {
+                    document.getElementById('signup-popup').style.display = 'block';
+                } else {
+                    const errorData = await response.json();
+                    alert(errorData.error);
+                }
+            });
+
+            // 커스텀 팝업 닫기
+            function closePopup() {
+                document.getElementById('signup-popup').style.display = 'none';
+                window.location.href = '/';
+            }
+        </script>
+    </div>
+</body>
+</html>
