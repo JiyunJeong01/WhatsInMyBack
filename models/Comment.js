@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 // findById 수정 = parent_comment_id가 null인 댓글만 가져온다.
 
 exports.findByPostId = async (postId) => {
@@ -95,7 +94,7 @@ exports.delete = async (commentId) => {
         console.error("Comment.delete() 쿼리 실행 중 오류:", error);
     }
 };
-=======
+
 exports.findCommentWithUser = async (userId) => {
     try {
         const db = await require('../main').connection();
@@ -122,4 +121,3 @@ exports.findCommentWithUser = async (userId) => {
         console.error("쿼리 실행 중 오류:", error);
     };
 };
->>>>>>> origin/feature-profile
