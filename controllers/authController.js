@@ -88,7 +88,7 @@ exports.login = async (req, res) => {
 
     // 이메일 형식 검증
     if (!validator.isEmail(email)) {
-        return res.status(400).json({ error: '올바른 이메일 주소를 입력하세요.' });
+        return res.status(400).json({ field: 'email', error: '올바른 이메일 주소를 입력하세요.' });
     }
 
     try {
@@ -97,13 +97,13 @@ exports.login = async (req, res) => {
 
         // 사용자가 존재하지 않는 경우
         if (!user) {
-            return res.status(404).json({ error: '회원정보를 찾을 수 없습니다.' });
+            return res.status(404).json({ field: 'email', error: '회원정보를 찾을 수 없습니다.' });
         }
 
         // 비밀번호가 일치하지 않는 경우
         const passwordMatch = await bcrypt.compare(password, user.password); // 비밀번호 비교
         if (!passwordMatch) {
-            return res.status(401).json({ error: '비밀번호가 일치하지 않습니다.' });
+            return res.status(401).json({ field: 'password', error: '비밀번호가 일치하지 않습니다.' });
         }
 
         // 로그인 성공 시, 세션에 사용자 정보 저장

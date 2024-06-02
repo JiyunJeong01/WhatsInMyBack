@@ -47,17 +47,23 @@
         }
         .error-message {
             color: red;
-            text-align: center;
+            font-size: 12px;
+            margin-top: 5px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="title">로그인</div>
-        <div id="error-message" class="error-message"></div>
         <form id="login-form">
-            <input type="text" id="email" name="email" class="input-field" placeholder="이메일">
-            <input type="password" id="password" name="password" class="input-field" placeholder="비밀번호">
+            <div>
+                <input type="text" id="email" name="email" class="input-field" placeholder="이메일">
+                <div id="email-error" class="error-message"></div>
+            </div>
+            <div>
+                <input type="password" id="password" name="password" class="input-field" placeholder="비밀번호">
+                <div id="password-error" class="error-message"></div>
+            </div>
             <button type="submit" class="login-button">로그인</button>
         </form>
         <a href="/auth/signup" class="signup-link">회원가입</a>
@@ -67,6 +73,10 @@
             e.preventDefault();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
+
+            // 에러 메시지 초기화
+            document.getElementById('email-error').innerText = '';
+            document.getElementById('password-error').innerText = '';
 
             const response = await fetch('/auth/login', {
                 method: 'POST',
@@ -79,7 +89,11 @@
             const result = await response.json();
 
             if (!response.ok) {
-                document.getElementById('error-message').innerText = result.error;
+                if (result.field === 'email') {
+                    document.getElementById('email-error').innerText = result.error;
+                } else if (result.field === 'password') {
+                    document.getElementById('password-error').innerText = result.error;
+                }
                 document.getElementById('email').value = '';
                 document.getElementById('password').value = '';
             } else {
