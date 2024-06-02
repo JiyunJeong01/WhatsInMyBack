@@ -1,6 +1,6 @@
 const express = require("express"),
     router = express.Router(),
-    postController = require("../controllers/profileController");
+    profileController = require("../controllers/profileController");
 
 router.get("/:userId", profileController.profilePage,profileController.profileShow);
 router.get("/:userId/followee", profileController.followeePage, profileController.followeeShow);
