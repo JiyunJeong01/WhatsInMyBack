@@ -318,5 +318,57 @@
       }
     });
   });
+
+  // 댓글 작성 폼 제출 이벤트 핸들러
+  document.getElementById('comment-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const commentInput = document.getElementById('comment-input');
+    const commentContent = commentInput.value.trim();
+
+    if (!commentContent) return;
+
+    try {
+      const response = await fetch(`/post/<%= post.post_id %>/comment`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ member_id: '<%= member.member_id %>', comment_content: commentContent }),
+      });
+
+      if (response.ok) {
+        const newComment = await response.json();
+        const commentList = document.getElementById('comment-list');
+        const commentElement = document.createElement('div');
+        commentElement.classList.add('list-group-item');
+        commentElement.innerHTML = `
+          <div class="d-flex align-items-center">
+            <img src="${newComment.picture_base64}" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
+            <div>
+              <h6 class="mb-0">${newComment.username} (${newComment.nickname})</h6>
+              <small class="text-muted">${newComment.created_at}</small>
+            </div>
+          </div>
+          <p class="mt-2 mb-0">${newComment.comment_content}</p>
+          <div class="mt-2">
+            <a href="#" class="btn btn-sm btn-outline-secondary" onclick="toggleReplyForm('${newComment.comment_id}')">대댓글 작성</a>
+            <form id="reply-form-${newComment.comment_id}" class="mt-2" style="display: none;">
+              <div class="input-group">
+                <input type="text" class="form-control" placeholder="대댓글을 입력하세요">
+                <div class="input-group-append">
+                  <button type="submit" class="btn btn-outline-secondary">작성</button>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div id="reply-list-${newComment.comment_id}" class="mt-2"></div>
+        `;
+        commentList.insertBefore(commentElement, commentList.firstChild);
+        commentInput.value = '';
+      } else {
+        console.error('Failed to create comment');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  });
 </script>
-</body>
