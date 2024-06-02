@@ -148,7 +148,7 @@ exports.findByQueryAndSortBy = async (query, sortBy, themeId) => {
 
         if (themeId != 'null')  sql = sql + 'AND p.theme_id = ? '
         switch (sortBy) {
-            case 'date':
+            case 'latest':
                 sql = sql + `ORDER BY p.created_at DESC`;
                 break;
             case 'views':
