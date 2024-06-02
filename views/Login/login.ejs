@@ -2,72 +2,65 @@
 <html>
 <head>
     <title>What's In My Bag</title>
+    <link rel="stylesheet" href="/public/bootstrap.min.css">
     <style>
         body {
-            background-color: white;
-            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
         }
-        .container {
-            width: 300px;
+        .login-container {
+            max-width: 400px;
             margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        .title {
+        .login-header {
             text-align: center;
-            font-size: 24px;
-            font-weight: bold;
             margin-bottom: 20px;
         }
-        .input-field {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            box-sizing: border-box;
-            border: none;
-            border-radius: 5px;
-            box-shadow: 0px 0px 15px 0px rgba(0,0,0,0.2);
+        .login-body {
+            margin-bottom: 20px;
         }
-        .login-button {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            box-sizing: border-box;
-            border: none;
-            border-radius: 5px;
+        .login-footer {
+            text-align: center;
+        }
+        .login-footer a {
+            color: #007bff;
+        }
+        .btn-black {
             background-color: black;
             color: white;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .signup-link {
-            text-align: center;
-            display: block;
-            margin-top: 20px;
-            color: black;
-            text-decoration: none;
-        }
-        .error-message {
-            color: red;
-            font-size: 12px;
-            margin-top: 5px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="title">로그인</div>
-        <form id="login-form">
-            <div>
-                <input type="text" id="email" name="email" class="input-field" placeholder="이메일">
-                <div id="email-error" class="error-message"></div>
+    <div class="container my-5">
+        <div class="login-container">
+            <div class="login-header">
+                <h2>로그인</h2>
             </div>
-            <div>
-                <input type="password" id="password" name="password" class="input-field" placeholder="비밀번호">
-                <div id="password-error" class="error-message"></div>
+            <div class="login-body">
+                <form id="login-form">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">이메일</label>
+                        <input type="text" id="email" name="email" class="form-control" placeholder="이메일을 입력하세요">
+                        <div id="email-error" class="text-danger"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">비밀번호</label>
+                        <input type="password" id="password" name="password" class="form-control" placeholder="비밀번호를 입력하세요">
+                        <div id="password-error" class="text-danger"></div>
+                    </div>
+                    <button type="submit" class="btn btn-black w-100">로그인</button>
+                </form>
             </div>
-            <button type="submit" class="login-button">로그인</button>
-        </form>
-        <a href="/auth/signup" class="signup-link">회원가입</a>
+            <div class="login-footer">
+                <p>계정이 없으신가요? <a href="/auth/signup">회원가입</a></p>
+            </div>
+        </div>
     </div>
+
     <script>
         document.getElementById('login-form').addEventListener('submit', async function (e) {
             e.preventDefault();
