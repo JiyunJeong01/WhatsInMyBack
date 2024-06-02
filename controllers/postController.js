@@ -9,7 +9,7 @@ const PostInteractionModel = require('../models/PostInteraction');
 
 // 게시글 목록 조회
 exports.getPosts = async (req, res) => {
-    const Previews = await PostModel.findByQueryAndSortBy('', 'date');
+    const Previews = await PostModel.findByQueryAndSortBy('', 'date', 'all');
     res.render('Post/posts', { Previews, formatDate });
 };
 
@@ -256,11 +256,11 @@ exports.toggleBookmark = async (req, res) => {
 //검색
 exports.findQuery = async (req, res) => {
     try {
-        const query = req.query.query;
-        const sortBy = req.params.sortBy;
+        let selectedOpt = { query : req.query.query, sortBy : req.params.sortBy, theme : req.params.theme }
 
-        results = await PostModel.findByQueryAndSortBy(query, sortBy);
-        res.render('Post/searchResult', { Previews : results, sortBy, query });
+        const themes = await ThemeModel.findAll();
+        results = await PostModel.findByQueryAndSortBy(selectedOpt.query, selectedOpt.sortBy, selectedOpt.theme);
+        res.render('Post/searchResult', { Previews : results, themes, selectedOpt });
 
     } catch (error) {
         console.error("게시글 보기 중 오류:", error);

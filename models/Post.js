@@ -119,7 +119,7 @@ exports.increasedViews = async (postId) => {
 };
 
 // 검색
-exports.findByQueryAndSortBy = async (query, sortBy) => {
+exports.findByQueryAndSortBy = async (query, sortBy, themeId) => {
     try {
         const db = await require('../main').connection();        
 
@@ -143,32 +143,38 @@ exports.findByQueryAndSortBy = async (query, sortBy) => {
             JOIN 
                 member m ON p.member_id = m.member_id
             WHERE 
-                CONCAT(p.post_title, p.post_content, p.hashtags) LIKE ?
-            ORDER BY
-            `;
+                CONCAT(p.post_title, p.post_content, p.hashtags) LIKE ? `;
 
+        if (themeId != 'all')  sql = sql + 'AND p.theme_id = ? '
         switch (sortBy) {
-            case 'date':
-                sql = sql + `p.created_at DESC`;
+            case 'latest':
+                sql = sql + `ORDER BY p.created_at DESC`;
                 break;
             case 'views':
-                sql = sql + `p.views DESC`;
+                sql = sql + `ORDER BY p.views DESC`;
                 break;
             case 'comments':
-                sql = sql + `(SELECT COUNT(*) FROM comment WHERE post_id = p.post_id) DESC`;
+                sql = sql + `ORDER BY (SELECT COUNT(*) FROM comment WHERE post_id = p.post_id) DESC`;
                 break;
             case 'likes':
-                sql = sql + `(SELECT COUNT(*) FROM post_like WHERE post_id = p.post_id) DESC`;
+                sql = sql + `ORDER BY (SELECT COUNT(*) FROM post_like WHERE post_id = p.post_id) DESC`;
                 break;
             case 'bookmarks':
-                sql = sql + `(SELECT COUNT(*) FROM bookmark WHERE post_id = p.post_id) DESC`;
+                sql = sql + `ORDER BY (SELECT COUNT(*) FROM bookmark WHERE post_id = p.post_id) DESC`;
                 break;
             default:
-                sql = sql + `p.created_at DESC`;
+                sql = sql + `ORDER BY p.created_at DESC`;
                 break;
         }
-        const [rows] = await db.query(sql, [`%${query}%`]);
-        return rows.length > 0 ? rows : null;
+
+        if (themeId != 'all') {
+            const [rows] = await db.query(sql, [`%${query}%`, themeId]);
+            return rows.length > 0 ? rows : null;
+        }
+        else {
+            const [rows] = await db.query(sql, [`%${query}%`]);
+            return rows.length > 0 ? rows : null;
+        }
 
     } catch (error) {
         console.error("Post.findByQueryAndSortBy() 쿼리 실행 중 오류:", error);
