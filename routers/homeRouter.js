@@ -4,8 +4,4 @@ const homeController = require('../controllers/homeController');
 
 router.get("/", homeController.index);
 
-<<<<<<< HEAD
 module.exports = router;
-=======
-module.exports = router;
->>>>>>> feature-board
