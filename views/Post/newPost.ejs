@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>새 게시글 작성</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .section {
+            margin-bottom: 20px;
+        }
+        .section img {
+            max-width: 100%;
+        }
+        .upload-section, .detail-section, .product-section {
+            border: 2px solid rgb(0, 0, 0);
+            padding: 10px;
+        }
+        .product-item {
+            margin-bottom: 10px;
+        }
+        .img-container img {
+            width: 900px;
+            height: auto;
+        }
+        .page-link {
+            color: black !important; /* 검은색으로 설정 */
+        }
+           
+            
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="my-4">글쓰기</h1>
+        <form id="postForm" action="/post/register" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="theme_id">테마 선택:</label>
+                <select class="form-control" name="theme_id" id="theme_id">
+                    <% themes.forEach(function(theme) { %>
+                        <option value="<%= theme.theme_id %>"><%= theme.theme_name %></option>
+                    <% }); %>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="title">여기에 제목:</label>
+                <input type="text" class="form-control" id="title" name="post_title" required>
+            </div>
+            <input type="hidden" name="member_id" value="<%= memberId %>">
+            <div class="row">
+                <div class="col-md-6">
+                    <div id="imagePage">
+                        <div class="upload-section mb-3">
+                            <label>이미지 업로드 창</label>
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="image" onchange="previewImage(event)">
+                                <label class="custom-file-label" for="image">파일 선택</label>
+                            </div>
+                            <div id="uploadedImage" class="mt-3"></div>
+                        </div>
+                        <div class="detail-section">
+                            <label>상세 제품 목록</label>
+                            <div id="productList"></div>
+                            <button type="button" class="btn btn-dark" onclick="addProduct()">제품 추가</button>
+                        </div>
+                    </div>
+                    <nav aria-label="Page navigation" class="mt-3">
+                        <ul class="pagination">
+                            <li class="page-item"><a class="page-link" href="#" onclick="prevPage()">이전</a></li>
+                            <li class="page-item"><span class="page-link" id="pageNumber">1</span></li>
+                            <li class="page-item"><a class="page-link" href="#" onclick="nextPage()">다음</a></li>
+                        </ul>
+                    </nav>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="content">여기에 내용:</label>
+                        <textarea class="form-control" id="content" name="post_content" rows="10" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="hashtags">해시태그 입력 칸:</label>
+                        <input type="text" class="form-control" id="hashtags" name="hashtags">
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="btn btn-dark" onclick="submitForm()">게시하기</button>
+        </form>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        // 페이지 번호 관리 변수 및 페이지 데이터 저장용 객체
+        let currentPage = 1;
+        const pages = {};
+
+        // 제품 추가 함수
+        function addProduct() {
+            const productList = document.getElementById('productList');
+            const productItem = document.createElement('div');
+            productItem.className = 'product-item input-group';
+            productItem.innerHTML = `
+                <input type="text" class="form-control" name="product_name[]" placeholder="제품명">
+                <input type="text" class="form-control" name="product_category[]" placeholder="제품 카테고리">
+                <input type="text" class="form-control" name="product_brand[]" placeholder="제품 브랜드">
+                <input type="text" class="form-control" name="product_link[]" placeholder="구매 링크">
+                <div class="input-group-append">
+                    <button type="button" class="btn btn-dark" onclick="removeProduct(this)">삭제</button>
+                </div>
+            `;
+            productList.appendChild(productItem);
+        }
+
+        // 제품 삭제 함수
+        function removeProduct(button) {
+            const productItem = button.parentElement.parentElement;
+            productItem.remove();
+        }
+
+        // 이미지 미리보기 및 저장 함수
+        function previewImage(event) {
+            const imageInput = event.target;
+            const uploadedImage = document.getElementById('uploadedImage');
+            uploadedImage.innerHTML = '';
+            if (imageInput.files && imageInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imgContainer = document.createElement('div');
+                    imgContainer.className = 'img-container';
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'img-fluid';
+                    const removeButton = document.createElement('button');
+                    removeButton.textContent = '삭제';
+                    removeButton.className = 'btn btn-dark mt-2';
+                    removeButton.onclick = () => removeImage(currentPage);
+                    imgContainer.appendChild(img);
+                    imgContainer.appendChild(removeButton);
+                    uploadedImage.appendChild(imgContainer);
+
+                    // 이미지 데이터를 페이지 객체에 저장
+                    saveImageToPage(currentPage, e.target.result);
+                };
+                reader.readAsDataURL(imageInput.files[0]);
+            }
+        }
+
+        // 이미지 데이터를 페이지 객체에 저장
+        function saveImageToPage(page, imageData) {
+            if (!pages[page]) {
+                pages[page] = { products: [], image: '' };
+            }
+            pages[page].image = imageData;
+        }
+
+        // 페이지 객체에서 이미지 데이터를 불러오기
+        function loadImageFromPage(page) {
+            if (pages[page] && pages[page].image) {
+                return pages[page].image;
+            }
+            return null;
+        }
+
+        // 페이지 객체에서 이미지 데이터 삭제
+        function removeImage(page) {
+            if (pages[page]) {
+                pages[page].image = '';
+                document.getElementById('uploadedImage').innerHTML = '';
+            }
+        }
+
+        // 페이지 넘기기 함수
+        function nextPage() {
+            saveCurrentPageData();
+            currentPage++;
+            updatePageNumber();
+            loadPageData();
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                saveCurrentPageData();
+                currentPage--;
+                updatePageNumber();
+                loadPageData();
+            }
+        }
+
+        function updatePageNumber() {
+            document.getElementById('pageNumber').innerText = currentPage;
+        }
+
+        // 현재 페이지 데이터 저장 함수
+        function saveCurrentPageData() {
+            const productList = document.getElementById('productList');
+            const products = [];
+            productList.querySelectorAll('.product-item').forEach(item => {
+                const productName = item.querySelector('input[name="product_name[]"]').value;
+                const productCategory = item.querySelector('input[name="product_category[]"]').value;
+                const productBrand = item.querySelector('input[name="product_brand[]"]').value;
+                const productLink = item.querySelector('input[name="product_link[]"]').value;
+                products.push({
+                    name: productName,
+                    category: productCategory,
+                    brand: productBrand,
+                    link: productLink,
+                    page: currentPage
+                });
+            });
+            if (!pages[currentPage]) {
+                pages[currentPage] = { products: [], image: '' };
+            }
+            
+            pages[currentPage].products = products;
+            localStorage.setItem('pages', JSON.stringify(pages));
+        }
+
+        // 페이지 데이터 불러오기 함수
+        function loadPageData() {
+            const productList = document.getElementById('productList');
+            const uploadedImage = document.getElementById('uploadedImage');
+            productList.innerHTML = ''; // 기존 제품 목록 초기화
+            uploadedImage.innerHTML = ''; // 기존 이미지 미리보기 초기화
+
+            // 제품 목록 불러오기
+            if (pages[currentPage]) {
+                const pageData = pages[currentPage];
+                pageData.products.forEach(product => {
+                    const productItem = document.createElement('div');
+                    productItem.className = 'product-item input-group';
+                    productItem.innerHTML = `
+                        <input type="text" class="form-control" name="product_name[]" value="${product.name}" placeholder="제품명">
+                        <input type="text" class="form-control" name="product_category[]" value="${product.category}" placeholder="제품 카테고리">
+                        <input type="text" class="form-control" name="product_brand[]" value="${product.brand}" placeholder="제품 브랜드">
+                        <input type="text" class="form-control" name="product_link[]" value="${product.link}" placeholder="구매 링크">
+                        <div class="input-group-append">
+                            <button type="button" class="btn btn-dark" onclick="removeProduct(this)">삭제</button>
+                        </div>
+                    `;
+                    productList.appendChild(productItem);
+                });
+
+                // 이미지 불러오기
+                const imageData = loadImageFromPage(currentPage);
+                if (imageData) {
+                    const imgContainer = document.createElement('div');
+                    imgContainer.className = 'img-container';
+                    const img = document.createElement('img');
+                    img.src = imageData;
+                    img.className = 'img-fluid';
+                    const removeButton = document.createElement('button');
+                    removeButton.textContent = '삭제';
+                    removeButton.className = 'btn btn-dark mt-2';
+                    removeButton.onclick = () => removeImage(currentPage);
+                    imgContainer.appendChild(img);
+                    imgContainer.appendChild(removeButton);
+                    uploadedImage.appendChild(imgContainer);
+                }
+            }
+        }
+
+        // 페이지 로드시 초기 데이터 불러오기
+        window.onload = function() {
+            const savedPages = localStorage.getItem('pages');
+            if (savedPages) {
+                Object.assign(pages, JSON.parse(savedPages));
+            }
+            loadPageData();
+        };
+
+        // 폼 데이터 전송 함수
+        function submitForm() {
+            saveCurrentPageData(); // 현재 페이지 데이터 저장
+            const postData = {
+                member_id: document.querySelector('input[name="member_id"]').value,
+                theme_id: document.querySelector('select[name="theme_id"]').value,
+                post_title: document.querySelector('input[name="post_title"]').value,
+                post_content: document.querySelector('textarea[name="post_content"]').value,
+                hashtags: document.querySelector('input[name="hashtags"]').value
+            };
+
+            const imagesData = [];
+            const productsData = [];
+
+            for (const [page, data] of Object.entries(pages)) {
+                if (data.image) {
+                    imagesData.push({
+                        image_id: page, // page_index
+                        image_base64: data.image
+                    });
+                }
+
+
+                data.products.forEach(product => {
+                    productsData.push({
+                        product_name: product.name,
+                        product_category: product.category,
+                        brand: product.brand,
+                        purchase_link: product.link,
+                        image_id: page // page_index
+                    });
+                });
+            }
+
+            fetch('/post/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    postData: postData, 
+                    imagesData: imagesData, 
+                    productsData: productsData
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                console.log('Success:', data);
+                window.location.href = data.redirect; // 서버로부터 받은 리디렉션 URL로 이동 
+            } else {
+                console.error('Failed to register post:', data.error);
+                window.location.href = data.redirect;
+            }
+        })
+        .catch((error) => {
+            console.error('Network Error:', error);
+            window.location.href = data.redirect;
+        });
+    }
+    </script>
+</body>
+</html>
