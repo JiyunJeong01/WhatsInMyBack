@@ -123,7 +123,6 @@ exports.findByQueryAndSortBy = async (query, sortBy, themeId) => {
     try {
         const db = await require('../main').connection();        
 
-        console.log(typeof themeId, themeId);
         let sql = `
             SELECT 
                 p.post_id,
@@ -146,7 +145,7 @@ exports.findByQueryAndSortBy = async (query, sortBy, themeId) => {
             WHERE 
                 CONCAT(p.post_title, p.post_content, p.hashtags) LIKE ? `;
 
-        if (themeId != 'null')  sql = sql + 'AND p.theme_id = ? '
+        if (themeId != 'all')  sql = sql + 'AND p.theme_id = ? '
         switch (sortBy) {
             case 'latest':
                 sql = sql + `ORDER BY p.created_at DESC`;
@@ -167,9 +166,8 @@ exports.findByQueryAndSortBy = async (query, sortBy, themeId) => {
                 sql = sql + `ORDER BY p.created_at DESC`;
                 break;
         }
-        console.log(sql);
 
-        if (themeId != 'null') {
+        if (themeId != 'all') {
             const [rows] = await db.query(sql, [`%${query}%`, themeId]);
             return rows.length > 0 ? rows : null;
         }

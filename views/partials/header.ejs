@@ -39,7 +39,7 @@
                 <a class="nav-link" href="/login" style="color: black;">Login</a>
             </li>
             <li class="nav-item">
-                <form class="mb-3" action="/post/search/latest/null/" method="GET">
+                <form class="mb-3" action="/post/search/latest/all/" method="GET">
                     <div class="input-group mb-3">
                         <input type="text" class="form-control" placeholder="검색어를 입력하세요" name="query">
                         <button class="btn btn-outline-dark" type="submit">검색</button>
@@ -54,7 +54,7 @@
 <script>
     function search() {
         var query = document.getElementById("searchInput").value;
-        window.location.href = "/post/search/latest/null/" + query;
+        window.location.href = "/post/search/latest/all/" + query;
     }
 </script>
 </body>
