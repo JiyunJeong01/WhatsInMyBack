@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 // DB에 저장된 사용자 이메일 받아오기
 exports.getUserByEmail = async (email) => {
     try {
@@ -61,7 +60,7 @@ exports.findByMemberId = async (memberId) => {
         console.error("Post.findByMemberId() 쿼리 실행 중 오류:", error);
     }
 };
-=======
+
 const bcrypt = require('bcrypt');
 
 /* 지윤 작업 부분 */
@@ -350,15 +349,3 @@ exports.getUserByEmail = async (email) => {
         console.error("쿼리 실행 중 오류:", error);
     };
 };
-    
-exports.getUserByNickname = async (nickname) => {
-    try {
-        const db = await require('../main').connection();
-        const [rows, fields] = await db.query('SELECT * FROM member WHERE nickname = ?', [nickname]);
-    
-        return rows.length ? rows[0] : null;
-    } catch (error) {
-        console.error("쿼리 실행 중 오류:", error);
-    };
-};
->>>>>>> origin/feature-profile
