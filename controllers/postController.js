@@ -9,7 +9,7 @@ const PostInteractionModel = require('../models/PostInteraction');
 
 // 게시글 목록 조회
 exports.getPosts = async (req, res) => {
-    const Previews = await PostModel.findByQueryAndSortBy('', 'date', 'null');
+    const Previews = await PostModel.findByQueryAndSortBy('', 'date', 'all');
     res.render('Post/posts', { Previews, formatDate });
 };
 
