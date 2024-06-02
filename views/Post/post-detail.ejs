@@ -156,170 +156,167 @@
       </form>
     </div>
 
-    <!-- 댓글 입력 폼 -->
-    <div class="mb-3">
-      <h4>댓글 작성</h4>
-      <form id="comment-form" class="d-flex">
-        <div class="flex-grow-1 mr-2">
-          <textarea id="comment-input" class="form-control" rows="3" placeholder="댓글을 입력하세요"></textarea>
+   
+        <!-- 댓글 입력 폼 -->
+        <div class="mb-3">
+          <h4>댓글 작성</h4>
+          <form id="comment-form" class="d-flex">
+            <div class="flex-grow-1 mr-2">
+              <textarea id="comment-input" class="form-control" rows="3" placeholder="댓글을 입력하세요"></textarea>
+            </div>
+            <button type="submit" class="btn btn-outline-secondary">댓글 작성</button>
+          </form>
         </div>
-        <button type="submit" class="btn btn-outline-secondary">댓글 작성</button>
-      </form>
-    </div>
 
-    <h4>댓글 목록</h4>
-    <p><%= post.comment_count %></p>
-    <div id="comment-list">
-      <% if (comments.length === 0) { %>
-        <p>등록된 댓글이 없습니다.</p>
-      <% } else { %>
-        <div class="list-group">
-          <% comments.forEach(comment => { %>
-            <% if (comment.parent_comment_id === null) { %>
+        <h4>댓글 목록</h4>
+<p><%= post.comment_count %></p>
+<div id="comment-list">
+  <% if (comments.length === 0) { %>
+    <p>등록된 댓글이 없습니다.</p>
+  <% } else { %>
+    <div class="list-group">
+      <% comments.forEach(comment => { %>
+        <div class="list-group-item">
+          <div class="d-flex align-items-center">
+            <img src="<%= comment.picture_base64 %>" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
+            <div>
+              <h6 class="mb-0"><%= comment.username %> (<%= comment.nickname %>)</h6>
+              <small class="text-muted"><%= comment.created_at %></small>
+            </div>
+          </div>
+          <p class="mt-2 mb-0"><%= comment.comment_content %></p>
+         <!-- 대댓글 작성 폼 -->
+<div class="mt-2">
+  <a href="#" class="btn btn-sm btn-outline-secondary" onclick="toggleReplyForm('<%= comment.comment_id %>')">대댓글 작성</a>
+  <form id="reply-form-<%= comment.comment_id %>" class="mt-2" style="display: none;">
+    <div class="input-group">
+      <input type="text" class="form-control" placeholder="대댓글을 입력하세요">
+      <div class="input-group-append">
+        <button type="submit" class="btn btn-outline-secondary">작성</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+          <!-- 대댓글 목록 -->
+          <div id="reply-list-<%= comment.comment_id %>" class="mt-2">
+            <% comment.replies.forEach(reply => { %>
               <div class="list-group-item">
                 <div class="d-flex align-items-center">
-                  <img src="<%= comment.picture_base64 %>" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
+                  <img src="<%= reply.picture_base64 %>" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
                   <div>
-                    <h6 class="mb-0"><%= comment.username %> (<%= comment.nickname %>)</h6>
-                    <small class="text-muted"><%= comment.created_at %></small>
+                    <h6 class="mb-0"><%= reply.username %> (<%= reply.nickname %>)</h6>
+                    <small class="text-muted"><%= reply.created_at %></small>
                   </div>
                 </div>
-                <p class="mt-2 mb-0"><%= comment.comment_content %></p>
-                <!-- 대댓글 작성 폼 -->
-                <div class="mt-2">
-                  <a href="#" class="btn btn-sm btn-outline-secondary" onclick="showReplyForm('<%= comment.comment_id %>')">대댓글 작성</a>
-                  <form id="reply-form-<%= comment.comment_id %>" class="d-none mt-2">
-                    <div class="input-group">
-                      <input type="text" class="form-control" placeholder="대댓글을 입력하세요">
-                      <div class="input-group-append">
-                        <button type="submit" class="btn btn-outline-secondary">작성</button>
-                      </div>
-                    </div>
-                  </form>
-                </div>
-                <!-- 대댓글 목록 -->
-                <div id="reply-list-<%= comment.comment_id %>" class="mt-2">
-                  <% comment.replies.forEach(reply => { %>
-                    <div class="list-group-item">
-                      <div class="d-flex align-items-center">
-                        <img src="<%= reply.picture_base64 %>" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
-                        <div>
-                          <h6 class="mb-0"><%= reply.username %> (<%= reply.nickname %>)</h6>
-                          <small class="text-muted"><%= reply.created_at %></small>
-                        </div>
-                      </div>
-                      <p class="mt-2 mb-0"><%= reply.comment_content %></p>
-                    </div>
-                  <% }) %>
-                </div>
+                <p class="mt-2 mb-0"><%= reply.comment_content %></p>
               </div>
-            <% } %>
-          <% }) %>
+            <% }) %>
+          </div>
         </div>
-      <% } %>
+      <% }) %>
     </div>
-  </div>
+  <% } %>
+</div>
 
-  <script>
-    const likeButton = document.getElementById('likeButton');
-    const bookmarkButton = document.getElementById('bookmarkButton');
-    const likeCount = document.getElementById('likeCount');
-    const bookmarkCount = document.getElementById('bookmarkCount');
-    const postId = '<%= post.post_id %>';
-    const memberId = 20; // 로그인된 사용자의 id를 넣어야 함
 
-    // 좋아요 버튼 이벤트 리스너
-    likeButton.addEventListener('click', function() {
-      fetch('/post/like', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ postId, memberId })
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.liked == true) {
-          likeCount.innerText = parseInt(likeCount.innerText) + 1;
-          alert(`좋아요를 등록했습니다`);
-        }
-        else if (data.liked == false) {
-          likeCount.innerText = parseInt(likeCount.innerText) - 1;
-          alert(`좋아요 등록을 해제했습니다`);
-        }
-      })
-      .catch(error => console.error('좋아요 변경 중 오류 발생:', error));
-    });
+<script>
+  const likeButton = document.getElementById('likeButton');
+  const bookmarkButton = document.getElementById('bookmarkButton');
+  const likeCount = document.getElementById('likeCount');
+  const bookmarkCount = document.getElementById('bookmarkCount');
+  const postId = '<%= post.post_id %>';
+  const memberId = 20; // 로그인된 사용자의 id를 넣어야 함
 
-    // 북마크 버튼 이벤트 리스너
-    bookmarkButton.addEventListener('click', function() {
-      fetch('/post/bookmark', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ postId, memberId })
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.bookmarked == true) {
-          bookmarkCount.innerText = parseInt(bookmarkCount.innerText) + 1;
-          alert(`북마크를 등록했습니다`);
-        }
-        else if (data.bookmarked == false) {
-          bookmarkCount.innerText = parseInt(bookmarkCount.innerText) - 1;
-          alert(`북마크 등록을 해제했습니다`);
-        }
-      })
-      .catch(error => console.error('북마크 변경 중 오류 발생:', error));
-    });
+  // 좋아요 버튼 이벤트 리스너
+  likeButton.addEventListener('click', function() {
+    fetch('/post/like', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ postId, memberId })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.liked) {
+        likeCount.innerText = parseInt(likeCount.innerText) + 1;
+        alert('좋아요를 등록했습니다');
+      } else {
+        likeCount.innerText = parseInt(likeCount.innerText) - 1;
+        alert('좋아요 등록을 해제했습니다');
+      }
+    })
+    .catch(error => console.error('좋아요 변경 중 오류 발생:', error));
+  });
 
-    // 대댓글 작성 폼 표시/숨김 함수
-    function showReplyForm(commentId) {
-      const replyForm = document.getElementById(`reply-form-${commentId}`);
-      replyForm.classList.toggle('d-none');
-    }
+  // 북마크 버튼 이벤트 리스너
+  bookmarkButton.addEventListener('click', function() {
+    fetch('/post/bookmark', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ postId, memberId })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.bookmarked) {
+        bookmarkCount.innerText = parseInt(bookmarkCount.innerText) + 1;
+        alert('북마크를 등록했습니다');
+      } else {
+        bookmarkCount.innerText = parseInt(bookmarkCount.innerText) - 1;
+        alert('북마크 등록을 해제했습니다');
+      }
+    })
+    .catch(error => console.error('북마크 변경 중 오류 발생:', error));
+  });
 
-    // 대댓글 작성 폼 제출 이벤트 핸들러
-    document.querySelectorAll('[id^="reply-form-"]').forEach(form => {
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
+  // 대댓글 작성 폼 표시/숨김 함수
+  function toggleReplyForm(commentId) {
+    const replyForm = document.getElementById(`reply-form-${commentId}`);
+    replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
+  }
 
-        const commentId = form.id.split('-')[2];
-        const replyInput = form.querySelector('input[type="text"]');
-        const replyContent = replyInput.value.trim();
+  // 대댓글 작성 폼 제출 이벤트 핸들러
+  document.querySelectorAll('[id^="reply-form-"]').forEach(form => {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
 
-        if (!replyContent) return;
+      const commentId = form.id.split('-')[2];
+      const replyInput = form.querySelector('input[type="text"]');
+      const replyContent = replyInput.value.trim();
 
-        try {
-          const response = await fetch(`/post/<%= post.post_id %>/comment/${commentId}/reply`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ member_id: '<%= member.member_id %>', comment_content: replyContent }),
-          });
+      if (!replyContent) return;
 
-          if (response.ok) {
-            const newReply = await response.json();
-            const replyList = document.getElementById(`reply-list-${commentId}`);
-            const replyElement = document.createElement('div');
-            replyElement.classList.add('list-group-item');
-            replyElement.innerHTML = `
-              <div class="d-flex align-items-center">
-                <img src="${newReply.picture_base64}" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
-                <div>
-                  <h6 class="mb-0">${newReply.username} (${newReply.nickname})</h6>
-                  <small class="text-muted">${newReply.created_at}</small>
-                </div>
+      try {
+        const response = await fetch(`/post/<%= post.post_id %>/comment/${commentId}/reply`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ member_id: '<%= member.member_id %>', comment_content: replyContent }),
+        });
+
+        if (response.ok) {
+          const newReply = await response.json();
+          const replyList = document.getElementById(`reply-list-${commentId}`);
+          const replyElement = document.createElement('div');
+          replyElement.classList.add('list-group-item');
+          replyElement.innerHTML = `
+            <div class="d-flex align-items-center">
+              <img src="${newReply.picture_base64}" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
+              <div>
+                <h6 class="mb-0">${newReply.username} (${newReply.nickname})</h6>
+                <small class="text-muted">${newReply.created_at}</small>
               </div>
-              <p class="mt-2 mb-0">${newReply.comment_content}</p>
-            `;
-            replyList.appendChild(replyElement);
-            replyInput.value = '';
-          } else {
-            console.error('Failed to create reply');
-          }
-        } catch (error) {
-          console.error('Error:', error);
+            </div>
+            <p class="mt-2 mb-0">${newReply.comment_content}</p>
+          `;
+          replyList.appendChild(replyElement);
+          replyInput.value = '';
+          form.style.display = 'none'; // 폼 제출 후 폼을 숨김
+        } else {
+          console.error('Failed to create reply');
         }
-      });
+      } catch (error) {
+        console.error('Error:', error);
+      }
     });
-  </script>
+  });
+</script>
 </body>

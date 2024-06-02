@@ -51,17 +51,21 @@ exports.create = async (comment) => {
         let sql = `
           INSERT INTO comment (post_id, member_id, parent_comment_id, comment_content)
           VALUES (?, ?, ?, ?)`;
-        await db.query(sql, [
+        const [result] = await db.query(sql, [
             comment.post_id,
             comment.member_id,
             comment.parent_comment_id,
             comment.comment_content
         ]);
 
+        // 생성된 댓글의 comment_id를 포함한 객체 반환
+        return { comment_id: result.insertId, ...comment };
+
     } catch (error) {
         console.error("Comment.create() 쿼리 실행 중 오류:", error);
     }
 };
+
 
 
 exports.update = async (comment) => {
