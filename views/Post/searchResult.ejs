@@ -1,25 +1,36 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1>게시글</h1>
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <input type="hidden" id="query" value="<%= query %>">
-    <h4>게시글 - <%= query %> 검색 결과</h4>
-    <select id="sortSelect" onchange="sortPosts()" style = "margin: 10px;">
-        <option value="latest">최신순</option>
-        <option value="views">조회순</option>
-        <option value="comments">댓글순</option>
-        <option value="likes">좋아요순</option>
-        <option value="bookmarks">북마크순</option>
+    <input type="hidden" id="query" value="<%= selectedOpt.query %>">
+    <h4 style="margin: 15px;">게시글 - <%= selectedOpt.query %> 검색 결과</h4>
+
+    <label for="theme_id">테마 선택: </label>
+    <select name="theme_id" id="theme_id" onchange="searchPosts()" style="margin: 10px;">
+      <option value="null" <%= !selectedOpt.theme ? 'selected' : '' %>>전체</option>
+      <% themes.forEach(function(theme) { %>
+        <option value="<%= theme.theme_id %>" <%= theme.theme_id == selectedOpt.theme ? 'selected' : '' %>><%= theme.theme_name %></option>
+      <% }); %>
+    </select>
+
+    <label for="theme_id">정렬 선택: </label>
+    <select id="sortSelect" onchange="searchPosts()" style="margin: 10px;">
+      <option value="latest" <%= selectedOpt.sortBy == 'latest' ? 'selected' : '' %>>최신순</option>
+      <option value="views" <%= selectedOpt.sortBy == 'views' ? 'selected' : '' %>>조회순</option>
+      <option value="comments" <%= selectedOpt.sortBy == 'comments' ? 'selected' : '' %>>댓글순</option>
+      <option value="likes" <%= selectedOpt.sortBy == 'likes' ? 'selected' : '' %>>좋아요순</option>
+      <option value="bookmarks" <%= selectedOpt.sortBy == 'bookmarks' ? 'selected' : '' %>>북마크순</option>
     </select>
   </div>
 </div>
 <script>
-  function sortPosts() {
+  function searchPosts() {
       var sortValue = document.getElementById("sortSelect").value;
+      var themeId = document.getElementById("theme_id").value;
       var query = encodeURIComponent(document.getElementById("query").value);
-      window.location.href = "/post/search/" + sortValue + "/?query=" + query;
+      window.location.href = "/post/search/" + sortValue + "/" + themeId + "/?query=" + query;
   }
-
 </script>
+
 
 <% if (!Previews || Previews.length === 0) { %>
   <p>검색된 게시글이 없습니다.</p>
