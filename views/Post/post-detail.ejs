@@ -166,15 +166,17 @@
         <% } %>
    
         <!-- 댓글 입력 폼 -->
-        <div class="mb-3">
-          <h4>댓글 작성</h4>
-          <form id="comment-form" class="d-flex">
-            <div class="flex-grow-1 mr-2">
-              <textarea id="comment-input" class="form-control" rows="3" placeholder="댓글을 입력하세요"></textarea>
-            </div>
-            <button type="submit" class="btn btn-outline-secondary">댓글 작성</button>
-          </form>
-        </div>
+        <% if (user) { %> <!-- 로그인 여부 확인 -->
+          <div class="mb-3">
+            <h4>댓글 작성</h4>
+            <form id="comment-form" class="d-flex">
+              <div class="flex-grow-1 mr-2">
+                <textarea id="comment-input" class="form-control" rows="3" placeholder="댓글을 입력하세요"></textarea>
+              </div>
+              <button type="submit" class="btn btn-outline-secondary">댓글 작성</button>
+            </form>
+          </div>
+        <% } %>
 
         <!-- 댓글 목록 -->
         <h4>댓글 목록</h4>
@@ -196,17 +198,19 @@
                   <p class="mt-2 mb-0"><%= comment.comment_content %></p>
 
                   <!-- 대댓글 작성 폼 -->
-                  <div class="mt-2">
-                    <a href="#" class="btn btn-sm btn-outline-secondary" onclick="toggleReplyForm('<%= comment.comment_id %>')">대댓글 작성</a>
-                    <form id="reply-form-<%= comment.comment_id %>" class="mt-2" style="display: none;">
-                      <div class="input-group">
-                        <input type="text" class="form-control" placeholder="대댓글을 입력하세요">
-                        <div class="input-group-append">
-                          <button type="submit" class="btn btn-outline-secondary">작성</button>
+                  <% if (user) { %> <!-- 로그인 여부 확인 -->
+                    <div class="mt-2">
+                      <a href="#" class="btn btn-sm btn-outline-secondary" onclick="toggleReplyForm('<%= comment.comment_id %>')">대댓글 작성</a>
+                      <form id="reply-form-<%= comment.comment_id %>" class="mt-2" style="display: none;">
+                        <div class="input-group">
+                          <input type="text" class="form-control" placeholder="대댓글을 입력하세요">
+                          <div class="input-group-append">
+                            <button type="submit" class="btn btn-outline-secondary">작성</button>
+                          </div>
                         </div>
-                      </div>
-                    </form>
-                  </div>
+                      </form>
+                    </div>
+                  <% } %>
 
                   <!-- 대댓글 목록 -->
                   <div id="reply-list-<%= comment.comment_id %>" class="mt-2">
