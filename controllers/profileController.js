@@ -22,7 +22,6 @@ module.exports = {
                 res.locals.posts = posts;
                 next();
             })
-            
             .catch(error => {
                 console.log(`Error fetching member by ID: ${error.message}`);
                 next(error);
