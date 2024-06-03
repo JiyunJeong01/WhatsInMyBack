@@ -1,0 +1,82 @@
+<head>
+    <link rel="stylesheet" href="/css/whats_in_my_back.css">
+</head>
+<div class="profileBord">
+    <div class="left">
+        <h1>
+            <%= member.nickname %>
+        </h1>
+        <div class="profilePhoto" style=" cursor: pointer;" onclick="location.href='/profile/<%= member.member_id %>';">
+            <img id="profileImage" alt="프로필 이미지">
+            <input type="hidden" id="picture_base64" name="picture_base64" value="<%= member.picture_base64 %>">
+        </div>
+        <div class="prifileBio">
+            <%= member.bio %>
+        </div>
+        <div class="profileFollow">
+            <div class="select">
+                <a href="/profile/<%= member.member_id %>/followee" class="followee">팔로잉 <%= member.followeeCount %></a>
+                <a href="/profile/<%= member.member_id %>/follower" class="follower">팔로워 <%=member.followerCount %></a>
+            </div>
+        </div>
+        <div class="profileCon">
+
+            <a href="/profile/<%= member.member_id %>/collectComment/1">
+                <span class="button">내가 쓴 댓글</span>
+            </a>
+            <a href="/profile/<%= member.member_id %>/collectBookmark">
+                <span class="button">북마크한 글</span>
+            </a>
+            <a href="/profile/<%= member.member_id %>/collectLike">
+                <span class="button">좋아요 한 글</span>
+            </a>
+            <a href="/profile/<%= member.member_id %>/profileModified">
+                <span class="button">설정</span>
+            </a>
+        </div>
+    </div>
+    <div class="right">
+        <div class="post_container">
+            <% if (posts.length !==0) { %>
+                <div id="card" class="row row-cols-1 row-cols-md-2 g-4">
+                    <% posts.forEach(post=> { %>
+                        <div class="col">
+                            <div class="post">
+                                <div class="postPhoto">
+                                    <img src="https://2.bp.blogspot.com/-svDfXHlWFXc/UxWxzy1zzXI/AAAAAAAACAE/3NmmqvGgnjo/s1600/[Whats+in+my+bag+blogger].jpg"
+                                        alt="게시글 이미지">
+                                </div>
+                                <h5 class="post_title">
+                                    <%= post.post_title %>
+                                </h5>
+                                <p class="card-text">
+                                    <%= post.theme_name %>
+                                </p>
+                            </div>
+                        </div>
+                        <% }); %>
+                </div>
+                <% } else { %>
+                    <div class="center-container">
+                        <p>작성한 게시글이 없습니다.</p>
+                    </div>
+                    <% }; %>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    window.addEventListener('DOMContentLoaded', (event) => {
+        const profileImage = document.getElementById('profileImage');
+        const pictureBase64Input = document.getElementById('picture_base64');
+
+        if (pictureBase64Input && pictureBase64Input.value) {
+            profileImage.src = pictureBase64Input.value;
+        } else {
+
+            const defaultImagePath = "/images/default_profile.jpg"
+            profileImage.src = defaultImagePath;
+        }
+    });
+</script>
