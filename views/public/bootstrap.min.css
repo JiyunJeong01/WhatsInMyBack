@@ -1,0 +1,17 @@
+/* public/bootstrap.min.css */
+
+
+.hashtag-button {
+    display: inline-block;
+    background-color: #ffffff; /* 백그라운드 색상 변경 */
+    color: #6c757d; /* 텍스트 색상 변경 */
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    border-radius: 0.25rem;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.navbar {
+    padding-top: 2%;
+}

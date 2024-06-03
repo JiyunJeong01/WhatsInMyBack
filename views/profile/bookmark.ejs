@@ -1,0 +1,57 @@
+<head>
+    <link rel="stylesheet" href="/css/whats_in_my_back.css">
+</head>
+<div class="collect_container">
+    <h1>북마크한 글</h1>
+    <div class="collect_user">
+        <div class="profilePhoto" style=" cursor: pointer;" onclick="location.href='/profile/<%= member.member_id %>';">
+            <img id="profileImage" alt="프로필 이미지">
+            <input type="hidden" id="picture_base64" name="picture_base64" value="<%= member.picture_base64 %>">
+        </div>
+        <h1>
+            <%= member.nickname %>
+        </h1>
+    </div>
+    <div class="feed">
+        <% if (bookmarks.length !== 0) { %>
+            <div id="card" class="row row-cols-1 row-cols-md-3 g-4">
+                <% bookmarks.forEach(bookmark=> { %>
+                    <div class="col">
+                        <div class="post">
+                            <div class="postPhoto">
+                                <img src="https://2.bp.blogspot.com/-svDfXHlWFXc/UxWxzy1zzXI/AAAAAAAACAE/3NmmqvGgnjo/s1600/[Whats+in+my+bag+blogger].jpg"
+                                    alt="게시글 이미지">
+                            </div>
+                            <h5 class="post_title"><%= bookmark.post_title %>
+                            </h5>
+                            <p class="card-text"><%= bookmark.theme_name %>
+                            </p>
+                        </div>
+                    </div>
+                    <% }); %>
+            </div>
+            <% } else { %>
+                <div class="center-container">
+                    <p>북마크한 게시글이 없습니다.</p>
+                    <a href="/profile/<%= member.member_id %>" style="text-decoration: none; color: #000000; background-color: #F8F8F8; padding: 10px; border-radius: 5px;">
+                        프로필로 돌아가기
+                    </a>
+                </div>
+            <% }; %>
+    </div>
+</div>
+
+<script>
+    window.addEventListener('DOMContentLoaded', (event) => {
+        const profileImage = document.getElementById('profileImage');
+        const pictureBase64Input = document.getElementById('picture_base64');
+
+        if (pictureBase64Input && pictureBase64Input.value) {
+            profileImage.src = pictureBase64Input.value;
+        } else {
+
+            const defaultImagePath = "/images/default_profile.jpg"
+            profileImage.src = defaultImagePath;
+        }
+    });
+</script>
