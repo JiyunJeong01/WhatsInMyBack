@@ -1,10 +1,3 @@
-<<<<<<< HEAD
-exports.showPost = (req, res) => {
-    console.log("run show post controller");
-
-    res.send(`${req.params.id} Post`);  //메인 변경
-};
-=======
 const PostModel = require('../models/Post');
 const ImageModel = require('../models/Image');
 const ProductModel = require('../models/Product');
@@ -284,4 +277,3 @@ function formatDate(dateString) {
     const minutes = date.getMinutes();
     return `${year}/${month}/${day} 작성시간:${hours}시 ${minutes}분`;
 }
->>>>>>> 1770f789820ee97cb9bb15dfed890181293abc58
