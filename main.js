@@ -40,8 +40,11 @@ app.use(session({
   saveUninitialized: true
 }));
 
+// 플래시메시지
 app.use(flash());
+
 app.use((req, res, next) => {
+  res.locals.user = req.session.user || null;
   res.locals.flashMessages = req.flash();
   next();
 });
@@ -57,8 +60,21 @@ app.use(express.static("public"));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-// 로그아웃 (임시)
-// router.get('/logout', authController.logout);
+/////////////////////////////////////////
+// 테스트 : 세션 확인
+app.get('/session-data', (req, res) => {
+  if (req.session.user) {
+      res.json({
+          message: '세션 데이터가 있습니다.',
+          user: req.session.user
+      });
+  } else {
+      res.json({
+          message: '세션 데이터가 없습니다.'
+      });
+  }
+});
+/////////////////////////////////////////
 
 const postRouter = require('./routers/postRouter');
 const authRouter = require('./routers/authRouter');

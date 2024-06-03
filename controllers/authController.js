@@ -124,12 +124,12 @@ exports.login = async (req, res) => {
 
 ///////////////////////////////////////////
 
-// 로그아웃 (임시)
+// GET: 로그아웃 처리
 exports.logout = (req, res) => {
     req.session.destroy(err => {
         if (err) {
             return res.status(500).json({ error: 'Failed to log out' });
         }
-        res.redirect('/login');
+        res.redirect('/');
     });
 };

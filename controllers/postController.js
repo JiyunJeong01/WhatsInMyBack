@@ -16,16 +16,16 @@ exports.getPosts = async (req, res) => {
 // get: 새 게시글 작성 페이지 반환
 exports.newPost = async (req, res) => {
     try {
-        // 로그인 안되어있음 -> 로그인 페이지
+        // 로그인 여부 확인
+        if (!req.session.user) {
+            return res.redirect('/auth/login');
+        }
 
-        // 로그인 되어있음 -> 
-        // member id 모델에 등록
-        const member_id = 3; // 임시 
-        // 테마 전송
-        const themes = await ThemeModel.findAll();
+        const userId = req.session.user.id; // 현재 세션에 저장된 사용자
+        const themes = await ThemeModel.findAll();  // 테마 전송
 
         res.render('Post/newPost', {
-            memberId: member_id,
+            memberId: userId,
             themes: themes
         });
     } catch (error) {
@@ -37,9 +37,12 @@ exports.newPost = async (req, res) => {
 // post: 모델에 게시글 전송
 exports.registerPost = async (req, res) => {
     try {
-        const { postData, imagesData, productsData } = req.body;
+        // 로그인 여부 확인
+        if (!req.session.user) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
 
-        // if member_id가 null -> response 로그인 페이지 
+        const { postData, imagesData, productsData } = req.body;
     
         // Post등록
         const savedPostId = await PostModel.create(postData);
@@ -67,15 +70,23 @@ exports.registerPost = async (req, res) => {
 //edit: 게시글 수정 페이지 반환
 exports.editPost = async (req, res) => {
     try {
-        const postId = req.params.postId;
-        // 로그인 안되어있음 -> 로그인 페이지
+        // 로그인 여부 확인
+        if (!req.session.user) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
 
-        // 로그인 되어있음 -> if(게시글 작성자id  == 로그인된 사용자id)
-
+        const userId = req.session.user.id; // 현재 세션에 저장된 사용자
 
         // 게시글 정보 받아오기 
+        const postId = req.params.postId;
+        const post = await PostModel.findByPostId(postId); // if (post == null)
+
+        // 로그인된 사용자와 게시글 작성자가 다르면 접근 차단
+        if (post.member_id !== userId) {
+            return res.status(403).json({ error: '수정 권한이 없습니다.' });
+        }
+
         const themes = await ThemeModel.findAll(); // 테마 받아오기 
-        const post = await PostModel.findByPostId(postId); // if (post == null) 
         const images = await ImageModel.findByPostId(postId); 
         const products = await ProductModel.findByPostId(postId); 
 
@@ -109,10 +120,13 @@ exports.editPost = async (req, res) => {
 // 게시글 수정
 exports.updatePost = async (req, res) => {
     try {
+        // 로그인 여부 확인
+        if (!req.session.user) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
         const { postData, imagesData, productsData } = req.body;
         const postId = postData.post_id;
-
-        // if member_id가 null -> response 로그인 페이지 
     
         // Post 수정
         await PostModel.update(postData);
@@ -147,10 +161,18 @@ exports.updatePost = async (req, res) => {
 // 게시글 삭제
 exports.deletePost = async (req, res) => {
     try {
-        const postId = req.params.postId;
+        // 로그인 여부 확인
+        if (!req.session.user) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
 
-        // if member_id가 null -> response 로그인 페이지 
-        // if (삭제하는 게시글의 작성자 == 로그인된 사용자)
+        const postId = req.params.postId;
+        const userId = req.session.user.id; // 현재 세션에 저장된 사용자
+        const post = await PostModel.findByPostId(postId);
+
+        if (post.member_id !== userId) {
+            return res.status(403).json({ error: '삭제 권한이 없습니다.' });
+        }
 
         await PostModel.delete(postId);
         
@@ -165,11 +187,7 @@ exports.deletePost = async (req, res) => {
 exports.getPostDetail = async (req, res) => {
     try {
         const postId = req.params.postId;
-        const memberId = 20; // 임시 
-
-        // 로그인된 사용자 id == 게시글 작성자 id -> 수정 삭제 버튼 표시
-        // 로그인된 사용자 id != 게시글 작성자 id -> 게시글 열람 & 댓글 작성 가능
-        // 로그인 안됨 -> 게시글 열람 & 댓글 작성 불가
+        const user = req.session.user;  // 현재 세션에 저장된 사용자
         
         await PostModel.increasedViews(postId); // 조회수++
 
@@ -198,8 +216,10 @@ exports.getPostDetail = async (req, res) => {
                 link: product.purchase_link
             });
         });
-    
-        res.render('Post/post-detail', { post, member, comments, pages })
+
+        // 현재 세션에 저장된 사용자와 게시글 작성자가 같은 경우 -> 수정 삭제 버튼 표시
+        const isAuthor = user && user.id === post.member_id;
+        res.render('Post/post-detail', { post, member, comments, pages, isAuthor }); // 수정: isAuthor 변수를 템플릿에 전달
 
     } catch (error) {
         console.error("게시글 보기 중 오류:", error);
@@ -210,6 +230,11 @@ exports.getPostDetail = async (req, res) => {
 // 좋아요 토글 
 exports.toggleLike = async (req, res) => { 
     try {
+        // 로그인 여부 확인
+        if (!req.session.user) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
         let { postId, memberId } = req.body;
         postId = parseInt(postId); // 추출한 body값을 정수로 변환
         memberId = parseInt(memberId);
@@ -233,6 +258,10 @@ exports.toggleLike = async (req, res) => {
 // 북마크 토글
 exports.toggleBookmark = async (req, res) => {
     try {
+        if (!req.session.user) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
         let { postId, memberId } = req.body;
         postId = parseInt(postId); // 추출한 body값을 정수로 변환
         memberId = parseInt(memberId);
