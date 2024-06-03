@@ -8,8 +8,24 @@ const db = require("../models/Index"),
 module.exports = {
     /*지윤 작업 부분*/ 
     profilePage: async (req, res, next) => {
+        let loginId;
+        try {
+            // req.session.user 객체와 loginId 속성이 정의되어 있는지 확인
+            if (req.session.user && req.session.user.loginId) {
+                loginId = req.session.user.loginId;
+                res.locals.loginId = loginId
+            } else {
+                // loginId 속성이 정의되어 있지 않을 경우 다른 동작 수행
+                res.locals.loginId = 0;
+            }
+        } catch (error) {
+            // 에러 처리
+            console.error(error);
+            res.status(500).send("서버 오류입니다.");
+        }
+
         let userId = req.params.userId;
-        await Member.findById(userId)
+        await Member.findById(userId, loginId)
             .then(member => {
                 res.locals.member = member;
             })
@@ -39,8 +55,24 @@ module.exports = {
     },
 
     followeePage: async (req,res,next) =>{
+        let loginId;
+        try {
+            // req.session.user 객체와 loginId 속성이 정의되어 있는지 확인
+            if (req.session.user && req.session.user.loginId) {
+                loginId = req.session.user.loginId;
+                res.locals.loginId = loginId
+            } else {
+                // loginId 속성이 정의되어 있지 않을 경우 다른 동작 수행
+                res.locals.loginId = 0;
+            }
+        } catch (error) {
+            // 에러 처리
+            console.error(error);
+            res.status(500).send("서버 오류입니다.");
+        }
+
         let userId = req.params.userId;
-        await Member.findById(userId)
+        await Member.findById(userId, loginId)
             .then(member => {
                 res.locals.member = member;
             })
@@ -71,8 +103,24 @@ module.exports = {
     },
 
     followerPage: async (req,res,next) =>{
+        let loginId;
+        try {
+            // req.session.user 객체와 loginId 속성이 정의되어 있는지 확인
+            if (req.session.user && req.session.user.loginId) {
+                loginId = req.session.user.loginId;
+                res.locals.loginId = loginId
+            } else {
+                // loginId 속성이 정의되어 있지 않을 경우 다른 동작 수행
+                res.locals.loginId = 0;
+            }
+        } catch (error) {
+            // 에러 처리
+            console.error(error);
+            res.status(500).send("서버 오류입니다.");
+        }
+
         let userId = req.params.userId;
-        await Member.findById(userId)
+        await Member.findById(userId, loginId)
             .then(member => {
                 res.locals.member = member;
             })
@@ -146,6 +194,21 @@ module.exports = {
     },
     /*지윤 작업 부분 */
     collectBookmark: async (req, res, next) => {
+        let loginId;
+        try {
+            // req.session.user 객체와 loginId 속성이 정의되어 있는지 확인
+            if (req.session.user && req.session.user.loginId) {
+                loginId = req.session.user.loginId;
+                res.locals.loginId = loginId
+            } else {
+                // loginId 속성이 정의되어 있지 않을 경우 다른 동작 수행
+                res.locals.loginId = 0;
+            }
+        } catch (error) {
+            // 에러 처리
+            console.error(error);
+            res.status(500).send("서버 오류입니다.");
+        }
         let userId = req.params.userId;
         await Member.findById(userId)
             .then(member => {
@@ -171,12 +234,31 @@ module.exports = {
             res.status(404).send('Member not found');
             return;
         }
+        else if (res.locals.member != res.locals.loginId) {
+            res.status(404).send('잘못된 접근입니다.');
+            return;
+        }
         res.render('profile/bookmark', {
             member: res.locals.member
         });
     },
 
     collectLike: async (req, res, next) => {
+        let loginId;
+        try {
+            // req.session.user 객체와 loginId 속성이 정의되어 있는지 확인
+            if (req.session.user && req.session.user.loginId) {
+                loginId = req.session.user.loginId;
+                res.locals.loginId = loginId
+            } else {
+                // loginId 속성이 정의되어 있지 않을 경우 다른 동작 수행
+                res.locals.loginId = 0;
+            }
+        } catch (error) {
+            // 에러 처리
+            console.error(error);
+            res.status(500).send("서버 오류입니다.");
+        }
         let userId = req.params.userId;
         await Member.findById(userId)
             .then(member => {
@@ -200,6 +282,10 @@ module.exports = {
     collectLikeShow: (req, res) => {
         if (!res.locals.member) {
             res.status(404).send('Member not found');
+            return;
+        }
+        else if (res.locals.member != res.locals.loginId) {
+            res.status(404).send('잘못된 접근입니다.');
             return;
         }
         res.render('profile/like', {
