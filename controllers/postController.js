@@ -289,7 +289,7 @@ exports.findQuery = async (req, res) => {
 
         const themes = await ThemeModel.findAll();
         results = await PostModel.findByQueryAndSortBy(selectedOpt.query, selectedOpt.sortBy, selectedOpt.theme);
-        res.render('Post/searchResult', { Previews : results, themes, selectedOpt });
+        res.render('Post/searchResult', { Previews : results, themes, selectedOpt, formatDate });
 
     } catch (error) {
         console.error("게시글 보기 중 오류:", error);

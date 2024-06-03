@@ -95,7 +95,7 @@ exports.findAll = async () => {
 };
 
 // 특정 멤버 조회
-exports.findById = async (userId) => {
+exports.findById = async (userId, loginId = userId) => {
     try {
         const db = await require('../main').connection();
         //member 테이블의 기본 정보 수령
@@ -113,6 +113,11 @@ exports.findById = async (userId) => {
         [rows] = await db.query(sql);
         let followerCount = rows[0].followerCount;
 
+        //팔로잉 중인지 확인
+        sql = `SELECT CASE WHEN EXISTS (SELECT * FROM follow WHERE follower_id = '${loginId}'AND followee_id = '${userId}') THEN true ELSE false END AS is_following;`;
+        [rows] = await db.query(sql);
+        let is_following = rows[0].is_following;
+
         let member = {
             member_id: row.member_id,
             username: row.username,
@@ -129,6 +134,7 @@ exports.findById = async (userId) => {
             bio: row.bio,
             followeeCount: followeeCount,
             followerCount: followerCount,
+            is_following: is_following
         };
         return member; // ??
     } catch (error) {
@@ -177,36 +183,30 @@ exports.findFollowerById = async (userId) => {
     }
 }
 
-// 특정 멤버의 팔로워 추가
-exports.findFollowAndAdd = async (userId, follow) => {
-    try {
-        const db = await require('../main').connection();
-        let sql = `INSERT INTO follow VALUES ('${userId}','${follow}', NOW());`
-        await db.query(sql);
-
-    } catch (error) {
-        console.error("쿼리 실행 중 오류:", error);
-    }
-}
-
-// 특정 멤버의 팔로워 삭제
-exports.findFollowAndDelete = async (userId, follow) => {
-    try {
-        const db = await require('../main').connection();
-        let sql = `DELETE FROM follow WHERE followee_id = '${follow}' AND follower_id = '${userId}';`
-        await db.query(sql);
-
-    } catch (error) {
-        console.error("쿼리 실행 중 오류:", error);
-    }
-}
-
 //특정 멤버의 게시글 전체 조회
 exports.findAllPostById = async (userId) => {
     try {
         const db = await require("../main").connection();
-        let sql = `SELECT p.post_id, p.theme_id, p.post_title, p.created_at, t.theme_name FROM post p JOIN theme t ON p.theme_id = t.theme_id WHERE p.member_id = '${userId}' ORDER BY p.created_at DESC;`;
+        let sql = `SELECT 
+        p.post_id, 
+        p.theme_id, 
+        p.post_title, 
+        p.created_at, 
+        t.theme_name,
+        (SELECT image_base64 
+            FROM post_image 
+            WHERE post_id = p.post_id 
+            LIMIT 1) AS image_base64
+    FROM 
+        post p
+    JOIN 
+        theme t ON p.theme_id = t.theme_id
+    WHERE 
+        p.member_id = '${userId}'
+    ORDER BY 
+        p.created_at DESC;`;
         let [rows, fields] = await db.query(sql);
+        sql = ``
 
         let posts = [];
         rows.forEach(row => {
@@ -216,6 +216,7 @@ exports.findAllPostById = async (userId) => {
                 theme_id: row.theme_id,
                 post_id: row.post_id,
                 created_at: row.created_at,
+                image_base64: row.image_base64,
             };
             posts.push(post);
         });
@@ -229,15 +230,35 @@ exports.findAllPostById = async (userId) => {
 exports.findAllBookmarkById = async (userId) => {
     try {
         const db = await require("../main").connection();
-        let sql = `SELECT p.post_title, t.theme_name, b.bookmarked_at FROM bookmark b JOIN post p ON b.post_id = p.post_id JOIN theme t ON p.theme_id = t.theme_id WHERE b.member_id = '${userId}' ORDER BY b.bookmarked_at DESC;`;
+        let sql = `SELECT 
+        p.post_id,
+        p.post_title, 
+        t.theme_name, 
+        b.bookmarked_at, 
+        (SELECT image_base64 
+         FROM post_image 
+         WHERE post_id = p.post_id 
+         LIMIT 1) AS image_base64
+    FROM 
+        bookmark b
+    JOIN 
+        post p ON b.post_id = p.post_id
+    JOIN 
+        theme t ON p.theme_id = t.theme_id
+    WHERE 
+        b.member_id = '${userId}'
+    ORDER BY 
+        b.bookmarked_at DESC;`;
         let [rows, fields] = await db.query(sql);
 
         let bookmarks = [];
         rows.forEach(row => {
             let bookmark = {
+                post_id: row.post_id,
                 post_title: row.post_title,
                 theme_name: row.theme_name,
                 bookmarked_at: row.bookmarked_at,
+                image_base64: row.image_base64,
             };
             bookmarks.push(bookmark);
         });
@@ -251,15 +272,35 @@ exports.findAllBookmarkById = async (userId) => {
 exports.findAllLikeById = async (userId) => {
     try {
         const db = await require("../main").connection();
-        let sql = `SELECT p.post_title, t.theme_name, l.liked_at FROM post_like l JOIN post p ON l.post_id = p.post_id JOIN theme t ON p.theme_id = t.theme_id WHERE l.member_id = '${userId}' ORDER BY l.liked_at DESC;`;
+        let sql = `SELECT 
+        p.post_id,
+        p.post_title, 
+        t.theme_name, 
+        l.liked_at, 
+        (SELECT image_base64 
+         FROM post_image 
+         WHERE post_id = p.post_id 
+         LIMIT 1) AS image_base64
+    FROM 
+        post_like l
+    JOIN 
+        post p ON l.post_id = p.post_id
+    JOIN 
+        theme t ON p.theme_id = t.theme_id
+    WHERE 
+        l.member_id = '${userId}'
+    ORDER BY 
+        l.liked_at DESC;`;
         let [rows, fields] = await db.query(sql);
 
         let likes = [];
         rows.forEach(row => {
             let like = {
+                post_id: row.post_id,
                 post_title: row.post_title,
                 theme_name: row.theme_name,
                 liked_at: row.liked_at,
+                image_base64: row.image_base64,
             };
             likes.push(like);
         });
