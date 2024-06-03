@@ -17,10 +17,10 @@
             <div id="card" class="row row-cols-1 row-cols-md-3 g-4">
                 <% likes.forEach(like=> { %>
                     <div class="col">
-                        <div class="post">
+                        <div class="post" style=" cursor: pointer;" onclick="location.href='/post/<%= like.post_id %>/detail';">
                             <div class="postPhoto">
-                                <img src="https://2.bp.blogspot.com/-svDfXHlWFXc/UxWxzy1zzXI/AAAAAAAACAE/3NmmqvGgnjo/s1600/[Whats+in+my+bag+blogger].jpg"
-                                    alt="게시글 이미지">
+                                <img src="<%= like.image_base64 %>"
+                                        alt="게시글 이미지">
                             </div>
                             <h5 class="post_title"><%= like.post_title %>
                             </h5>

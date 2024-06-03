@@ -181,8 +181,26 @@ exports.findFollowerById = async (userId) => {
 exports.findAllPostById = async (userId) => {
     try {
         const db = await require("../main").connection();
-        let sql = `SELECT p.post_id, p.theme_id, p.post_title, p.created_at, t.theme_name FROM post p JOIN theme t ON p.theme_id = t.theme_id WHERE p.member_id = '${userId}' ORDER BY p.created_at DESC;`;
+        let sql = `SELECT 
+        p.post_id, 
+        p.theme_id, 
+        p.post_title, 
+        p.created_at, 
+        t.theme_name,
+        (SELECT image_base64 
+            FROM post_image 
+            WHERE post_id = p.post_id 
+            LIMIT 1) AS image_base64
+    FROM 
+        post p
+    JOIN 
+        theme t ON p.theme_id = t.theme_id
+    WHERE 
+        p.member_id = '${userId}'
+    ORDER BY 
+        p.created_at DESC;`;
         let [rows, fields] = await db.query(sql);
+        sql = ``
 
         let posts = [];
         rows.forEach(row => {
@@ -192,6 +210,7 @@ exports.findAllPostById = async (userId) => {
                 theme_id: row.theme_id,
                 post_id: row.post_id,
                 created_at: row.created_at,
+                image_base64: row.image_base64,
             };
             posts.push(post);
         });
@@ -205,15 +224,35 @@ exports.findAllPostById = async (userId) => {
 exports.findAllBookmarkById = async (userId) => {
     try {
         const db = await require("../main").connection();
-        let sql = `SELECT p.post_title, t.theme_name, b.bookmarked_at FROM bookmark b JOIN post p ON b.post_id = p.post_id JOIN theme t ON p.theme_id = t.theme_id WHERE b.member_id = '${userId}' ORDER BY b.bookmarked_at DESC;`;
+        let sql = `SELECT 
+        p.post_id,
+        p.post_title, 
+        t.theme_name, 
+        b.bookmarked_at, 
+        (SELECT image_base64 
+         FROM post_image 
+         WHERE post_id = p.post_id 
+         LIMIT 1) AS image_base64
+    FROM 
+        bookmark b
+    JOIN 
+        post p ON b.post_id = p.post_id
+    JOIN 
+        theme t ON p.theme_id = t.theme_id
+    WHERE 
+        b.member_id = '${userId}'
+    ORDER BY 
+        b.bookmarked_at DESC;`;
         let [rows, fields] = await db.query(sql);
 
         let bookmarks = [];
         rows.forEach(row => {
             let bookmark = {
+                post_id: row.post_id,
                 post_title: row.post_title,
                 theme_name: row.theme_name,
                 bookmarked_at: row.bookmarked_at,
+                image_base64: row.image_base64,
             };
             bookmarks.push(bookmark);
         });
@@ -227,15 +266,35 @@ exports.findAllBookmarkById = async (userId) => {
 exports.findAllLikeById = async (userId) => {
     try {
         const db = await require("../main").connection();
-        let sql = `SELECT p.post_title, t.theme_name, l.liked_at FROM post_like l JOIN post p ON l.post_id = p.post_id JOIN theme t ON p.theme_id = t.theme_id WHERE l.member_id = '${userId}' ORDER BY l.liked_at DESC;`;
+        let sql = `SELECT 
+        p.post_id,
+        p.post_title, 
+        t.theme_name, 
+        l.liked_at, 
+        (SELECT image_base64 
+         FROM post_image 
+         WHERE post_id = p.post_id 
+         LIMIT 1) AS image_base64
+    FROM 
+        post_like l
+    JOIN 
+        post p ON l.post_id = p.post_id
+    JOIN 
+        theme t ON p.theme_id = t.theme_id
+    WHERE 
+        l.member_id = '${userId}'
+    ORDER BY 
+        l.liked_at DESC;`;
         let [rows, fields] = await db.query(sql);
 
         let likes = [];
         rows.forEach(row => {
             let like = {
+                post_id: row.post_id,
                 post_title: row.post_title,
                 theme_name: row.theme_name,
                 liked_at: row.liked_at,
+                image_base64: row.image_base64,
             };
             likes.push(like);
         });
