@@ -1,0 +1,22 @@
+<head>
+    <link rel="stylesheet" href="/css/profile_jb.css">
+</head>
+<div class = password-body>
+    <h1>비밀번호 변경</h1>
+    <div class="password-form">
+        <form class="form-pwchange" action="/profile/<%= userId %>/pwModified" method="POST">
+            <div class="password-form-group">
+                <input type="password" id="current_password" name="current_password" placeholder="현재 비밀번호">
+            </div>
+            <div class="password-form-group">
+                <input type="password" id="new_password" name="new_password" placeholder="새 비밀번호">
+            </div>
+            <div class="password-form-group">
+                <input type="password" id="confirm_password" name="confirm_password" placeholder="새 비밀번호 재입력">
+            </div>
+            <div class="password-form-group">
+                <button type="submit">비밀번호 변경</button>
+            </div>
+        </form>
+    </div>
+</div>
