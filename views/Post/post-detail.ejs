@@ -92,13 +92,13 @@
       </div>
       <!-- 정보 -->
       <div class="col-md-6">
+        <!-- 테마 -->
+        <p class="btn btn-primary btn-title"><%= post.theme_name %></p>
         <!-- 제목 -->
-        <h1 class="title-margin"><%= post.post_title %></h1>
-        <!-- 타이틀 등 다른 정보 -->
-        <h4 class="btn btn-primary btn-title title-margin2"><%= post.theme_name %></h4>
+        <h1><%= post.post_title %></h1>
 <!-- 프로필 섹션 -->
 <div class="d-flex align-items-center mb-3">
-  <img src="<%= member.profile_picture %>" alt="Profile Picture" class="rounded-circle mr-3" style="width: 50px; height: 50px" />
+  <img src="<%= member.picture_base64 %>" alt="Profile Picture" class="rounded-circle mr-3" style="width: 50px; height: 50px; margin-right: 10px;" />
   <div>
     <h5 class="mb-0"><%= member.username %></h5>
     <small class="text-muted"><%= member.nickname %></small>
