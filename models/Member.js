@@ -95,7 +95,7 @@ exports.findAll = async () => {
 };
 
 // 특정 멤버 조회
-exports.findById = async (userId) => {
+exports.findById = async (userId, loginId = userId) => {
     try {
         const db = await require('../main').connection();
         //member 테이블의 기본 정보 수령
@@ -113,6 +113,11 @@ exports.findById = async (userId) => {
         [rows] = await db.query(sql);
         let followerCount = rows[0].followerCount;
 
+        //팔로잉 중인지 확인
+        sql = `SELECT CASE WHEN EXISTS (SELECT * FROM follow WHERE follower_id = '${loginId}'AND followee_id = '${userId}') THEN true ELSE false END AS is_following;`;
+        [rows] = await db.query(sql);
+        let is_following = rows[0].is_following;
+
         let member = {
             member_id: row.member_id,
             username: row.username,
@@ -129,6 +134,7 @@ exports.findById = async (userId) => {
             bio: row.bio,
             followeeCount: followeeCount,
             followerCount: followerCount,
+            is_following: is_following
         };
         return member; // ??
     } catch (error) {

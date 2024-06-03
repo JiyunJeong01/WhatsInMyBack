@@ -20,19 +20,28 @@
             </div>
         </div>
         <div class="profileCon">
-
-            <a href="/profile/<%= member.member_id %>/collectComment/1">
-                <span class="button">내가 쓴 댓글</span>
-            </a>
-            <a href="/profile/<%= member.member_id %>/collectBookmark">
-                <span class="button">북마크한 글</span>
-            </a>
-            <a href="/profile/<%= member.member_id %>/collectLike">
-                <span class="button">좋아요 한 글</span>
-            </a>
-            <a href="/profile/<%= member.member_id %>/profileModified">
-                <span class="button">설정</span>
-            </a>
+            <% if (member.member_id==loginId) { %>
+                <a href="/profile/<%= member.member_id %>/collectComment/1">
+                    <span class="button">내가 쓴 댓글</span>
+                </a>
+                <a href="/profile/<%= member.member_id %>/collectBookmark">
+                    <span class="button">북마크한 글</span>
+                </a>
+                <a href="/profile/<%= member.member_id %>/collectLike">
+                    <span class="button">좋아요 한 글</span>
+                </a>
+                <a href="/profile/<%= member.member_id %>/profileModified">
+                    <span class="button">설정</span>
+                </a>
+                <% } else if (loginId!= 0) { %>
+                    <button onclick="followb_click(<%= loginId %>, <%= member.member_id %>, this)">
+                        <% if (member.is_following) { %>
+                            언팔로우
+                            <% } else { %>
+                                팔로우
+                                <% } %>
+                    </button>
+                    <% }; %>
         </div>
     </div>
     <div class="right">
