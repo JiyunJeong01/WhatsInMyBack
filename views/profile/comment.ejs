@@ -1,3 +1,6 @@
+<head>
+    <link rel="stylesheet" href="/css/profile_jb.css">
+</head>
 <div class = comment-body>
     <h1>내가 쓴 댓글</h1>
     <br>
@@ -25,7 +28,7 @@
     <% const endPage = (Math.floor((currentPageId - 1) / 5) + 1) * 5 %>
     <% const startPage = endPage - 4 %>
     <% const totalPages = Math.floor((length - 1) / 10) + 1 %>
-    <div class="footer">
+    <div class="comment-footer">
         <% if(startPage > 1) { %>
             <a href="<%= `${currentURL.substring(0, currentURL.lastIndexOf('/') + 1)}${parseInt(currentPageId) - 1}` %>" style="text-decoration: none; color: #000000;">
                 &lt;
