@@ -2,7 +2,8 @@ const db = require("../models/Index"),
     validator = require('validator'),
     Comment = db.Comment,
     Member = db.Member,
-    Preference = db.Preference;
+    Preference = db.Preference,
+    Follow = db.Follow;
 
 module.exports = {
     /*지윤 작업 부분*/ 
@@ -106,13 +107,13 @@ module.exports = {
     follow: (req, res) => {
         let userId = req.params.userId;
         let followId = req.params.follow;
-        Member.findFollowAndAdd(userId, followId);
+        Follow.findFollowAndAdd(userId, followId);
     },
 
     unfollow: (req, res) => {
         let userId = req.params.userId;
         let followId = req.params.follow;
-        Member.findFollowAndDelete(userId, followId);
+        Follow.findFollowAndDelete(userId, followId);
     },
     /*정빈 작업 부분 */
     //세션 이용해서 접근 중인 사용자와 userId가 일치하는지 확인하는 작업 필요 -> 로그인 구현 이후에 가능할듯
