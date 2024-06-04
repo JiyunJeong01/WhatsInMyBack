@@ -40,9 +40,15 @@
                         <li class="nav-item">
                             <a class="nav-link" href="/post/posts" style="color: black;">Posts</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/profile" style="color: black;">Profile</a>
-                        </li>
+                        <% if (user) { %>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/profile/<%= user.id %>" style="color: black;">Profile</a>
+                            </li>
+                        <% } else { %>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/auth/login" style="color: black;">Profile</a>
+                            </li>
+                        <% } %>
                     </ul>
                     <% if (user) { %>
                     <li class="nav-item">

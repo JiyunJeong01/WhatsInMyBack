@@ -12,7 +12,9 @@
             </div>
             <br>
             <div class="image">
-                <input type="file" id="image" name="image" onchange="previewImage(this)">
+                <input type="file" id="image" name="image">
+                <br>
+                <button class="image-delete-button" type="button" id="deleteImage">삭제</button>
             </div>
         </div>
         <div class="right-column">
@@ -23,6 +25,7 @@
                         <input type="text" id="email" name="email" value="<%= userInfo.email %>">
                         <!-- <button type="button" class="btn-check">인증하기</button> -->
                     </div>
+                    <div class="error" id="emailError"></div>
                 </div>
                 <div class="setting-form-group">
                     <label for="nickname">닉네임</label>
@@ -30,10 +33,12 @@
                         <input type="text" id="nickname" name="nickname" value="<%= userInfo.nickname %>">
                         <!-- <button type="submit" class="btn-check">확인하기</button> -->
                     </div>
+                    <div class="error" id="nicknameError"></div>
                 </div>
                 <div class="setting-form-group">
                     <label for="username">이름</label>
                     <input type="text" id="username" name="username" value="<%= userInfo.username %>">
+                    <div class="error" id="usernameError"></div>
                 </div>
                 <div class="setting-form-group">
                     <label for="bio">소개글</label>
@@ -46,6 +51,7 @@
                 <div class="setting-form-group">
                     <label for="age">나이</label>
                     <input type="integer" id="age" name="age" value="<%= userInfo.age %>">
+                    <div class="error" id="ageError"></div>
                 </div>
                 <div class="setting-form-group">
                     <label for="gender">성별</label>
@@ -120,7 +126,7 @@
                 <br>
                 <div class="setting-form-group">
                     <input type="hidden" id="picture_base64" name="picture_base64" value="<%= userInfo.picture_base64 %>">
-                    <button type="submit" class="setting-btn-primary">적용</button>
+                    <button type="submit" class="setting-btn-primary" disabled>적용</button>
                 </div>
             </form>
         </div>
@@ -202,4 +208,115 @@
         hiddenInput.value = newValue;
         statusElement.textContent = (newValue === '1') ? 'ON' : 'OFF';
     }
+    document.getElementById('deleteImage').addEventListener('click', function() {
+        const defaultImagePath = "/images/default_profile.jpg";
+        document.getElementById('profileImage').src = defaultImagePath;
+        document.getElementById('picture_base64').value = '';
+        validateForm();
+    });
+    function validateEmail() {
+        const emailValue = email.value;
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (emailValue.trim() === '') {
+            emailError.textContent = "이메일을 입력해 주세요.";
+            emailError.style.display = 'block';
+            return false;
+        }
+        if (!emailPattern.test(emailValue) || !emailValue.endsWith('.com')) {
+            emailError.textContent = "이메일 형식이 틀립니다.";
+            emailError.style.display = 'block';
+            return false;
+        } 
+        emailError.textContent = "";
+        emailError.style.display = 'none';
+        return true;
+    }
+    function validateNickname() {
+        const nicknameValue = nickname.value;
+
+        if (nicknameValue.trim() === '') {
+            nicknameError.textContent = "닉네임을 입력해 주세요.";
+            nicknameError.style.display = 'block';
+            return false;
+        }
+        if (nicknameValue.length > 8) {
+            nicknameError.textContent = "닉네임은 8글자 이하로 입력해 주세요.";
+            nicknameError.style.display = 'block';
+            return false;
+        }
+        nicknameError.textContent = "";
+        nicknameError.style.display = 'none';
+        return true;
+    }
+    function validateUsername() {
+        const usernameValue = username.value;
+
+        if (usernameValue.trim() === '') {
+            usernameError.textContent = "이름을 입력해 주세요.";
+            usernameError.style.display = 'block';
+            return false;
+        }
+        if (usernameValue.length > 12) {
+            usernameError.textContent = "이름은 12글자 이하로 입력해 주세요.";
+            usernameError.style.display = 'block';
+            return false;
+        }
+        usernameError.textContent = "";
+        usernameError.style.display = 'none';
+        return true;
+    }
+    function validateAge() {
+        const ageValue = age.value;
+    
+        if (ageValue.trim() === '') {
+            ageError.textContent = "나이를 입력해 주세요.";
+            ageError.style.display = 'block';
+            return false;
+        }
+        if (!/^\d+$/.test(ageValue)) {
+            ageError.textContent = "나이는 숫자로 입력해 주세요.";
+            ageError.style.display = 'block';
+            return false;
+        }
+        ageError.textContent = "";
+        ageError.style.display = 'none';
+        return true;
+    }
+    function validateForm() {
+        const isEmailValid = validateEmail();
+        const isUsernameValid = validateUsername();
+        const isNicknameValid = validateNickname();
+        const isJobValid = job.value.trim() !== '';
+        const isGenderValid = gender.value !== '';
+        const isAgeValid = validateAge();
+
+        const applyButton = document.querySelector('.setting-btn-primary');
+        applyButton.disabled = !(isEmailValid && isUsernameValid && isNicknameValid && isJobValid && isGenderValid && isAgeValid);
+    }
+    document.getElementById('image').addEventListener('change', function() {
+        previewImage(this);
+        validateForm();
+    });
+    document.getElementById('email').addEventListener('input', validateForm);
+    document.getElementById('username').addEventListener('input', validateForm);
+    document.getElementById('nickname').addEventListener('input', validateForm);
+    document.getElementById('bio').addEventListener('input', validateForm);
+    document.getElementById('job').addEventListener('input', validateForm);
+    document.getElementById('age').addEventListener('input', validateForm);
+    document.querySelectorAll('.button-gender').forEach(button => {
+        button.addEventListener('click', () => {
+            validateForm();
+        });
+    });
+    document.querySelectorAll('.theme-container button').forEach(button => {
+        button.addEventListener('click', () => {
+            validateForm();
+        });
+    });
+    document.querySelectorAll('.notification-status').forEach(statusElement => {
+        statusElement.addEventListener('click', () => {
+            validateForm();
+        });
+    });
 </script>
