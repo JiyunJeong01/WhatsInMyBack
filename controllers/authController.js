@@ -18,25 +18,22 @@ exports.signupPage = async (req, res) => {
 exports.signup = async (req, res) => {
     const { email, password, username, nickname, job, gender, age, themes } = req.body;
 
-    // 입력 데이터 검증
-    if (!email || !password || !username || !nickname || !job || !gender || !age) {
-        return res.status(400).json({ error: 'All fields are required' });
-    }
-
-    // 이메일 형식 검증
-    if (!validator.isEmail(email)) {
-        return res.status(400).json({ error: '올바른 이메일 주소를 입력하세요.' });
-    }
-
-    // 비밀번호 검증
-    if (password.length < 8 || !/\d/.test(password) || !/[a-zA-Z]/.test(password)) {
-        return res.status(400).json({ error: 'Password must be at least 8 characters long and include both letters and numbers.' });
-    }
-
     // gender 값을 변환
     const genderValue = gender === '남' ? 'male' : gender === '여' ? 'female' : '';
 
     try {
+        // 이메일 중복 확인
+        const existingEmail = await MemberModel.getUserByEmail(email);
+        if (existingEmail) {
+            return res.status(400).json({ error: '이미 가입된 이메일입니다.' });
+        }
+
+        // 닉네임 중복 확인
+        const existingNickname = await MemberModel.getUserByNickname(nickname);
+        if (existingNickname) {
+            return res.status(400).json({ error: '이미 사용 중인 닉네임입니다. 다른 닉네임을 입력하세요.' });
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10); // 비밀번호 해싱 
 
         const user = {
@@ -58,7 +55,7 @@ exports.signup = async (req, res) => {
 
         // 회원가입 성공 시, 세션에 사용자 정보 저장
         req.session.user = {
-            id: user.member_id,
+            id: memberId,
             email: user.email,
             username: user.username
         };

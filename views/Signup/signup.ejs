@@ -96,7 +96,9 @@
             <input type="password" class="input-field" id="password-confirm" placeholder="비밀번호 확인">
             <div id="password-match-error" class="error-message"></div>
             <input type="text" class="input-field" id="username" placeholder="이름">
+            <div id="username-error" class="error-message"></div>
             <input type="text" class="input-field" id="nickname" placeholder="닉네임">
+            <div id="nickname-error" class="error-message"></div>
             <input type="text" class="input-field" id="job" placeholder="직업">
             <select id="gender" class="dropdown">
                 <option value="" disabled selected>성별</option>
@@ -152,6 +154,8 @@
             const emailError = document.getElementById('email-error');
             const passwordError = document.getElementById('password-error');
             const passwordMatchError = document.getElementById('password-match-error');
+            const usernameError = document.getElementById('username-error');
+            const nicknameError = document.getElementById('nickname-error');
 
             // 이메일 검증 함수
             function validateEmail() {
@@ -203,13 +207,45 @@
                 }
             }
 
+            // 이름 검증 함수
+            function validateUsername() {
+                const usernameValue = username.value;
+                const hasValidLength = usernameValue.length > 0 && usernameValue.length <= 12;
+
+                if (!hasValidLength) {
+                    usernameError.textContent = "이름은 12글자 이하로 입력하세요.";
+                    usernameError.style.display = 'block';
+                    return false;
+                } else {
+                    usernameError.textContent = "";
+                    usernameError.style.display = 'none';
+                    return true;
+                }
+            }
+            
+            // 닉네임 검증 함수
+            function validateNickname() {
+                const nicknameValue = nickname.value;
+                const hasValidLength = nicknameValue.length > 0 && nicknameValue.length <= 8;
+
+                if (!hasValidLength) {
+                    nicknameError.textContent = "닉네임은 8글자 이하로 입력하세요.";
+                    nicknameError.style.display = 'block';
+                    return false;
+                } else {
+                    nicknameError.textContent = "";
+                    nicknameError.style.display = 'none';
+                    return true;
+                }
+            }
+
             // 폼 유효성 검사 함수
             function validateForm() {
                 const isEmailValid = validateEmail();
                 const isPasswordValid = validatePassword();
                 const isPasswordMatchValid = validatePasswordMatch();
-                const isUsernameValid = username.value.trim() !== '';
-                const isNicknameValid = nickname.value.trim() !== '';
+                const isUsernameValid = validateUsername();
+                const isNicknameValid = validateNickname();
                 const isJobValid = job.value.trim() !== '';
                 const isGenderValid = gender.value !== '';
                 const isBirthYearValid = birthYear.value !== '';
