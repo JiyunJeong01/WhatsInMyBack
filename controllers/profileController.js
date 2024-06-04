@@ -11,8 +11,8 @@ module.exports = {
         let loginId;
         try {
             // req.session.user 객체와 loginId 속성이 정의되어 있는지 확인
-            if (req.session.user && req.session.user.loginId) {
-                loginId = req.session.user.loginId;
+            if (req.session.user && req.session.user.id) {
+                loginId = req.session.user.id;
                 res.locals.loginId = loginId
             } else {
                 // loginId 속성이 정의되어 있지 않을 경우 다른 동작 수행
@@ -58,8 +58,8 @@ module.exports = {
         let loginId;
         try {
             // req.session.user 객체와 loginId 속성이 정의되어 있는지 확인
-            if (req.session.user && req.session.user.loginId) {
-                loginId = req.session.user.loginId;
+            if (req.session.user && req.session.user.id) {
+                loginId = req.session.user.id;
                 res.locals.loginId = loginId
             } else {
                 // loginId 속성이 정의되어 있지 않을 경우 다른 동작 수행
@@ -106,8 +106,8 @@ module.exports = {
         let loginId;
         try {
             // req.session.user 객체와 loginId 속성이 정의되어 있는지 확인
-            if (req.session.user && req.session.user.loginId) {
-                loginId = req.session.user.loginId;
+            if (req.session.user && req.session.user.id) {
+                loginId = req.session.user.id;
                 res.locals.loginId = loginId
             } else {
                 // loginId 속성이 정의되어 있지 않을 경우 다른 동작 수행
@@ -204,8 +204,8 @@ module.exports = {
         let loginId;
         try {
             // req.session.user 객체와 loginId 속성이 정의되어 있는지 확인
-            if (req.session.user && req.session.user.loginId) {
-                loginId = req.session.user.loginId;
+            if (req.session.user && req.session.user.id) {
+                loginId = req.session.user.id;
                 res.locals.loginId = loginId
             } else {
                 // loginId 속성이 정의되어 있지 않을 경우 다른 동작 수행
@@ -241,7 +241,7 @@ module.exports = {
             res.status(404).send('Member not found');
             return;
         }
-        else if (res.locals.member != res.locals.loginId) {
+        else if (res.locals.member.member_id != res.locals.loginId) {
             res.status(404).send('잘못된 접근입니다.');
             return;
         }
@@ -254,8 +254,8 @@ module.exports = {
         let loginId;
         try {
             // req.session.user 객체와 loginId 속성이 정의되어 있는지 확인
-            if (req.session.user && req.session.user.loginId) {
-                loginId = req.session.user.loginId;
+            if (req.session.user && req.session.user.id) {
+                loginId = req.session.user.id;
                 res.locals.loginId = loginId
             } else {
                 // loginId 속성이 정의되어 있지 않을 경우 다른 동작 수행
@@ -291,7 +291,7 @@ module.exports = {
             res.status(404).send('Member not found');
             return;
         }
-        else if (res.locals.member != res.locals.loginId) {
+        else if (res.locals.member.member_id != res.locals.loginId) {
             res.status(404).send('잘못된 접근입니다.');
             return;
         }
