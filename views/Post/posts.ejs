@@ -78,16 +78,5 @@
         </div>
     <% } %>
     <input type="hidden" id="Datas" value='<%= JSON.stringify(Previews) %>'>
-    <script>
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            const year = date.getFullYear();
-            const month = date.getMonth() + 1;
-            const day = date.getDate();
-            const hours = date.getHours();
-            const minutes = date.getMinutes();
-            return `${year}/${month}/${day} 작성시간:${hours}시 ${minutes}분`;
-        }
-    </script>
 </body>
 </html>
