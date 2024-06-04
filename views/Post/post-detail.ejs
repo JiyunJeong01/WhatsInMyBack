@@ -94,30 +94,38 @@
           <% }); %>
         </div>
       </div>
+
       <!-- 정보 -->
       <div class="col-md-6">
+
         <!-- 테마 -->
         <p class="btn btn-primary btn-title"><%= post.theme_name %></p>
+
         <!-- 제목 -->
         <h1><%= post.post_title %></h1>
-<!-- 프로필 섹션 -->
-<div class="d-flex align-items-center mb-3">
-  <img src="<%= member.picture_base64 %>" alt="Profile Picture" class="rounded-circle mr-3" style="width: 50px; height: 50px; margin-right: 10px;" />
-  <div>
-    <h5 class="mb-0"><%= member.username %></h5>
-    <small class="text-muted"><%= member.nickname %></small>
-  </div>
-</div>
-<hr style="border-top: 1.5px solid #495057;">
-<!-- 추가 정보 -->
-<div class="d-flex justify-content-between align-items-center">
-  <p>조회수 <%= post.views %></p>
-</div>
-<!-- 내용 -->
-<div class="content-area">
-  <h5>내용:</h5>
-  <p class="section"><%= post.post_content %></p>
-</div>
+
+        <!-- 프로필 섹션 -->
+        <div class="d-flex align-items-center mb-3">
+          <img src="<%= member.picture_base64 %>" alt="Profile Picture" class="rounded-circle mr-3" style="width: 50px; height: 50px; margin-right: 10px;" />
+          <div>
+            <h5 class="mb-0"><%= member.username %></h5>
+            <small class="text-muted"><%= member.nickname %></small>
+          </div>
+        </div>
+
+        <hr style="border-top: 1.5px solid #495057;">
+
+        <!-- 추가 정보 -->
+        <div class="d-flex justify-content-between align-items-center">
+          <p>조회수 <%= post.views %></p>
+        </div>
+
+        <!-- 내용 -->
+        <div class="content-area">
+          <h5>내용:</h5>
+          <p class="section"><%= post.post_content %></p>
+        </div>
+
 <!-- 해시태그 및 작성일 -->
 <div class="d-flex flex-column">
   <div class="mb-2">
@@ -143,38 +151,41 @@
   </div>
 </div>
 
+<!-- 좋아요/북마크 -->
+<div class="d-flex justify-content-end mb-3">
+  <button id="likeButton" class="btn btn-outline-success btn-sm mr-2" style="margin-right: 10px;">
+    좋아요 (<span id="likeCount"><%= post.like_count %></span>)
+  </button>
+  <button id="bookmarkButton" class="btn btn-outline-info btn-sm">
+    북마크 (<span id="bookmarkCount"><%= post.bookmark_count %></span>)
+  </button>
+</div>
 
-    <!-- 좋아요/북마크 -->
-    <div class="d-flex justify-content-end mb-3">
-      <button id="likeButton" class="btn btn-outline-success btn-sm mr-2" style="margin-right: 10px;">
-        좋아요 (<span id="likeCount"><%= post.like_count %></span>)
-      </button>
-      <button id="bookmarkButton" class="btn btn-outline-info btn-sm">
-        북마크 (<span id="bookmarkCount"><%= post.bookmark_count %></span>)
-      </button>
-    </div>
+<!-- 수정 및 삭제 버튼 -->
+<% if (isAuthor) { %> <!-- 수정: isAuthor 변수를 사용하여 조건부 렌더링 -->
+  <div class="d-flex justify-content-end mb-3">
+    <a href="/post/<%= post.post_id %>/edit" class="btn btn-primary btn-sm mr-2 btn-dark" style="margin-right: 10px;">게시글 수정</a>
+    <form id="deleteForm" action="/post/<%= post.post_id %>?_method=DELETE" method="POST" class="mr-2">
+      <button type="submit" class="btn btn-danger btn-sm btn-dark">게시글 삭제</button>
+    </form>
+  </div>
+<% } %>
 
-    <!-- 수정 및 삭제 버튼 -->
-    <div class="d-flex justify-content-end mb-3">
-      <a href="/post/<%= post.post_id %>/edit" class="btn btn-primary btn-sm mr-2 btn-dark" style="margin-right: 10px;">게시글 수정</a>
-      <form id="deleteForm" action="/post/<%= post.post_id %>/delete" method="POST" class="mr-2">
-        <button type="submit" class="btn btn-danger btn-sm btn-dark">게시글 삭제</button>
-      </form>
-    </div>
+<!-- 댓글 입력 폼 -->
+<% if (user) { %> <!-- 로그인 여부 확인 -->
+  <div class="mb-3">
+    <h4>댓글 작성</h4>
+    <form id="comment-form" class="d-flex">
+      <div class="flex-grow-1 mr-2">
+        <textarea id="comment-input" class="form-control" rows="3" placeholder="댓글을 입력하세요"></textarea>
+      </div>
+      <button type="submit" class="btn btn-outline-secondary">댓글 작성</button>
+    </form>
+  </div>
+<% } %>
 
-   
-        <!-- 댓글 입력 폼 -->
-        <div class="mb-3">
-          <h4>댓글 작성</h4>
-          <form id="comment-form" class="d-flex">
-            <div class="flex-grow-1 mr-2">
-              <textarea id="comment-input" class="form-control" rows="3" placeholder="댓글을 입력하세요"></textarea>
-            </div>
-            <button type="submit" class="btn btn-outline-secondary">댓글 작성</button>
-          </form>
-        </div>
-
-        <h4>댓글 목록</h4>
+<!-- 댓글 목록 -->
+<h4>댓글 목록</h4>
 <p><%= post.comment_count %></p>
 <div id="comment-list">
   <% if (comments.length === 0) { %>
@@ -191,18 +202,21 @@
             </div>
           </div>
           <p class="mt-2 mb-0"><%= comment.comment_content %></p>
-         <!-- 대댓글 작성 폼 -->
-<div class="mt-2">
-  <a href="#" class="btn btn-sm btn-outline-secondary" onclick="toggleReplyForm('<%= comment.comment_id %>')">대댓글 작성</a>
-  <form id="reply-form-<%= comment.comment_id %>" class="mt-2" style="display: none;">
-    <div class="input-group">
-      <input type="text" class="form-control" placeholder="대댓글을 입력하세요">
-      <div class="input-group-append">
-        <button type="submit" class="btn btn-outline-secondary">작성</button>
-      </div>
-    </div>
-  </form>
-</div>
+
+          <!-- 대댓글 작성 폼 -->
+          <% if (user) { %> <!-- 로그인 여부 확인 -->
+            <div class="mt-2">
+              <a href="#" class="btn btn-sm btn-outline-secondary" onclick="toggleReplyForm('<%= comment.comment_id %>')">대댓글 작성</a>
+              <form id="reply-form-<%= comment.comment_id %>" class="mt-2" style="display: none;">
+                <div class="input-group">
+                  <input type="text" class="form-control" placeholder="대댓글을 입력하세요">
+                  <div class="input-group-append">
+                    <button type="submit" class="btn btn-outline-secondary">작성</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          <% } %>
 
           <!-- 대댓글 목록 -->
           <div id="reply-list-<%= comment.comment_id %>" class="mt-2">
@@ -224,6 +238,7 @@
     </div>
   <% } %>
 </div>
+</div>
 
 
 <script>
@@ -232,14 +247,18 @@
   const likeCount = document.getElementById('likeCount');
   const bookmarkCount = document.getElementById('bookmarkCount');
   const postId = '<%= post.post_id %>';
-  const memberId = 20; // 로그인된 사용자의 id를 넣어야 함
+  const userId = '<%= user ? user.id : "null" %>';
 
   // 좋아요 버튼 이벤트 리스너
   likeButton.addEventListener('click', function() {
+    if (userId === 'null') { // 로그인 여부 확인
+      alert('로그인이 필요합니다.');
+      return;
+    }
     fetch('/post/like', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ postId, memberId })
+      body: JSON.stringify({ postId, memberId: userId })
     })
     .then(response => response.json())
     .then(data => {
@@ -256,10 +275,14 @@
 
   // 북마크 버튼 이벤트 리스너
   bookmarkButton.addEventListener('click', function() {
+    if (userId === 'null') { // 로그인 여부 확인
+      alert('로그인이 필요합니다.');
+      return;
+    }
     fetch('/post/bookmark', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ postId, memberId })
+      body: JSON.stringify({ postId, memberId: userId })
     })
     .then(response => response.json())
     .then(data => {
