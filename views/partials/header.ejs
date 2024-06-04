@@ -44,9 +44,15 @@
                             <a class="nav-link" href="/profile" style="color: black;">Profile</a>
                         </li>
                     </ul>
+                    <% if (user) { %>
                     <li class="nav-item">
-                        <a class="nav-link" href="/login" style="color: black;">Login</a>
+                        <a class="nav-link" href="/auth/logout" style="color: black;">Logout</a>
                     </li>
+                    <% } else { %>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/auth/login" style="color: black;">Login</a>
+                    </li>
+                    <% } %>
                     <li class="nav-item">
                         <form class="mb-3" action="/post/search/latest/all/" method="GET">
                             <div class="input-group mb-3">
