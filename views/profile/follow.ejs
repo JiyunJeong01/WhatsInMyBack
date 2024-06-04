@@ -56,13 +56,15 @@
                     <a href="/profile/<%= follow.member_id %>" class="follow_name">
                         <%= follow.nickname %>
                     </a>
-                    <button onclick="followb_click(<%= member.member_id %>, <%= follow.member_id %>, this)">
-                        <% if (follow.is_following) { %>
-                            언팔로우
-                            <% } else { %>
-                                팔로우
-                                <% } %>
-                    </button>
+                    <% if (loginId!= 0 && loginId != follow.member_id) { %>
+                        <button onclick="followb_click(<%= loginId %>, <%= follow.member_id %>, this)">
+                            <% if (follow.is_following) { %>
+                                언팔로우
+                                <% } else { %>
+                                    팔로우
+                                    <% } %>
+                        </button>
+                        <% }; %>
                 </div>
                 <% }); %>
         </div>
@@ -97,6 +99,6 @@
             .then(response => response.json())
             .catch(error => console.log('Fetch error: ', error));
         
-        button.innerText = is_following ? '팔로우' : '안팔로우';
+        button.innerText = is_following ? '팔로우' : '언팔로우';
     }
 </script>

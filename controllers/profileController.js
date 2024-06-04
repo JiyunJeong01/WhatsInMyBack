@@ -8,26 +8,20 @@ const db = require("../models/Index"),
 module.exports = {
     /*지윤 작업 부분*/ 
     profilePage: async (req, res, next) => {
-        let loginId;
-        try {
-            // req.session.user 객체와 loginId 속성이 정의되어 있는지 확인
-            if (req.session.user && req.session.user.id) {
-                loginId = req.session.user.id;
-                res.locals.loginId = loginId
-            } else {
-                // loginId 속성이 정의되어 있지 않을 경우 다른 동작 수행
-                res.locals.loginId = 0;
-            }
-        } catch (error) {
-            // 에러 처리
-            console.error(error);
-            res.status(500).send("서버 오류입니다.");
-        }
-
+        let loginId = req.session.user ? req.session.user.id : 0;
+        res.locals.loginId = loginId;
         let userId = req.params.userId;
-        await Member.findById(userId, loginId)
+        await Member.findById(userId)
             .then(member => {
                 res.locals.member = member;
+            })
+            .catch(error => {
+                console.log(`Error fetching member by ID: ${error.message}`);
+                next(error);
+            });
+        await Follow.checkFollow(userId, loginId)
+            .then(is_following => {
+                res.locals.member.is_following = is_following;
             })
             .catch(error => {
                 console.log(`Error fetching member by ID: ${error.message}`);
@@ -46,7 +40,7 @@ module.exports = {
 
     profileShow: (req, res) => {
         if (!res.locals.member) {
-            res.status(404).send('Member not found');
+            res.render("profile/noaccess")
             return;
         }
         res.render('profile/main', {
@@ -55,24 +49,10 @@ module.exports = {
     },
 
     followeePage: async (req,res,next) =>{
-        let loginId;
-        try {
-            // req.session.user 객체와 loginId 속성이 정의되어 있는지 확인
-            if (req.session.user && req.session.user.id) {
-                loginId = req.session.user.id;
-                res.locals.loginId = loginId
-            } else {
-                // loginId 속성이 정의되어 있지 않을 경우 다른 동작 수행
-                res.locals.loginId = 0;
-            }
-        } catch (error) {
-            // 에러 처리
-            console.error(error);
-            res.status(500).send("서버 오류입니다.");
-        }
-
+        let loginId = req.session.user ? req.session.user.id : 0;
+        res.locals.loginId = loginId;
         let userId = req.params.userId;
-        await Member.findById(userId, loginId)
+        await Member.findById(userId)
             .then(member => {
                 res.locals.member = member;
             })
@@ -80,7 +60,15 @@ module.exports = {
                 console.log(`Error fetching member by ID: ${error.message}`);
                 next(error);
             });
-        await Member.findFolloweeById(userId)
+        await Follow.checkFollow(userId, loginId)
+            .then(is_following => {
+                res.locals.member.is_following = is_following;
+            })
+            .catch(error => {
+                console.log(`Error fetching member by ID: ${error.message}`);
+                next(error);
+            });
+        await Member.findFolloweeById(userId, loginId)
             .then(followees => {
                 res.locals.followees = followees;
                 next();
@@ -89,11 +77,30 @@ module.exports = {
                 console.log(`Error fetching member by ID: ${error.message}`);
                 next(error);
             });
+        /*await Member.findFolloweeById(userId)
+            .then(followees => {
+                followeesInfo = followees.map(followee => {
+                    Follow.checkFollow(followee.member_id, loginId)
+                    .then(is_following => {
+                        followee.is_following = is_following;
+                    })
+                    .catch(error => {
+                        console.log(`Error fetching member by ID: ${error.message}`);
+                        next(error);
+                    });
+                })
+                res.locals.followees = followeesInfo;
+                next();
+            })
+            .catch(error => {
+                console.log(`Error fetching member by ID: ${error.message}`);
+                next(error);
+            }); */
     },
 
     followeeShow: (req, res) => {
-        if (!res.locals.followees) {
-            res.status(404).send('followee not found');
+        if (!res.locals.member) {
+            res.render("profile/noaccess")
             return;
         }
         res.render('profile/follow', {
@@ -103,24 +110,10 @@ module.exports = {
     },
 
     followerPage: async (req,res,next) =>{
-        let loginId;
-        try {
-            // req.session.user 객체와 loginId 속성이 정의되어 있는지 확인
-            if (req.session.user && req.session.user.id) {
-                loginId = req.session.user.id;
-                res.locals.loginId = loginId
-            } else {
-                // loginId 속성이 정의되어 있지 않을 경우 다른 동작 수행
-                res.locals.loginId = 0;
-            }
-        } catch (error) {
-            // 에러 처리
-            console.error(error);
-            res.status(500).send("서버 오류입니다.");
-        }
-
+        let loginId = req.session.user ? req.session.user.id : 0;
+        res.locals.loginId = loginId;
         let userId = req.params.userId;
-        await Member.findById(userId, loginId)
+        await Member.findById(userId)
             .then(member => {
                 res.locals.member = member;
             })
@@ -128,9 +121,16 @@ module.exports = {
                 console.log(`Error fetching member by ID: ${error.message}`);
                 next(error);
             });
-        await Member.findFollowerById(userId)
+        await Follow.checkFollow(userId, loginId)
+            .then(is_following => {
+                res.locals.member.is_following = is_following;
+            })
+            .catch(error => {
+                console.log(`Error fetching member by ID: ${error.message}`);
+                next(error);
+            });
+        await Member.findFollowerById(userId, loginId)
             .then(followers => {
-                member: res.locals.member
                 res.locals.followers = followers;
                 next();
             })
@@ -141,8 +141,8 @@ module.exports = {
     },
 
     followerShow: (req, res) => {
-        if (!res.locals.followers) {
-            res.status(404).send('followee not found');
+        if (!res.locals.member) {
+            res.render("profile/noaccess")
             return;
         }
         res.render('profile/follow', {
@@ -201,21 +201,8 @@ module.exports = {
     },
     /*지윤 작업 부분 */
     collectBookmark: async (req, res, next) => {
-        let loginId;
-        try {
-            // req.session.user 객체와 loginId 속성이 정의되어 있는지 확인
-            if (req.session.user && req.session.user.id) {
-                loginId = req.session.user.id;
-                res.locals.loginId = loginId
-            } else {
-                // loginId 속성이 정의되어 있지 않을 경우 다른 동작 수행
-                res.locals.loginId = 0;
-            }
-        } catch (error) {
-            // 에러 처리
-            console.error(error);
-            res.status(500).send("서버 오류입니다.");
-        }
+        let loginId = req.session.user ? req.session.user.id : 0;
+        res.locals.loginId = loginId;
         let userId = req.params.userId;
         await Member.findById(userId)
             .then(member => {
@@ -237,12 +224,8 @@ module.exports = {
     },
 
     collectBookmarkShow: (req, res) => {
-        if (!res.locals.member) {
-            res.status(404).send('Member not found');
-            return;
-        }
-        else if (res.locals.member.member_id != res.locals.loginId) {
-            res.status(404).send('잘못된 접근입니다.');
+        if (!res.locals.member || res.locals.member.member_id != res.locals.loginId) {
+            res.render("profile/noaccess")
             return;
         }
         res.render('profile/bookmark', {
@@ -251,21 +234,8 @@ module.exports = {
     },
 
     collectLike: async (req, res, next) => {
-        let loginId;
-        try {
-            // req.session.user 객체와 loginId 속성이 정의되어 있는지 확인
-            if (req.session.user && req.session.user.id) {
-                loginId = req.session.user.id;
-                res.locals.loginId = loginId
-            } else {
-                // loginId 속성이 정의되어 있지 않을 경우 다른 동작 수행
-                res.locals.loginId = 0;
-            }
-        } catch (error) {
-            // 에러 처리
-            console.error(error);
-            res.status(500).send("서버 오류입니다.");
-        }
+        let loginId = req.session.user ? req.session.user.id : 0;
+        res.locals.loginId = loginId;
         let userId = req.params.userId;
         await Member.findById(userId)
             .then(member => {
@@ -287,12 +257,8 @@ module.exports = {
     },
     
     collectLikeShow: (req, res) => {
-        if (!res.locals.member) {
-            res.status(404).send('Member not found');
-            return;
-        }
-        else if (res.locals.member.member_id != res.locals.loginId) {
-            res.status(404).send('잘못된 접근입니다.');
+        if (!res.locals.member || res.locals.member.member_id != res.locals.loginId) {
+            res.render("profile/noaccess")
             return;
         }
         res.render('profile/like', {
