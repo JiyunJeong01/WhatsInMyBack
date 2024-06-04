@@ -1,5 +1,5 @@
 <head>
-    <link rel="stylesheet" href="/css/whats_in_my_back.css">
+    <link rel="stylesheet" href="/css/profile_jy.css">
 </head>
 <div class="collect_container">
     <h1>북마크한 글</h1>
@@ -31,12 +31,10 @@
                     <% }); %>
             </div>
             <% } else { %>
-                <div class="center-container">
-                    <p>북마크한 게시글이 없습니다.</p>
-                    <a href="/profile/<%= member.member_id %>" style="text-decoration: none; color: #000000; background-color: #F8F8F8; padding: 10px; border-radius: 5px;">
+                <p>북마크한 게시글이 없습니다.</p>
+                <a href="/profile/<%= member.member_id %>" style="text-decoration: none; color: #000000; background-color: #F8F8F8; padding: 10px; border-radius: 5px;">
                         프로필로 돌아가기
-                    </a>
-                </div>
+                </a>
             <% }; %>
     </div>
 </div>
