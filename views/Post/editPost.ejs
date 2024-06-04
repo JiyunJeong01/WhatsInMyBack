@@ -271,6 +271,12 @@
                 }
             });
 
+            // 필수 필드 유효성 검사
+            if (!postData.post_title || !postData.post_content || !pages[1] || !pages[1].image) {
+                alert('제목, 내용 및 첫 번째 이미지를 입력해주세요.');
+                return;
+            } 
+
             fetch('/post/update', {
                 method: 'PUT',
                 headers: {
