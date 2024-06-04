@@ -10,13 +10,60 @@
             </div>
             <div class="password-form-group">
                 <input type="password" id="new_password" name="new_password" placeholder="새 비밀번호">
+                <div class="error" id="passwordError"></div>
             </div>
             <div class="password-form-group">
                 <input type="password" id="confirm_password" name="confirm_password" placeholder="새 비밀번호 재입력">
+                <div class="error" id="passwordMatchError"></div>
             </div>
             <div class="password-form-group">
-                <button type="submit">비밀번호 변경</button>
+                <button type="submit" class="pwd-change" disabled>비밀번호 변경</button>
             </div>
         </form>
     </div>
 </div>
+
+<script>
+    function validatePassword() {
+        const passwordValue = new_password.value;
+        const hasMinLength = passwordValue.length >= 8;
+        const hasNumber = /\d/.test(passwordValue);
+        const hasLetter = /[a-zA-Z]/.test(passwordValue);
+
+        if (!hasMinLength) {
+            passwordError.textContent = "비밀번호는 8자 이상이어야 합니다.";
+            passwordError.style.display = 'block';
+            return false;
+        } else if (!hasNumber || !hasLetter) {
+            passwordError.textContent = "비밀번호는 문자와 숫자를 모두 포함해야 합니다.";
+            passwordError.style.display = 'block';
+            return false;
+        } else {
+            passwordError.textContent = "";
+            passwordError.style.display = 'none';
+            return true;
+        }
+    }
+    function validatePasswordMatch() {
+        if (new_password.value !== confirm_password.value) {
+            passwordMatchError.textContent = "새 비밀번호가 일치하지 않습니다.";
+            passwordMatchError.style.display = 'block';
+            return false;
+        } else {
+            passwordMatchError.textContent = "";
+            passwordMatchError.style.display = 'none';
+            return true;
+        }
+    }
+    function validateForm() {
+        const isCurrentPasswordValid = current_password.value.trim() !== '';
+        const isNewPasswordValid = validatePassword();
+        const isPasswordMatchValid = validatePasswordMatch();
+
+        const applyButton = document.querySelector('.pwd-change');
+        applyButton.disabled = !(isCurrentPasswordValid && isNewPasswordValid && isPasswordMatchValid);
+    }
+    document.getElementById('current_password').addEventListener('input', validateForm);
+    document.getElementById('new_password').addEventListener('input', validateForm);
+    document.getElementById('confirm_password').addEventListener('input', validateForm);
+</script>
