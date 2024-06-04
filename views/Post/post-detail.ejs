@@ -14,7 +14,12 @@
       margin: 15px;
     }
     .section {
-      margin-bottom: 20px;
+      margin-bottom: 25px;
+      white-space: pre-wrap; /* 공백과 줄바꿈을 모두 유지하면서 필요에 따라 자동으로 줄바꿈 */
+    }
+    .content-area {
+      margin-top: 20px;
+      margin-bottom: 30px;
     }
 
     /* 해시태그 버튼 스타일 */
@@ -36,7 +41,7 @@
       background-color: #ffffff; /* 백그라운드 색상을 흰색으로 변경 */
       color: #000000; /* 텍스트 색상을 검정색으로 설정 */
       border: 1px solid #000000; /* 테두리를 검정색으로 설정 */
-      font-size: 1.5rem; /* h4 기본 크기 (1.5rem) */
+      font-size: 1.0rem; /* h4 기본 크기 (1.5rem) */
       font-weight: 400; /* h4 기본 굵기 (400) */
       padding: 0.25rem 0.5rem; /* 버튼 크기를 줄임 */
       border-radius: 0.5rem; /* 모서리를 라운드로 설정 */
@@ -46,7 +51,6 @@
     .title-margin {
       margin-top: 50px; /* 원하는 여백 크기로 설정 */
   }
-
 
      /* h1 요소 위에 여백 추가 */
      .title-margin2 {
@@ -108,32 +112,34 @@
 <!-- 추가 정보 -->
 <div class="d-flex justify-content-between align-items-center">
   <p>조회수 <%= post.views %></p>
-  <% if (post.updated_at) { %>
-    <%
-    const updatedAt = new Date(post.updated_at);
-    const formattedUpdatedAt = `${updatedAt.getFullYear()}.${String(updatedAt.getMonth() + 1).padStart(2, '0')}.${String(updatedAt.getDate()).padStart(2, '0')}`;
-    %>
-    <span>수정일: <%= formattedUpdatedAt %></span>
-  <% } %>
 </div>
 <!-- 내용 -->
-<div class="section">
+<div class="content-area">
   <h5>내용:</h5>
-  <p><%= post.post_content %></p>
+  <p class="section"><%= post.post_content %></p>
 </div>
 <!-- 해시태그 및 작성일 -->
-<div class="d-flex justify-content-between align-items-center">
+<div class="d-flex flex-column">
   <div class="mb-2">
     <% post.hashtags.split(' ').forEach(hashtag => { %>
       <span class="hashtag-button"><%= hashtag %></span>
     <% }) %>
   </div>
-  <div>
-    <%
-    const createdAt = new Date(post.created_at);
-    const formattedCreatedAt = `${createdAt.getFullYear()}.${String(createdAt.getMonth() + 1).padStart(2, '0')}.${String(createdAt.getDate()).padStart(2, '0')}`;
-    %>
-    <span>작성일: <%= formattedCreatedAt %></span>
+  <div class="d-flex justify-content-between align-items-center">
+    <div>
+      <%
+      const createdAt = new Date(post.created_at);
+      const formattedCreatedAt = `${createdAt.getFullYear()}.${String(createdAt.getMonth() + 1).padStart(2, '0')}.${String(createdAt.getDate()).padStart(2, '0')}`;
+      %>
+      <span style="margin-right: 10px;">작성일: <%= formattedCreatedAt %></span>
+      <% if (post.updated_at) { %>
+        <%
+        const updatedAt = new Date(post.updated_at);
+        const formattedUpdatedAt = `${updatedAt.getFullYear()}.${String(updatedAt.getMonth() + 1).padStart(2, '0')}.${String(updatedAt.getDate()).padStart(2, '0')}`;
+        %>
+        <span>수정일: <%= formattedUpdatedAt %></span>
+    <% } %>
+    </div>
   </div>
 </div>
 
