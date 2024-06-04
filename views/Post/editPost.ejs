@@ -248,8 +248,13 @@
             const imagesData = [];
             const productsData = [];
 
+            let canAddProducts = true;
             Object.keys(pages).forEach(key => {
                 const page = pages[key];
+                if (page.products.length > 0 && !page.image) {
+                    canAddProducts = false;
+                }
+
                 imagesData.push({
                     image_id: key,
                     image_base64: page.image
@@ -276,6 +281,12 @@
                 alert('제목, 내용 및 첫 번째 이미지를 입력해주세요.');
                 return;
             } 
+
+            // 이미지가 없으면서 제품이 있는 페이지 검사
+            if (!canAddProducts) {
+                alert('제품이 있는 페이지에는 반드시 이미지를 업로드해야 합니다.');
+                return;
+            }
 
             fetch('/post/update', {
                 method: 'PUT',
