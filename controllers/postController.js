@@ -21,11 +21,10 @@ exports.newPost = async (req, res) => {
             return res.redirect('/auth/login');
         }
 
-        const userId = req.session.user.id; // 현재 세션에 저장된 사용자
         const themes = await ThemeModel.findAll();  // 테마 전송
 
         res.render('Post/newPost', {
-            memberId: userId,
+            memberId: req.session.user.id,
             themes: themes
         });
     } catch (error) {
@@ -75,14 +74,12 @@ exports.editPost = async (req, res) => {
             return res.status(401).json({ error: 'Unauthorized' });
         }
 
-        const userId = req.session.user.id; // 현재 세션에 저장된 사용자
-
         // 게시글 정보 받아오기 
         const postId = req.params.postId;
         const post = await PostModel.findByPostId(postId); // if (post == null)
 
         // 로그인된 사용자와 게시글 작성자가 다르면 접근 차단
-        if (post.member_id !== userId) {
+        if (post.member_id !== req.session.user.id) {
             return res.status(403).json({ error: '수정 권한이 없습니다.' });
         }
 
@@ -167,10 +164,9 @@ exports.deletePost = async (req, res) => {
         }
 
         const postId = req.params.postId;
-        const userId = req.session.user.id; // 현재 세션에 저장된 사용자
         const post = await PostModel.findByPostId(postId);
 
-        if (post.member_id !== userId) {
+        if (post.member_id !== req.session.user.id) {
             return res.status(403).json({ error: '삭제 권한이 없습니다.' });
         }
 
@@ -187,7 +183,6 @@ exports.deletePost = async (req, res) => {
 exports.getPostDetail = async (req, res) => {
     try {
         const postId = req.params.postId;
-        const user = req.session.user;  // 현재 세션에 저장된 사용자
         
         await PostModel.increasedViews(postId); // 조회수++
 
@@ -218,7 +213,7 @@ exports.getPostDetail = async (req, res) => {
         });
 
         // 현재 세션에 저장된 사용자와 게시글 작성자가 같은 경우 -> 수정 삭제 버튼 표시
-        const isAuthor = user && user.id === post.member_id;
+        const isAuthor = req.session.user && req.session.user.id === post.member_id;
         res.render('Post/post-detail', { post, member, comments, pages, isAuthor }); // 수정: isAuthor 변수를 템플릿에 전달
 
     } catch (error) {

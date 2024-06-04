@@ -2,10 +2,20 @@ const CommentModel = require('../models/Comment');
 
 // 댓글 작성 (createComment 내용변경)
 exports.createComment = async (req, res) => {
-    const post_id = req.params.postId;
-    const { member_id, comment_content } = req.body;
+    // 로그인 여부 확인
+    if (!req.session.user) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
 
-    const comment = { post_id, member_id, parent_comment_id: null, comment_content };
+    const post_id = req.params.postId;
+    const { comment_content } = req.body;
+
+    const comment = { 
+        post_id, 
+        member_id: req.session.user.id, 
+        parent_comment_id: null, 
+        comment_content 
+    };
     const newComment = await CommentModel.create(comment);
 
     // 생성된 댓글의 추가 정보를 가져옴
@@ -49,9 +59,14 @@ exports.deleteComment = async (req, res) => {
 exports.createReply = async (req, res) => {
     const post_id = req.params.postId;
     const parent_comment_id = req.params.commentId;
-    const { member_id, comment_content } = req.body;
+    const { comment_content } = req.body;
 
-    const comment = { post_id, member_id, parent_comment_id, comment_content };
+    const comment = { 
+        post_id, 
+        member_id: req.session.user.id, 
+        parent_comment_id, 
+        comment_content 
+    };
     await CommentModel.create(comment);
 
     res.redirect(`/post/${post_id}/detail`);
