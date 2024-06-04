@@ -214,7 +214,7 @@ exports.getPostDetail = async (req, res) => {
 
         // 현재 세션에 저장된 사용자와 게시글 작성자가 같은 경우 -> 수정 삭제 버튼 표시
         const isAuthor = req.session.user && req.session.user.id === post.member_id;
-        res.render('Post/post-detail', { post, member, comments, pages, isAuthor }); // 수정: isAuthor 변수를 템플릿에 전달
+        res.render('Post/post-detail', { post, member, comments, pages, isAuthor, formatDate }); // 수정: isAuthor 변수를 템플릿에 전달
 
     } catch (error) {
         console.error("게시글 보기 중 오류:", error);
@@ -294,10 +294,12 @@ exports.findQuery = async (req, res) => {
 
 function formatDate(dateString) {
     const date = new Date(dateString);
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-    const hours = date.getHours();
-    const minutes = date.getMinutes();
+    const KoreaData = new Date(date.getTime() + 9 * 60 * 60 * 1000); 
+
+    const year = KoreaData.getFullYear();
+    const month = KoreaData.getMonth() + 1;
+    const day = KoreaData.getDate();
+    const hours = KoreaData.getHours();
+    const minutes = KoreaData.getMinutes();
     return `${year}/${month}/${day} 작성시간:${hours}시 ${minutes}분`;
 }
