@@ -17,8 +17,18 @@
                 <label for="confirm_check">정말 탈퇴하시겠습니까?</label>
             </div>
             <div class="unregister-form-group">
-                <button type="submit">탈퇴하기</button>
+                <button type="submit" class="unregister" disabled>탈퇴하기</button>
             </div>
         </form>
     </div>
 </div>
+
+<script>
+    function validateForm() {
+        const isCurrentPasswordValid = current_password.value.trim() !== '';
+
+        const applyButton = document.querySelector('.unregister');
+        applyButton.disabled = !(isCurrentPasswordValid);
+    }
+    document.getElementById('current_password').addEventListener('input', validateForm);
+</script>
