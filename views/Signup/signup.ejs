@@ -230,6 +230,8 @@
             // 폼 제출 이벤트 처리
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
+
+                const age = currentYear - birthYear.value;
                 const themes = Array.from(document.querySelectorAll('.tag.selected')).map(tag => tag.getAttribute('data-theme-id'));
                 const response = await fetch('/auth/signup', {
                     method: 'POST',
@@ -241,7 +243,7 @@
                         nickname: nickname.value,
                         job: job.value,
                         gender: gender.value,
-                        age: birthYear.value,
+                        age: age,
                         themes: themes
                     })
                 });
