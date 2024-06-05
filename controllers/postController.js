@@ -9,8 +9,14 @@ const PostInteractionModel = require('../models/PostInteraction');
 
 // 게시글 목록 조회
 exports.getPosts = async (req, res) => {
-    const Previews = await PostModel.findByQueryAndSortBy('', 'date', 'all');
-    res.render('Post/posts', { Previews, formatDate });
+    let page = 1;
+    if (req.query.page) { page = parseInt(req.query.page); }
+
+    const Previews = await PostModel.findByQueryAndSortBy('', 'date', 'all', page);
+    const PreviewsCount = await PostModel.findCountByQueryAndSortBy('', 'date', 'all');
+    const totalPages = Math.ceil(PreviewsCount / 6);
+
+    res.render('Post/posts', { Previews, PreviewsCount, totalPages, currentPage: page, formatDate });
 };
 
 // get: 새 게시글 작성 페이지 반환
@@ -214,7 +220,7 @@ exports.getPostDetail = async (req, res) => {
 
         // 현재 세션에 저장된 사용자와 게시글 작성자가 같은 경우 -> 수정 삭제 버튼 표시
         const isAuthor = req.session.user && req.session.user.id === post.member_id;
-        res.render('Post/post-detail', { post, member, comments, pages, isAuthor }); // 수정: isAuthor 변수를 템플릿에 전달
+        res.render('Post/post-detail', { post, member, comments, pages, isAuthor, formatDate }); // 수정: isAuthor 변수를 템플릿에 전달
 
     } catch (error) {
         console.error("게시글 보기 중 오류:", error);
@@ -280,12 +286,19 @@ exports.toggleBookmark = async (req, res) => {
 //검색
 exports.findQuery = async (req, res) => {
     try {
-        let selectedOpt = { query : req.query.query, sortBy : req.params.sortBy, theme : req.params.theme }
+        let opt = { 
+            query : req.query.query, 
+            sortBy : req.query.sortBy, 
+            theme : req.query.theme, 
+            page: parseInt(req.query.page)
+        }
 
         const themes = await ThemeModel.findAll();
-        results = await PostModel.findByQueryAndSortBy(selectedOpt.query, selectedOpt.sortBy, selectedOpt.theme);
-        res.render('Post/searchResult', { Previews : results, themes, selectedOpt, formatDate });
+        const Previews = await PostModel.findByQueryAndSortBy(opt.query, opt.sortBy, opt.theme, opt.page);
+        const PreviewsCount = await PostModel.findCountByQueryAndSortBy(opt.query, opt.sortBy, opt.theme);
+        const totalPages = Math.ceil(PreviewsCount / 6);
 
+        res.render('Post/searchResult', { Previews, themes, selectedOpt: opt, PreviewsCount, totalPages, formatDate });
     } catch (error) {
         console.error("게시글 보기 중 오류:", error);
         res.status(500).json({ error: '서버 오류가 발생했습니다.' });
@@ -294,10 +307,12 @@ exports.findQuery = async (req, res) => {
 
 function formatDate(dateString) {
     const date = new Date(dateString);
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-    const hours = date.getHours();
-    const minutes = date.getMinutes();
+    const KoreaData = new Date(date.getTime() + 9 * 60 * 60 * 1000); 
+
+    const year = KoreaData.getFullYear();
+    const month = KoreaData.getMonth() + 1;
+    const day = KoreaData.getDate();
+    const hours = KoreaData.getHours();
+    const minutes = KoreaData.getMinutes();
     return `${year}/${month}/${day} 작성시간:${hours}시 ${minutes}분`;
 }

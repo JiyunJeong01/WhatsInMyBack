@@ -281,6 +281,19 @@
                 return;
             } 
 
+            let canAddProducts = true;
+            for (const [page, data] of Object.entries(pages)) {
+                // 이미지가 없으면서 제품이 있는 페이지 검사
+                if (data.products.length > 0 && !data.image) {
+                    canAddProducts = false;
+                    break;
+                }
+            }
+            if (!canAddProducts) {
+                alert('이미지가 비어있는 페이지가 있습니다.');
+                return;
+            }
+
 
             for (const [page, data] of Object.entries(pages)) {
                 if (data.image) {

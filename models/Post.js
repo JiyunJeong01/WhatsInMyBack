@@ -34,7 +34,7 @@ exports.findByMemberId = async (memberId) => {
     try {
         const db = await require('../main').connection(); 
 
-        let sql = 'SELECT * FROM post WHERE member_id = ?';
+        let sql = `SELECT * AS theme_name FROM post WHERE member_id = ?`;
         const [rows] = await db.query(sql, [memberId]);
         return rows.length > 0 ? rows[0] : null;
 
@@ -42,6 +42,36 @@ exports.findByMemberId = async (memberId) => {
         console.error("Post.findByMemberId() 쿼리 실행 중 오류:", error);
     }
 };
+
+// 특정 멤버의 전체 게시글 조회
+exports.findAllByMemberId = async (memberId) => {
+    try {
+        const db = await require("../main").connection();
+        let [rows] = await db.query(`SELECT 
+        p.post_id,
+        p.theme_id, 
+        p.post_title, 
+        p.created_at, 
+        t.theme_name, 
+        (SELECT image_base64 FROM post_image WHERE post_id = p.post_id LIMIT 1) AS image_base64 
+        FROM post p JOIN theme t ON p.theme_id = t.theme_id 
+        WHERE p.member_id = ? ORDER BY p.created_at DESC`,[memberId]);
+
+        let posts = rows.map(row => {
+            return {
+                post_title: row.post_title,
+                theme_name: row.theme_name,
+                theme_id: row.theme_id,
+                post_id: row.post_id,
+                created_at: row.created_at,
+                image_base64: row.image_base64,
+            };
+        });
+        return posts;
+    } catch (error) {
+        console.error("쿼리 실행 중 오류:", error);
+    }
+}
 
 exports.create = async (post) => {
     try {
@@ -154,9 +184,12 @@ exports.findLatestPosts = async (limit) => {
   };
 
 // 검색
-exports.findByQueryAndSortBy = async (query, sortBy, themeId) => {
+exports.findByQueryAndSortBy = async (query, sortBy, themeId, pageIndex) => {
     try {
         const db = await require('../main').connection();        
+
+        const pageSize = 6;
+        let offset = pageSize * (pageIndex - 1);
 
         let sql = `
             SELECT 
@@ -180,38 +213,90 @@ exports.findByQueryAndSortBy = async (query, sortBy, themeId) => {
             WHERE 
                 CONCAT(p.post_title, p.post_content, p.hashtags) LIKE ? `;
 
-        if (themeId != 'all')  sql = sql + 'AND p.theme_id = ? '
+        if (themeId != 'all')  sql += 'AND p.theme_id = ? '
         switch (sortBy) {
             case 'latest':
-                sql = sql + `ORDER BY p.created_at DESC`;
+                sql += `ORDER BY p.created_at DESC`;
                 break;
             case 'views':
-                sql = sql + `ORDER BY p.views DESC`;
+                sql += `ORDER BY p.views DESC`;
                 break;
             case 'comments':
-                sql = sql + `ORDER BY (SELECT COUNT(*) FROM comment WHERE post_id = p.post_id) DESC`;
+                sql += `ORDER BY (SELECT COUNT(*) FROM comment WHERE post_id = p.post_id) DESC`;
                 break;
             case 'likes':
-                sql = sql + `ORDER BY (SELECT COUNT(*) FROM post_like WHERE post_id = p.post_id) DESC`;
+                sql += `ORDER BY (SELECT COUNT(*) FROM post_like WHERE post_id = p.post_id) DESC`;
                 break;
             case 'bookmarks':
-                sql = sql + `ORDER BY (SELECT COUNT(*) FROM bookmark WHERE post_id = p.post_id) DESC`;
+                sql += `ORDER BY (SELECT COUNT(*) FROM bookmark WHERE post_id = p.post_id) DESC`;
                 break;
             default:
-                sql = sql + `ORDER BY p.created_at DESC`;
+                sql += `ORDER BY p.created_at DESC`;
                 break;
         }
+        sql += ` LIMIT ? OFFSET ?`;
+    
 
         if (themeId != 'all') {
-            const [rows] = await db.query(sql, [`%${query}%`, themeId]);
+            const [rows] = await db.query(sql, [`%${query}%`, themeId, pageSize, offset]);
             return rows.length > 0 ? rows : null;
         }
         else {
-            const [rows] = await db.query(sql, [`%${query}%`]);
+            const [rows] = await db.query(sql, [`%${query}%`, pageSize, offset]);
             return rows.length > 0 ? rows : null;
         }
 
     } catch (error) {
         console.error("Post.findByQueryAndSortBy() 쿼리 실행 중 오류:", error);
+    }
+}
+
+exports.findCountByQueryAndSortBy = async (query, sortBy, themeId) => {
+    try {
+        const db = await require('../main').connection();        
+
+        let sql = `
+            SELECT 
+                COUNT(*) AS totalPosts
+            FROM 
+                post p 
+            JOIN 
+                member m ON p.member_id = m.member_id
+            WHERE 
+                CONCAT(p.post_title, p.post_content, p.hashtags) LIKE ? `;
+
+        if (themeId != 'all')  sql += 'AND p.theme_id = ? '
+        switch (sortBy) {
+            case 'latest':
+                sql += `ORDER BY p.created_at DESC`;
+                break;
+            case 'views':
+                sql += `ORDER BY p.views DESC`;
+                break;
+            case 'comments':
+                sql += `ORDER BY (SELECT COUNT(*) FROM comment WHERE post_id = p.post_id) DESC`;
+                break;
+            case 'likes':
+                sql += `ORDER BY (SELECT COUNT(*) FROM post_like WHERE post_id = p.post_id) DESC`;
+                break;
+            case 'bookmarks':
+                sql += `ORDER BY (SELECT COUNT(*) FROM bookmark WHERE post_id = p.post_id) DESC`;
+                break;
+            default:
+                sql += `ORDER BY p.created_at DESC`;
+                break;
+        }    
+
+        if (themeId != 'all') {
+            const [rows] = await db.query(sql, [`%${query}%`, themeId]);
+            return rows[0].totalPosts;
+        }
+        else {
+            const [rows] = await db.query(sql, [`%${query}%`]);
+            return rows[0].totalPosts;;
+        }
+
+    } catch (error) {
+        console.error("Post.findCountByQueryAndSortBy() 쿼리 실행 중 오류:", error);
     }
 }

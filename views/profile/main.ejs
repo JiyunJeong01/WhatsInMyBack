@@ -1,5 +1,6 @@
 <head>
-    <link rel="stylesheet" href="/css/whats_in_my_back.css">
+    <link rel="stylesheet" href="/css/profile_jy.css">
+    <script src="/js/script.js"></script>
 </head>
 <div class="profileBord">
     <div class="left">
@@ -77,29 +78,15 @@
 
 <script>
     window.addEventListener('DOMContentLoaded', (event) => {
-        const profileImage = document.getElementById('profileImage');
-        const pictureBase64Input = document.getElementById('picture_base64');
+    const profileImage = document.getElementById('profileImage');
+    const pictureBase64Input = document.getElementById('picture_base64');
 
-        if (pictureBase64Input && pictureBase64Input.value) {
-            profileImage.src = pictureBase64Input.value;
-        } else {
+    if (pictureBase64Input && pictureBase64Input.value) {
+        profileImage.src = pictureBase64Input.value;
+    } else {
 
-            const defaultImagePath = "/images/default_profile.jpg"
-            profileImage.src = defaultImagePath;
-        }
-    });
-
-    function followb_click(member_id, follow_id, button) {
-        is_following = (button.innerText == '언팔로우') ? true : false;
-        const followUrl = `/profile/${member_id}/${follow_id}`;
-        const config = {
-            method: is_following ? "DELETE" : "PUT"
-        };
-
-        fetch(followUrl, config)
-            .then(response => response.json())
-            .catch(error => console.log('Fetch error: ', error));
-
-        button.innerText = is_following ? '팔로우' : '안팔로우';
+        const defaultImagePath = "/images/default_profile.jpg"
+        profileImage.src = defaultImagePath;
     }
+});
 </script>

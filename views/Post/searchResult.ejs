@@ -5,37 +5,50 @@
   <title>Posts</title>
   <link rel="stylesheet" href="/public/bootstrap.min.css">
   <style>
-      .card-link {
-          text-decoration: none;
-          color: inherit;
-      }
-      .card-img-container {
-          height: 300px;
-          overflow: hidden;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-      }
-      .card-img-top {
-          width: 100%;
-          height: auto;
-          object-fit: cover;
-      }
-
-      /*css 파일에서 변경 시도했으나 색상변경안됨. posts.ejs에서 변경시도함*/
-      .hashtag-button {
-        display: inline-block;
-        background-color: #ffffff; /* 백그라운드 색상을 하얀색으로 변경 */
-        color: #6c757d; /* 텍스트 색상을 회색으로 유지 */
-        padding: 0.25rem 0.5rem;
-        font-size: 0.875rem;
-        border-radius: 0.25rem;
-        margin-right: 0.5rem;
-        margin-bottom: 0.5rem;
-        border: 1px solid #6c757d; /* 1px 두께의 회색 테두리 */
-        border-radius: 1rem; /* 모서리 라운드로 만들기 */
+    .card-link {
+        text-decoration: none;
+        color: inherit;
     }
-    
+    .card-img-container {
+        height: 300px;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .card-img-top {
+        width: 100%;
+        height: auto;
+        object-fit: cover;
+    }
+
+    /*css 파일에서 변경 시도했으나 색상변경안됨. posts.ejs에서 변경시도함*/
+    .hashtag-button {
+      display: inline-block;
+      background-color: #ffffff; /* 백그라운드 색상을 하얀색으로 변경 */
+      color: #6c757d; /* 텍스트 색상을 회색으로 유지 */
+      padding: 0.25rem 0.5rem;
+      font-size: 0.875rem;
+      border-radius: 0.25rem;
+      margin-right: 0.5rem;
+      margin-bottom: 0.5rem;
+      border: 1px solid #6c757d; /* 1px 두께의 회색 테두리 */
+      border-radius: 1rem; /* 모서리 라운드로 만들기 */
+    }
+    .pagination {
+      display: flex;
+      justify-content: center; /* 페이지네이션 인덱스를 중앙으로 정렬 */
+      list-style: none; /* 기본 리스트 스타일 제거 */
+      padding: 0; /* 기본 패딩 제거 */
+    }
+    .pagination .page-link {
+      color: black; /* 페이지 링크를 검정색으로 변경 */
+      margin: 0 5px; /* 링크 사이의 간격 추가 */
+    }
+    .pagination .page-item.active .page-link {
+      background-color: rgb(105, 105, 105); /* 현재 페이지의 배경을 딤 그레이로 변경 */
+      border-color: rgb(105, 105, 105); /* 현재 페이지의 테두리도 딤 그레이로 변경 */
+    }
   </style>
 </head>
 <body>
@@ -46,7 +59,7 @@
     <h4 style="margin: 15px;">게시글 - <%= selectedOpt.query %> 검색 결과</h4>
 
     <label for="theme_id">테마 선택: </label>
-    <select name="theme_id" id="theme_id" onchange="searchPosts()" style="margin: 10px;">
+    <select name="theme_id" id="theme_id" onchange="searchPosts(1)" style="margin: 10px;">
       <option value="all" <%= !selectedOpt.theme ? 'selected' : '' %>>전체</option>
       <% themes.forEach(function(theme) { %>
         <option value="<%= theme.theme_id %>" <%= theme.theme_id == selectedOpt.theme ? 'selected' : '' %>><%= theme.theme_name %></option>
@@ -54,7 +67,7 @@
     </select>
 
     <label for="theme_id">정렬 선택: </label>
-    <select id="sortSelect" onchange="searchPosts()" style="margin: 10px;">
+    <select id="sortSelect" onchange="searchPosts(1)" style="margin: 10px;">
       <option value="latest" <%= selectedOpt.sortBy == 'latest' ? 'selected' : '' %>>최신순</option>
       <option value="views" <%= selectedOpt.sortBy == 'views' ? 'selected' : '' %>>조회순</option>
       <option value="comments" <%= selectedOpt.sortBy == 'comments' ? 'selected' : '' %>>댓글순</option>
@@ -63,14 +76,6 @@
     </select>
   </div>
 </div>
-<script>
-  function searchPosts() {
-      var sortValue = document.getElementById("sortSelect").value;
-      var themeId = document.getElementById("theme_id").value;
-      var query = encodeURIComponent(document.getElementById("query").value);
-      window.location.href = "/post/search/" + sortValue + "/" + themeId + "/?query=" + query;
-  }
-</script>
 
 
 <% if (!Previews || Previews.length === 0) { %>
@@ -106,19 +111,47 @@
           </div>
       <% }) %>
   </div>
+
 <% } %>
+<!-- 페이지네이션 링크 -->
+<nav aria-label="Page navigation example">
+  <ul class="pagination">
+      <% 
+          const maxPagesToShow = 10;
+          const startPage = Math.floor((selectedOpt.page - 1) / maxPagesToShow) * maxPagesToShow + 1;
+          const endPage = Math.min(startPage + maxPagesToShow - 1, totalPages);
+      %>
+
+      <% if (startPage > 1) { %>
+          <li class="page-item">
+              <a class="page-link" href="javascript:void(0);" onclick="searchPosts(<%= startPage - 1 %>)">Previous</a>
+          </li>
+      <% } %>
+
+      <% for(let i = startPage; i <= endPage; i++) { %>
+          <li class="page-item <%= i === selectedOpt.page ? 'active' : '' %>">
+              <a class="page-link" href="javascript:void(0);" onclick="searchPosts(<%= i %>)"><%= i %></a>
+          </li>
+      <% } %>
+
+      <% if (endPage < totalPages) { %>
+          <li class="page-item">
+              <a class="page-link" href="javascript:void(0);" onclick="searchPosts(<%= endPage + 1 %>)">Next</a>
+          </li>
+      <% } %>
+  </ul>
+</nav>
 
 <input type="hidden" id="Datas" value='<%= JSON.stringify(Previews) %>'>
-<script>
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            const year = date.getFullYear();
-            const month = date.getMonth() + 1;
-            const day = date.getDate();
-            const hours = date.getHours();
-            const minutes = date.getMinutes();
-            return `${year}/${month}/${day} 작성시간:${hours}시 ${minutes}분`;
-        }
-    </script>
+
 </body>
 </html>
+
+<script>
+  function searchPosts(page) {
+      var sortValue = document.getElementById("sortSelect").value;
+      var themeId = document.getElementById("theme_id").value;
+      var query = encodeURIComponent(document.getElementById("query").value);
+      window.location.href = `/post/search?page=${page}&sortBy=${sortValue}&theme=${themeId}&query=${query}`;
+  }
+</script>
