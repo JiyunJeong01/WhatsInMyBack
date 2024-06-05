@@ -198,7 +198,7 @@
                     <img src="<%= comment.picture_base64 %>" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
                     <div>
                       <h6 class="mb-0"><%= comment.username %> (<%= comment.nickname %>)</h6>
-                      <small class="text-muted"><%= comment.created_at %></small>
+                      <small class="text-muted"><%= formatDate(comment.created_at) %></small>
                     </div>
                   </div>
                   <p class="mt-2 mb-0"><%= comment.comment_content %></p>
@@ -226,7 +226,7 @@
                           <img src="<%= reply.picture_base64 %>" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
                           <div>
                             <h6 class="mb-0"><%= reply.username %> (<%= reply.nickname %>)</h6>
-                            <small class="text-muted"><%= reply.created_at %></small>
+                            <small class="text-muted"><%= formatDate(reply.created_at) %></small>
                           </div>
                         </div>
                         <p class="mt-2 mb-0"><%= reply.comment_content %></p>
