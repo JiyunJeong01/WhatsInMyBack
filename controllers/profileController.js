@@ -4,7 +4,8 @@ const db = require("../models/Index"),
     Member = db.Member,
     Preference = db.Preference,
     Follow = db.Follow,
-    Post = db.Post;
+    Post = db.Post,
+    PostInteractions = db.PostInteractions;
 
 module.exports = {
     /*지윤 작업 부분*/ 
@@ -27,7 +28,7 @@ module.exports = {
             res.locals.member.is_following = is_following;
 
             // 포스트 정보 가져오기
-            const posts = await  Member.findAllPostById(userId);
+            const posts = await  Post.findAllByMemberId(userId);
             res.locals.posts = posts;
 
             res.render('profile/main');
@@ -56,7 +57,7 @@ module.exports = {
             res.locals.member.is_following = is_following;
 
             // 팔로위 정보 가져오기
-            const followees = await Member.findFolloweeById(userId, loginId);
+            const followees = await Follow.findFolloweeById(userId, loginId);
             res.locals.follows = followees;
 
             res.render('profile/follow');
@@ -85,8 +86,8 @@ module.exports = {
             const is_following = await Follow.checkFollow(userId, loginId);
             res.locals.member.is_following = is_following;
 
-            // 팔로위 정보 가져오기
-            const followers = await Member.findFollowerById(userId, loginId);
+            // 팔로워 정보 가져오기
+            const followers = await Follow.findFollowerById(userId, loginId);
             res.locals.follows = followers;
 
             res.render('profile/follow');
@@ -161,7 +162,7 @@ module.exports = {
             res.locals.member = member;
 
             // 북마크 정보 가져오기
-            const bookmarks = await Member.findAllBookmarkById(userId); 
+            const bookmarks = await PostInteractions.findAllBookmarkById(userId); 
             res.locals.bookmarks = bookmarks;
 
             res.render('profile/bookmark')
@@ -186,7 +187,7 @@ module.exports = {
             res.locals.member = member;
 
             // 좋아요 정보 가져오기
-            const likes = await Member.findAllLikeById(userId)
+            const likes = await PostInteractions.findAllLikeById(userId)
             res.locals.likes = likes;
 
             res.render('profile/like')
