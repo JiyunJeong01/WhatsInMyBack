@@ -9,8 +9,14 @@ const PostInteractionModel = require('../models/PostInteraction');
 
 // 게시글 목록 조회
 exports.getPosts = async (req, res) => {
-    const Previews = await PostModel.findByQueryAndSortBy('', 'date', 'all');
-    res.render('Post/posts', { Previews, formatDate });
+    let page = 1;
+    if (req.query.page) { page = parseInt(req.query.page); }
+
+    const Previews = await PostModel.findByQueryAndSortBy('', 'date', 'all', page);
+    const PreviewsCount = await PostModel.findCountByQueryAndSortBy('', 'date', 'all');
+    const totalPages = Math.ceil(PreviewsCount / 6);
+
+    res.render('Post/posts', { Previews, PreviewsCount, totalPages, currentPage: page, formatDate });
 };
 
 // get: 새 게시글 작성 페이지 반환
@@ -280,12 +286,20 @@ exports.toggleBookmark = async (req, res) => {
 //검색
 exports.findQuery = async (req, res) => {
     try {
-        let selectedOpt = { query : req.query.query, sortBy : req.params.sortBy, theme : req.params.theme }
+        let opt = { 
+            query : req.query.query, 
+            sortBy : req.query.sortBy, 
+            theme : req.query.theme, 
+            page: parseInt(req.query.page)
+        }
+        console.log(opt);
 
         const themes = await ThemeModel.findAll();
-        results = await PostModel.findByQueryAndSortBy(selectedOpt.query, selectedOpt.sortBy, selectedOpt.theme);
-        res.render('Post/searchResult', { Previews : results, themes, selectedOpt, formatDate });
+        const Previews = await PostModel.findByQueryAndSortBy(opt.query, opt.sortBy, opt.theme, opt.page);
+        const PreviewsCount = await PostModel.findCountByQueryAndSortBy(opt.query, opt.sortBy, opt.theme);
+        const totalPages = Math.ceil(PreviewsCount / 6);
 
+        res.render('Post/searchResult', { Previews, themes, selectedOpt: opt, PreviewsCount, totalPages, formatDate });
     } catch (error) {
         console.error("게시글 보기 중 오류:", error);
         res.status(500).json({ error: '서버 오류가 발생했습니다.' });
