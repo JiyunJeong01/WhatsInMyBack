@@ -160,7 +160,6 @@ exports.findByQueryAndSortBy = async (query, sortBy, themeId, pageIndex) => {
 
         const pageSize = 6;
         let offset = pageSize * (pageIndex - 1);
-        console.log(offset);
 
         let sql = `
             SELECT 
@@ -260,12 +259,10 @@ exports.findCountByQueryAndSortBy = async (query, sortBy, themeId) => {
 
         if (themeId != 'all') {
             const [rows] = await db.query(sql, [`%${query}%`, themeId]);
-            console.log(rows);
             return rows[0].totalPosts;
         }
         else {
             const [rows] = await db.query(sql, [`%${query}%`]);
-            console.log(rows);
             return rows[0].totalPosts;;
         }
 

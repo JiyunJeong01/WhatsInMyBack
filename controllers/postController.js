@@ -292,7 +292,6 @@ exports.findQuery = async (req, res) => {
             theme : req.query.theme, 
             page: parseInt(req.query.page)
         }
-        console.log(opt);
 
         const themes = await ThemeModel.findAll();
         const Previews = await PostModel.findByQueryAndSortBy(opt.query, opt.sortBy, opt.theme, opt.page);
