@@ -60,9 +60,12 @@
                     </li>
                     <% } %>
                     <li class="nav-item">
-                        <form class="mb-3" action="/post/search/latest/all/" method="GET">
+                        <form class="mb-3" id="searchForm" onsubmit="search(event)">
                             <div class="input-group mb-3">
-                                <input type="text" class="form-control" placeholder="검색어를 입력하세요" name="query">
+                                <input type="text" class="form-control" placeholder="검색어를 입력하세요" name="query" id="searchInput">
+                                <input type="hidden" name="sortBy" id="sortBy" value="latest">
+                                <input type="hidden" name="theme" id="theme" value="all">
+                                <input type="hidden" name="page" id="page" value="1">
                                 <button class="btn btn-outline-dark" type="submit">검색</button>
                             </div>
                         </form>
@@ -74,9 +77,14 @@
     </div>
 </body>
 <script>
-    function search() {
+    function search(event) {
+        event.preventDefault();
         var query = document.getElementById("searchInput").value;
-        window.location.href = "/post/search/latest/all/" + query;
+        var sortBy = document.getElementById("sortBy").value;
+        var theme = document.getElementById("theme").value;
+        var page = document.getElementById("page").value;
+
+        window.location.href = `/post/search/?sortBy=${sortBy}&theme=${theme}&page=${page}&query=${encodeURIComponent(query)}`;
     }
 </script>
 </html>
