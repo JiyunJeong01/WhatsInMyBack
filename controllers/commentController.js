@@ -1,4 +1,5 @@
 const CommentModel = require('../models/Comment');
+const MemberModel = require('../models/Member');
 
 // 댓글 작성 (createComment 내용변경)
 exports.createComment = async (req, res) => {
@@ -10,26 +11,25 @@ exports.createComment = async (req, res) => {
     const post_id = req.params.postId;
     const { comment_content } = req.body;
 
+    const loginMember = await MemberModel.findById(req.session.user.id);
+
+    if (!loginMember) {
+        return res.status(404).json({ error: 'Member not found' });
+    }
+
     const comment = { 
         post_id, 
-        member_id: req.session.user.id, 
+        member_id: loginMember.member_id, 
         parent_comment_id: null, 
-        comment_content 
+        comment_content,
+        username: loginMember.username,
+        nickname: loginMember.nickname,
+        picture_base64: loginMember.picture_base64
     };
     const newComment = await CommentModel.create(comment);
 
-    // 생성된 댓글의 추가 정보를 가져옴
-    const commentWithInfo = {
-        comment_id: newComment.comment_id,
-        member_id: newComment.member_id,
-        post_id: newComment.post_id,
-        parent_comment_id: newComment.parent_comment_id,
-        comment_content: newComment.comment_content,
-        created_at: newComment.created_at,
-        // 필요한 다른 정보 추가
-    };
-
-    res.json(commentWithInfo);
+    // [수정한 부분] 생성된 댓글의 추가 정보를 가져옴
+    res.json(newComment);
 };
 
 
@@ -61,15 +61,25 @@ exports.createReply = async (req, res) => {
     const parent_comment_id = req.params.commentId;
     const { comment_content } = req.body;
 
+    const loginMember = await MemberModel.findById(req.session.user.id);
+
+    if(!loginMember) {
+        return res.status(404).json({ error: 'Member not found' });
+    }
+
     const comment = { 
         post_id, 
-        member_id: req.session.user.id, 
+        member_id: loginMember.member_id, 
         parent_comment_id, 
-        comment_content 
+        comment_content,
+        username: loginMember.username,
+        nickname: loginMember.nickname,
+        picture_base64: loginMember.picture_base64
     };
-    await CommentModel.create(comment);
+    const newReply = await CommentModel.create(comment);
 
-    res.redirect(`/post/${post_id}/detail`);
+    // [수정한 부분] 생성된 대댓글의 추가 정보를 가져옴
+    res.json(newReply);
 };
 
 // 대댓글 수정
