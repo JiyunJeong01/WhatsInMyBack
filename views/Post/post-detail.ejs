@@ -1,5 +1,6 @@
 <head>
   <link rel="stylesheet" href="./styles/post-detail.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <style>
     /* 기존 스타일들 */
     .content {
@@ -154,7 +155,7 @@
         <!-- 좋아요/북마크 -->
         <div class="d-flex justify-content-end mb-3">
           <button id="likeButton" class="btn btn-outline-success btn-sm mr-2" style="margin-right: 10px;">
-            좋아요 (<span id="likeCount"><%= post.like_count %></span>)
+            <i id="likeIcon" class="far fa-heart"></i> 좋아요 (<span id="likeCount"><%= post.like_count %></span>)
           </button>
           <button id="bookmarkButton" class="btn btn-outline-info btn-sm">
             북마크 (<span id="bookmarkCount"><%= post.bookmark_count %></span>)
@@ -246,6 +247,7 @@
 
 <script>
   const likeButton = document.getElementById('likeButton');
+const likeIcon = document.getElementById('likeIcon');
   const bookmarkButton = document.getElementById('bookmarkButton');
   const likeCount = document.getElementById('likeCount');
   const bookmarkCount = document.getElementById('bookmarkCount');
@@ -258,6 +260,7 @@
       alert('로그인이 필요합니다.');
       return;
     }
+  
     fetch('/post/like', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -266,9 +269,13 @@
     .then(response => response.json())
     .then(data => {
       if (data.liked) {
+        likeIcon.classList.remove('far'); // 빈 하트 아이콘 클래스 제거
+        likeIcon.classList.add('fas'); // 채워진 하트 아이콘 클래스 추가
         likeCount.innerText = parseInt(likeCount.innerText) + 1;
         alert('좋아요를 등록했습니다');
       } else {
+        likeIcon.classList.remove('fas'); // 채워진 하트 아이콘 클래스 제거
+        likeIcon.classList.add('far'); // 빈 하트 아이콘 클래스 추가
         likeCount.innerText = parseInt(likeCount.innerText) - 1;
         alert('좋아요 등록을 해제했습니다');
       }
