@@ -345,6 +345,7 @@ function toggleReplyForm(commentId) {
   replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
 }
 
+
 // 대댓글 작성 폼 제출 이벤트 핸들러
 document.querySelectorAll('[id^="reply-form-"]').forEach(form => {
   form.addEventListener('submit', async (e) => {
@@ -380,7 +381,7 @@ document.querySelectorAll('[id^="reply-form-"]').forEach(form => {
         `;
         replyList.appendChild(replyElement);
         replyInput.value = '';
-        form.style.display = 'none'; // 폼 제출 후 폼을 숨김
+        // form.style.display = 'none'; // 이 코드를 제거하여 대댓글 작성 폼을 계속 보이게 함
       } else {
         console.error('Failed to create reply');
       }
