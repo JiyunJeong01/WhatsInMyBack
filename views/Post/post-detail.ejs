@@ -1,3 +1,5 @@
+
+
 <head>
   <!--<link rel="stylesheet" href="./styles/post-detail.css"이거 없어요 안 쓰이죠?-->
   <!--<link rel="stylesheet" href="..\..\public\css\global.css"/>-->
@@ -190,237 +192,257 @@
           </div>
         <% } %>
 
-        <!-- 댓글 목록 -->
-        <h4>댓글 목록</h4>
-        <p><%= post.comment_count %></p>
-        <div id="comment-list">
-          <% if (comments.length === 0) { %>
-            <p>등록된 댓글이 없습니다.</p>
-          <% } else { %>
-            <div class="list-group">
-              <% comments.forEach(comment => { %>
-                <div class="list-group-item">
-                  <div class="d-flex align-items-center">
-                    <img src="<%= comment.picture_base64 %>" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
-                    <div>
-                      <h6 class="mb-0"><%= comment.username %> (<%= comment.nickname %>)</h6>
-                      <small class="text-muted"><%= formatDate(comment.created_at) %></small>
-                    </div>
+      <!-- 댓글 목록 -->
+      <h4>댓글 목록</h4>
+      <p><%= post.comment_count %></p>
+      <div id="comment-list">
+        <% if (comments.length === 0) { %>
+          <p>등록된 댓글이 없습니다.</p>
+        <% } else { %>
+          <div class="list-group">
+            <% comments.forEach(comment => { %>
+              <div class="list-group-item">
+                <div class="d-flex align-items-center">
+                  <img src="<%= comment.picture_base64 %>" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
+                  <div>
+                    <h6 class="mb-0"><%= comment.username %> (<%= comment.nickname %>)</h6>
+                    <small class="text-muted"><%= formatDate(comment.created_at) %></small>
                   </div>
-                  <p class="mt-2 mb-0"><%= comment.comment_content %></p>
-
-                  <!-- 대댓글 작성 폼 -->
-                  <% if (user) { %> <!-- 로그인 여부 확인 -->
-                    <div class="mt-2">
-                      <a href="#" class="btn btn-sm btn-outline-secondary" onclick="toggleReplyForm('<%= comment.comment_id %>')">대댓글 작성</a>
-                      <form id="reply-form-<%= comment.comment_id %>" class="mt-2" style="display: none;">
-                        <div class="input-group">
-                          <input type="text" class="form-control" placeholder="대댓글을 입력하세요">
-                          <div class="input-group-append">
-                            <button type="submit" class="btn btn-outline-secondary">작성</button>
-                          </div>
-                        </div>
-                      </form>
-                    </div>
-                  <% } %>
-
-                  <!-- 대댓글 목록 -->
-                  <div id="reply-list-<%= comment.comment_id %>" class="mt-2">
-                    <% comment.replies.forEach(reply => { %>
-                      <div class="list-group-item">
-                        <div class="d-flex align-items-center">
-                          <img src="<%= reply.picture_base64 %>" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
-                          <div>
-                            <h6 class="mb-0"><%= reply.username %> (<%= reply.nickname %>)</h6>
-                            <small class="text-muted"><%= formatDate(reply.created_at) %></small>
-                          </div>
-                        </div>
-                        <p class="mt-2 mb-0"><%= reply.comment_content %></p>
-                      </div>
-                    <% }) %>
-                  </div>
-                  
                 </div>
-              <% }) %>
-            </div>
-          <% } %>
-        </div>
+                <p class="mt-2 mb-0"><%= comment.comment_content %></p>
+
+                <!-- 대댓글 작성 폼 -->
+                <% if (user) { %> <!-- 로그인 여부 확인 -->
+                  <div class="mt-2">
+                    <a href="#" class="btn btn-sm btn-outline-secondary" onclick="toggleReplyForm('<%= comment.comment_id %>')">대댓글 작성</a>
+                    <form id="reply-form-<%= comment.comment_id %>" class="mt-2" style="display: none;">
+                      <div class="input-group">
+                        <input type="text" class="form-control" placeholder="대댓글을 입력하세요">
+                        <div class="input-group-append">
+                          <button type="submit" class="btn btn-outline-secondary">작성</button>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                <% } %>
+
+                <!-- 대댓글 목록 -->
+                <div id="reply-list-<%= comment.comment_id %>" class="mt-2">
+                  <% comment.replies.forEach(reply => { %>
+                    <div class="list-group-item">
+                      <div class="d-flex align-items-center">
+                        <img src="<%= reply.picture_base64 %>" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
+                        <div>
+                          <h6 class="mb-0"><%= reply.username %> (<%= reply.nickname %>)</h6>
+                          <small class="text-muted"><%= formatDate(reply.created_at) %></small>
+                        </div>
+                      </div>
+                      <p class="mt-2 mb-0"><%= reply.comment_content %></p>
+                    </div>
+                  <% }) %>
+                </div>
+                
+              </div>
+            <% }) %>
+          </div>
+        <% } %>
       </div>
     </div>
   </div>
+</div>
+<!--폼데이트 함수?-->
+
 </body>
 
 <script>
-  const likeButton = document.getElementById('likeButton');
-  const likeIcon = document.getElementById('likeIcon');
-  const bookmarkButton = document.getElementById('bookmarkButton');
-  const likeCount = document.getElementById('likeCount');
-  const bookmarkCount = document.getElementById('bookmarkCount');
-  const postId = '<%= post.post_id %>';
-  const userId = '<%= user ? user.id : "null" %>';
+const likeButton = document.getElementById('likeButton');
+const likeIcon = document.getElementById('likeIcon');
+const bookmarkButton = document.getElementById('bookmarkButton');
+const likeCount = document.getElementById('likeCount');
+const bookmarkCount = document.getElementById('bookmarkCount');
+const postId = '<%= post.post_id %>';
+const userId = '<%= user ? user.id : "null" %>';
 
-  // 좋아요 버튼 이벤트 리스너
-  likeButton.addEventListener('click', function() {
-    if (userId === 'null') { // 로그인 여부 확인
-      alert('로그인이 필요합니다.');
-      return;
-    }
+function formatDate(dateString) {
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  const hour = date.getHours();
+  const minute = date.getMinutes();
   
-    fetch('/post/like', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ postId, memberId: userId })
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.liked) {
-        likeIcon.classList.remove('far'); // 빈 하트 아이콘 클래스 제거
-        likeIcon.classList.add('fas'); // 채워진 하트 아이콘 클래스 추가
-        likeCount.innerText = parseInt(likeCount.innerText) + 1;
-        alert('좋아요를 등록했습니다');
-      } else {
-        likeIcon.classList.remove('fas'); // 채워진 하트 아이콘 클래스 제거
-        likeIcon.classList.add('far'); // 빈 하트 아이콘 클래스 추가
-        likeCount.innerText = parseInt(likeCount.innerText) - 1;
-        alert('좋아요 등록을 해제했습니다');
-      }
-    })
-    .catch(error => console.error('좋아요 변경 중 오류 발생:', error));
-  });
+  // UTC 시간을 로컬 시간대로 변환
+  const localDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
+  const localHour = localDate.getHours();
+  const localMinute = localDate.getMinutes();
+  
+  return `${year}/${month}/${day} 작성시간:${localHour}시 ${localMinute}분`;
+}
 
-  // 북마크 버튼 이벤트 리스너
-bookmarkButton.addEventListener('click', function() {
+// 좋아요 버튼 이벤트 리스너
+likeButton.addEventListener('click', function() {
   if (userId === 'null') { // 로그인 여부 확인
     alert('로그인이 필요합니다.');
     return;
   }
-  fetch('/post/bookmark', {
+
+  fetch('/post/like', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ postId, memberId: userId })
   })
   .then(response => response.json())
   .then(data => {
-    if (data.bookmarked) {
-      bookmarkIcon.classList.remove('far'); // 빈 북마크 아이콘 클래스 제거
-      bookmarkIcon.classList.add('fas'); // 채워진 북마크 아이콘 클래스 추가
-      bookmarkIcon.style.color = 'black'; // 북마크 아이콘 색상을 검은색으로 설정
-      bookmarkCount.innerText = parseInt(bookmarkCount.innerText) + 1;
-      alert('북마크를 등록했습니다');
+    if (data.liked) {
+      likeIcon.classList.remove('far'); // 빈 하트 아이콘 클래스 제거
+      likeIcon.classList.add('fas'); // 채워진 하트 아이콘 클래스 추가
+      likeCount.innerText = parseInt(likeCount.innerText) + 1;
+      alert('좋아요를 등록했습니다');
     } else {
-      bookmarkIcon.classList.remove('fas'); // 채워진 북마크 아이콘 클래스 제거
-      bookmarkIcon.classList.add('far'); // 빈 북마크 아이콘 클래스 추가
-      bookmarkIcon.style.color = ''; // 북마크 아이콘 색상 초기화
-      bookmarkCount.innerText = parseInt(bookmarkCount.innerText) - 1;
-      alert('북마크 등록을 해제했습니다');
+      likeIcon.classList.remove('fas'); // 채워진 하트 아이콘 클래스 제거
+      likeIcon.classList.add('far'); // 빈 하트 아이콘 클래스 추가
+      likeCount.innerText = parseInt(likeCount.innerText) - 1;
+      alert('좋아요 등록을 해제했습니다');
     }
   })
-  .catch(error => console.error('북마크 변경 중 오류 발생:', error));
+  .catch(error => console.error('좋아요 변경 중 오류 발생:', error));
+});
+
+// 북마크 버튼 이벤트 리스너
+bookmarkButton.addEventListener('click', function() {
+if (userId === 'null') { // 로그인 여부 확인
+  alert('로그인이 필요합니다.');
+  return;
+}
+fetch('/post/bookmark', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ postId, memberId: userId })
+})
+.then(response => response.json())
+.then(data => {
+  if (data.bookmarked) {
+    bookmarkIcon.classList.remove('far'); // 빈 북마크 아이콘 클래스 제거
+    bookmarkIcon.classList.add('fas'); // 채워진 북마크 아이콘 클래스 추가
+    bookmarkIcon.style.color = 'black'; // 북마크 아이콘 색상을 검은색으로 설정
+    bookmarkCount.innerText = parseInt(bookmarkCount.innerText) + 1;
+    alert('북마크를 등록했습니다');
+  } else {
+    bookmarkIcon.classList.remove('fas'); // 채워진 북마크 아이콘 클래스 제거
+    bookmarkIcon.classList.add('far'); // 빈 북마크 아이콘 클래스 추가
+    bookmarkIcon.style.color = ''; // 북마크 아이콘 색상 초기화
+    bookmarkCount.innerText = parseInt(bookmarkCount.innerText) - 1;
+    alert('북마크 등록을 해제했습니다');
+  }
+})
+.catch(error => console.error('북마크 변경 중 오류 발생:', error));
 });
 
 
-  // 대댓글 작성 폼 표시/숨김 함수
-  function toggleReplyForm(commentId) {
-    const replyForm = document.getElementById(`reply-form-${commentId}`);
-    replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
-  }
+// 대댓글 작성 폼 표시/숨김 함수
+function toggleReplyForm(commentId) {
+  const replyForm = document.getElementById(`reply-form-${commentId}`);
+  replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
+}
 
-  // 대댓글 작성 폼 제출 이벤트 핸들러
-  document.querySelectorAll('[id^="reply-form-"]').forEach(form => {
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const commentId = form.id.split('-')[2];
-      const replyInput = form.querySelector('input[type="text"]');
-      const replyContent = replyInput.value.trim();
-
-      if (!replyContent) return;
-
-      try {
-        const response = await fetch(`/post/${postId}/comment/${commentId}/reply`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ comment_content: replyContent }),
-        });
-
-        if (response.ok) {
-          const newReply = await response.json();
-          const replyList = document.getElementById(`reply-list-${commentId}`);
-          const replyElement = document.createElement('div');
-          replyElement.classList.add('list-group-item');
-
-          replyElement.innerHTML = `
-            <div class="d-flex align-items-center">
-              <img src="${newReply.picture_base64}" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
-              <div>
-                <h6 class="mb-0">${newReply.username} (${newReply.nickname})</h6>
-                <small class="text-muted">${newReply.created_at}</small>
-              </div>
-            </div>
-            <p class="mt-2 mb-0">${newReply.comment_content}</p>
-          `;
-          replyList.appendChild(replyElement);
-          replyInput.value = '';
-          form.style.display = 'none'; // 폼 제출 후 폼을 숨김
-        } else {
-          console.error('Failed to create reply');
-        }
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    });
-  });
-
-  // 댓글 작성 폼 제출 이벤트 핸들러
-  document.getElementById('comment-form').addEventListener('submit', async (e) => {
+// 대댓글 작성 폼 제출 이벤트 핸들러
+document.querySelectorAll('[id^="reply-form-"]').forEach(form => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const commentInput = document.getElementById('comment-input');
-    const commentContent = commentInput.value.trim();
+    const commentId = form.id.split('-')[2];
+    const replyInput = form.querySelector('input[type="text"]');
+    const replyContent = replyInput.value.trim();
 
-    if (!commentContent) return;
+    if (!replyContent) return;
 
     try {
-      const response = await fetch(`/post/${postId}/comment`, {
+      const response = await fetch(`/post/${postId}/comment/${commentId}/reply`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ comment_content: commentContent }),
+        body: JSON.stringify({ comment_content: replyContent }),
       });
 
       if (response.ok) {
-        const newComment = await response.json();
-        const commentList = document.getElementById('comment-list');
-        const commentElement = document.createElement('div');
-        commentElement.classList.add('list-group-item');
-        commentElement.innerHTML = `
+        const newReply = await response.json();
+        const replyList = document.getElementById(`reply-list-${commentId}`);
+        const replyElement = document.createElement('div');
+        replyElement.classList.add('list-group-item');
+        replyElement.innerHTML = `
           <div class="d-flex align-items-center">
-            <img src="${newComment.picture_base64}" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
+            <img src="${newReply.picture_base64}" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
             <div>
-              <h6 class="mb-0">${newComment.username} (${newComment.nickname})</h6>
-              <small class="text-muted">${newComment.created_at}</small>
+              <h6 class="mb-0">${newReply.username} (${newReply.nickname})</h6>
+              <small class="text-muted">${formatDate(newReply.created_at)}</small>
             </div>
           </div>
-          <p class="mt-2 mb-0">${newComment.comment_content}</p>
-          <div class="mt-2">
-            <a href="#" class="btn btn-sm btn-outline-secondary" onclick="toggleReplyForm('${newComment.comment_id}')">대댓글 작성</a>
-            <form id="reply-form-${newComment.comment_id}" class="mt-2" style="display: none;">
-              <div class="input-group">
-                <input type="text" class="form-control" placeholder="대댓글을 입력하세요">
-                <div class="input-group-append">
-                  <button type="submit" class="btn btn-outline-secondary">작성</button>
-                </div>
-              </div>
-            </form>
-          </div>
-          <div id="reply-list-${newComment.comment_id}" class="mt-2"></div>
+          <p class="mt-2 mb-0">${newReply.comment_content}</p>
         `;
-        commentList.insertBefore(commentElement, commentList.firstChild);
-        commentInput.value = '';
+        replyList.appendChild(replyElement);
+        replyInput.value = '';
+        form.style.display = 'none'; // 폼 제출 후 폼을 숨김
       } else {
-        console.error('Failed to create comment');
+        console.error('Failed to create reply');
       }
     } catch (error) {
       console.error('Error:', error);
     }
   });
+});
+
+// 댓글 작성 폼 제출 이벤트 핸들러
+document.getElementById('comment-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const commentInput = document.getElementById('comment-input');
+  const commentContent = commentInput.value.trim();
+
+  if (!commentContent) return;
+
+  try {
+    const response = await fetch(`/post/${postId}/comment`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ comment_content: commentContent }),
+    });
+
+    if (response.ok) {
+      const newComment = await response.json();
+
+      console.log('New comment data:', newComment); // 댓글 콘솔 찍기
+      
+      const commentList = document.getElementById('comment-list');
+      const commentElement = document.createElement('div');
+      commentElement.classList.add('list-group-item');
+      commentElement.innerHTML = `
+        <div class="d-flex align-items-center">
+          <img src="${newComment.picture_base64}" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
+          <div>
+            <h6 class="mb-0">${newComment.username} (${newComment.nickname})</h6>
+            <small class="text-muted">${formatDate(newComment.created_at)}</small>
+          </div>
+        </div>
+        <p class="mt-2 mb-0">${newComment.comment_content}</p>
+        <div class="mt-2">
+          <a href="#" class="btn btn-sm btn-outline-secondary" onclick="toggleReplyForm('${newComment.comment_id}')">대댓글 작성</a>
+          <form id="reply-form-${newComment.comment_id}" class="mt-2" style="display: none;">
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="대댓글을 입력하세요">
+              <div class="input-group-append">
+                <button type="submit" class="btn btn-outline-secondary">작성</button>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div id="reply-list-${newComment.comment_id}" class="mt-2"></div>
+      `;
+      commentList.insertBefore(commentElement, commentList.firstChild);
+      commentInput.value = '';
+    } else {
+      console.error('Failed to create comment');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  }
+});
 </script>
