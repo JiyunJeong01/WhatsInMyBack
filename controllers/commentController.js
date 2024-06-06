@@ -30,7 +30,7 @@ exports.createComment = async (req, res) => {
 
     const imageDataURI = newComment.picture_base64.toString('base64');
     newComment.picture_base64 = Buffer.from(imageDataURI, 'base64').toString('utf-8');
-
+    if (IsProfileImageundefined(comment.picture_base64)) newComment.picture_base64 = "/images/default_profile.jpg"
 
     // [수정한 부분] 생성된 댓글의 추가 정보를 가져옴
     res.json(newComment);
@@ -84,6 +84,7 @@ exports.createReply = async (req, res) => {
 
     const imageDataURI = newReply.picture_base64.toString('base64');
     newReply.picture_base64 = Buffer.from(imageDataURI, 'base64').toString('utf-8');
+    if (IsProfileImageundefined(newReply.picture_base64)) newReply.picture_base64 = "/images/default_profile.jpg"
 
     // [수정한 부분] 생성된 대댓글의 추가 정보를 가져옴
     res.json(newReply);
@@ -110,3 +111,8 @@ exports.deleteReply = async (req, res) => {
 
     res.send('Reply deleted successfully');
 };
+
+function IsProfileImageundefined(picture_base64) { // 프로필이 없으면 기본이미지로 설정하는 함수
+    if (picture_base64.length == 0 || !picture_base64) return true;
+    else false;
+  }
