@@ -1,6 +1,9 @@
 <head>
-  <link rel="stylesheet" href="./styles/post-detail.css">
+  <!--<link rel="stylesheet" href="./styles/post-detail.css"이거 없어요 안 쓰이죠?-->
+  <!--<link rel="stylesheet" href="..\..\public\css\global.css"/>-->
+  <link rel="stylesheet" href="/public/css/global.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
   <style>
     /* 기존 스타일들 */
     .content {
@@ -154,13 +157,19 @@
 
         <!-- 좋아요/북마크 -->
         <div class="d-flex justify-content-end mb-3">
-          <button id="likeButton" class="btn btn-outline-success btn-sm mr-2" style="margin-right: 10px;">
-            <i id="likeIcon" class="far fa-heart"></i> 좋아요 (<span id="likeCount"><%= post.like_count %></span>)
+          <button id="likeButton" class="btn btn-outline-secondary btn-sm mr-2" style="margin-right: 10px; color: black;">
+            <i id="likeIcon" class="fas fa-heart" style="color: red;"></i> 좋아요 (<span id="likeCount"><%= post.like_count %></span>)
           </button>
           <button id="bookmarkButton" class="btn btn-outline-info btn-sm">
             북마크 (<span id="bookmarkCount"><%= post.bookmark_count %></span>)
           </button>
+        </div>n>
+          <button id="bookmarkButton" class="btn btn-outline-info btn-sm">
+            북마크 (<span id="bookmarkCount"><%= post.bookmark_count %></span>)
+          </button>
         </div>
+
+    
 
         <!-- 수정 및 삭제 버튼 -->
         <% if (isAuthor) { %> <!-- 수정: isAuthor 변수를 사용하여 조건부 렌더링 -->
