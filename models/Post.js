@@ -43,19 +43,22 @@ exports.findByMemberId = async (memberId) => {
     }
 };
 
-// 특정 멤버의 전체 게시글 조회
-exports.findAllByMemberId = async (memberId) => {
+// 특정 멤버의 페이지네이션된 게시글 조회
+exports.findAllByMemberId = async (memberId, offset, limit) => {
     try {
         const db = await require("../main").connection();
         let [rows] = await db.query(`SELECT 
-        p.post_id,
-        p.theme_id, 
-        p.post_title, 
-        p.created_at, 
-        t.theme_name, 
-        (SELECT image_base64 FROM post_image WHERE post_id = p.post_id LIMIT 1) AS image_base64 
-        FROM post p JOIN theme t ON p.theme_id = t.theme_id 
-        WHERE p.member_id = ? ORDER BY p.created_at DESC`,[memberId]);
+            p.post_id,
+            p.theme_id, 
+            p.post_title, 
+            p.created_at, 
+            t.theme_name, 
+            (SELECT image_base64 FROM post_image WHERE post_id = p.post_id LIMIT 1) AS image_base64 
+            FROM post p 
+            JOIN theme t ON p.theme_id = t.theme_id 
+            WHERE p.member_id = ? 
+            ORDER BY p.created_at DESC 
+            LIMIT ? OFFSET ?`, [memberId, limit, offset]);
 
         let posts = rows.map(row => {
             return {
@@ -70,8 +73,9 @@ exports.findAllByMemberId = async (memberId) => {
         return posts;
     } catch (error) {
         console.error("쿼리 실행 중 오류:", error);
+        throw error; // 에러를 던져서 호출한 곳에서 처리할 수 있도록 함
     }
-}
+};
 
 exports.create = async (post) => {
     try {

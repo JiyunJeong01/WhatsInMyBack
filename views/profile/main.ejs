@@ -34,7 +34,7 @@
                 <a href="/profile/<%= member.member_id %>/profileModified">
                     <span class="button">설정</span>
                 </a>
-                <% } else if (loginId!= 0) { %>
+                <% } else if (loginId!=0) { %>
                     <button onclick="followb_click(<%= loginId %>, <%= member.member_id %>, this)">
                         <% if (member.is_following) { %>
                             언팔로우
@@ -47,6 +47,7 @@
     </div>
     <div class="right">
         <div class="post_container">
+            <div id="data" data-member-id="<%= member.member_id %>"></div>
             <% if (posts.length !==0) { %>
                 <div id="card" class="row row-cols-1 row-cols-md-2 g-4">
                     <% posts.forEach(post=> { %>
@@ -77,16 +78,67 @@
 </div>
 
 <script>
-    window.addEventListener('DOMContentLoaded', (event) => {
-    const profileImage = document.getElementById('profileImage');
-    const pictureBase64Input = document.getElementById('picture_base64');
+    let loading = false;
+    let page = 1;
+    let hasMore = true;
 
-    if (pictureBase64Input && pictureBase64Input.value) {
-        profileImage.src = pictureBase64Input.value;
-    } else {
+    window.addEventListener('scroll', () => {
+        const dataElement = document.getElementById('data');
+        const userId = dataElement.dataset.memberId;
 
-        const defaultImagePath = "/images/default_profile.jpg"
-        profileImage.src = defaultImagePath;
+        if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 10 && !loading && hasMore) {
+            loading = true;
+            page += 1;
+            loadingPost(userId, page);
+        }
+    })
+    function loadingPost(userId, page) {
+        fetch(`/profile/${userId}/posts?page=${page}`)
+            .then(response => response.json())
+            .then(posts => {
+                if (posts.length !== 0) {
+                    const cardContainer = document.getElementById('card');
+                    posts.forEach(post => {
+                        const HTML = `
+                        <div class="col">
+                            <div class="post" style="cursor: pointer;" onclick="location.href='/post/${post.post_id}/detail';">
+                                <div class="postPhoto">
+                                    <img src="${post.image_base64}" alt="게시글 이미지">
+                                </div>
+                                <h5 class="post_title">
+                                    ${post.post_title}
+                                </h5>
+                                <p class="card-text">
+                                    ${post.theme_name}
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                        cardContainer.insertAdjacentHTML('beforeend', HTML);
+                    });
+                }
+                if (posts.length < 10) {
+                    hasMore = false;
+                }
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+            })
+            .finally(() => {
+                loading = false;
+            });
     }
-});
+
+    window.addEventListener('DOMContentLoaded', (event) => {
+        const profileImage = document.getElementById('profileImage');
+        const pictureBase64Input = document.getElementById('picture_base64');
+
+        if (pictureBase64Input && pictureBase64Input.value) {
+            profileImage.src = pictureBase64Input.value;
+        } else {
+
+            const defaultImagePath = "/images/default_profile.jpg"
+            profileImage.src = defaultImagePath;
+        }
+    });
 </script>

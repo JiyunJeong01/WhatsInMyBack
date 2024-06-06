@@ -37,7 +37,13 @@ exports.createComment = async (req, res) => {
     console.log('Comment object:', comment); // 추가된 콘솔 로그-----------------------------------------------------
     const newComment = await CommentModel.create(comment);
 
+<<<<<<< HEAD
     console.log('New comment:', newComment); // 추가된 콘솔 로그----------------------------------------------------
+=======
+    const imageDataURI = newComment.picture_base64.toString('base64');
+    newComment.picture_base64 = Buffer.from(imageDataURI, 'base64').toString('utf-8');
+    if (IsProfileImageundefined(comment.picture_base64)) newComment.picture_base64 = "/images/default_profile.jpg"
+>>>>>>> 6ed847c49764e0ea8e840b98bb511a3e9f3181e0
 
     // [수정한 부분] 생성된 댓글의 추가 정보를 가져옴
     res.json(newComment);
@@ -103,7 +109,13 @@ exports.createReply = async (req, res) => {
 
     const newReply = await CommentModel.create(comment);
 
+<<<<<<< HEAD
     console.log('New Reply:', newReply); // 추가된 콘솔 로그
+=======
+    const imageDataURI = newReply.picture_base64.toString('base64');
+    newReply.picture_base64 = Buffer.from(imageDataURI, 'base64').toString('utf-8');
+    if (IsProfileImageundefined(newReply.picture_base64)) newReply.picture_base64 = "/images/default_profile.jpg"
+>>>>>>> 6ed847c49764e0ea8e840b98bb511a3e9f3181e0
 
     // [수정한 부분] 생성된 대댓글의 추가 정보를 가져옴
     res.json(newReply);
@@ -130,3 +142,8 @@ exports.deleteReply = async (req, res) => {
 
     res.send('Reply deleted successfully');
 };
+
+function IsProfileImageundefined(picture_base64) { // 프로필이 없으면 기본이미지로 설정하는 함수
+    if (picture_base64.length == 0 || !picture_base64) return true;
+    else false;
+  }
