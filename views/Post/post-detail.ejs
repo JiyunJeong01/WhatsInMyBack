@@ -165,7 +165,7 @@
           <button id="bookmarkButton" class="btn btn-outline-secondary btn-sm">
             <i id="bookmarkIcon" class="far fa-bookmark"></i> 북마크 (<span id="bookmarkCount"><%= post.bookmark_count %></span>)
           </button>
-        </div>n>
+        </div>
     
     
 
@@ -173,7 +173,7 @@
         <% if (isAuthor) { %> <!-- 수정: isAuthor 변수를 사용하여 조건부 렌더링 -->
           <div class="d-flex justify-content-end mb-3">
             <a href="/post/<%= post.post_id %>/edit" class="btn btn-primary btn-sm mr-2 btn-dark" style="margin-right: 10px;">게시글 수정</a>
-            <form id="deleteForm" action="/post/<%= post.post_id %>?_method=DELETE" method="POST" class="mr-2">
+            <form id="deleteForm" action="/post/<%= post.post_id %>/delete" method="POST" class="mr-2">
               <button type="submit" class="btn btn-danger btn-sm btn-dark">게시글 삭제</button>
             </form>
           </div>
