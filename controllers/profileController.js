@@ -122,16 +122,28 @@ module.exports = {
         }
     },
 
-    follow: (req, res) => {
+    follow: async (req, res, next) => {
         let userId = req.params.userId;
         let followId = req.params.follow;
-        Follow.findFollowAndAdd(userId, followId);
+        try {
+            await Follow.findFollowAndAdd(userId, followId);
+            res.status(200).json({ message: "Follow successfully" });
+        } catch (error) {
+            console.error(`Error occurred: ${error.message}`);
+            next(error);
+        }
     },
 
-    unfollow: (req, res) => {
+    unfollow: async (req, res, next) => {
         let userId = req.params.userId;
         let followId = req.params.follow;
-        Follow.findFollowAndDelete(userId, followId);
+        try {
+            await Follow.findFollowAndDelete(userId, followId);
+            res.status(200).json({ message: "Unfollow successfully" });
+        } catch (error) {
+            console.error(`Error occurred: ${error.message}`);
+            next(error);
+        }
     },
     /*정빈 작업 부분 */
     collectComment: async (req, res, next) => {
