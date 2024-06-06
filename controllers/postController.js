@@ -100,7 +100,6 @@ exports.editPost = async (req, res) => {
                 pages[post_image.image_id] = { products: [], image: '' };
             }
             pages[post_image.image_id].image = post_image.image_base64;
-            console.log(pages[post_image.image_id].image);
         });
         products.forEach(function(product) {
             if (!pages[product.image_id]) {

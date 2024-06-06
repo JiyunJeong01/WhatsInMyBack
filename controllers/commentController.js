@@ -28,6 +28,10 @@ exports.createComment = async (req, res) => {
     };
     const newComment = await CommentModel.create(comment);
 
+    const imageDataURI = newComment.picture_base64.toString('base64');
+    newComment.picture_base64 = Buffer.from(imageDataURI, 'base64').toString('utf-8');
+
+
     // [수정한 부분] 생성된 댓글의 추가 정보를 가져옴
     res.json(newComment);
 };
@@ -77,6 +81,9 @@ exports.createReply = async (req, res) => {
         picture_base64: loginMember.picture_base64
     };
     const newReply = await CommentModel.create(comment);
+
+    const imageDataURI = newReply.picture_base64.toString('base64');
+    newReply.picture_base64 = Buffer.from(imageDataURI, 'base64').toString('utf-8');
 
     // [수정한 부분] 생성된 대댓글의 추가 정보를 가져옴
     res.json(newReply);
