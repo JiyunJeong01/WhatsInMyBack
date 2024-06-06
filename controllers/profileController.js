@@ -8,11 +8,15 @@ const db = require("../models/Index"),
     PostInteractions = db.PostInteractions;
 
 module.exports = {
-    /*지윤 작업 부분*/ 
+    /*지윤 작업 부분*/
     profilePage: async (req, res, next) => {
         const loginId = req.session.user ? req.session.user.id : 0;
         res.locals.loginId = loginId;
         const userId = req.params.userId;
+
+        const page = 1; // 처음 페이지는 1
+        const limit = 10; // 한 페이지에 표시할 게시글 수
+        const offset = (page - 1) * limit; // 오프셋 계산
 
         try {
             // 멤버 정보 가져오기
@@ -27,8 +31,8 @@ module.exports = {
             const is_following = await Follow.checkFollow(userId, loginId);
             res.locals.member.is_following = is_following;
 
-            // 포스트 정보 가져오기
-            const posts = await  Post.findAllByMemberId(userId);
+            // 초기 포스트 정보 가져오기 (첫 페이지)
+            const posts = await Post.findAllByMemberId(userId, offset, limit);
             res.locals.posts = posts;
 
             res.render('profile/main');
@@ -38,7 +42,27 @@ module.exports = {
         }
     },
 
-    followeePage: async (req,res,next) =>{
+    profilePostPage: async (req, res, next) => {
+        const userId = req.params.userId;
+        const page = req.query.page || 1;
+        const limit = 10;
+        const offset = (page - 1) * limit;
+
+        try {
+            const posts = await Post.findAllByMemberId(userId, offset, limit);
+            const new_posts = posts.map(post => {
+                const imageDataURI = post.image_base64.toString('base64');
+                post.image_base64 = Buffer.from(imageDataURI, 'base64').toString('utf-8');
+                return post
+            })
+            res.json(new_posts)
+        } catch (error) {
+            console.error(`Error occurred: ${error.message}`);
+            next(error);
+        }
+    },
+
+    followeePage: async (req, res, next) => {
         let loginId = req.session.user ? req.session.user.id : 0;
         res.locals.loginId = loginId;
         let userId = req.params.userId;
@@ -68,7 +92,7 @@ module.exports = {
         }
     },
 
-    followerPage: async (req,res,next) =>{
+    followerPage: async (req, res, next) => {
         let loginId = req.session.user ? req.session.user.id : 0;
         res.locals.loginId = loginId;
         let userId = req.params.userId;
@@ -119,19 +143,19 @@ module.exports = {
                 return res.redirect(`/auth/login`);
             }
 
-            if (userId == req.session.user.id) {    
+            if (userId == req.session.user.id) {
                 const comments = await Comment.findCommentWithUser(userId);
 
-                if(comments.length === 0) {
+                if (comments.length === 0) {
                     res.locals.userId = userId;
                     res.render("profile/nocomment");
                 } else {
-                    if(pageId > Math.floor(comments.length / 10) + 1) {
+                    if (pageId > Math.floor(comments.length / 10) + 1) {
                         pageId = Math.floor(comments.length / 10) + 1
-                    } 
-                    
+                    }
+
                     const filteredComments = comments.filter(comment => comment.page_id == pageId);
-                    
+
                     res.locals.length = comments.length;
                     res.locals.comments = filteredComments;
                     res.locals.currentURL = req.originalUrl;
@@ -162,7 +186,7 @@ module.exports = {
             res.locals.member = member;
 
             // 북마크 정보 가져오기
-            const bookmarks = await PostInteractions.findAllBookmarkById(userId); 
+            const bookmarks = await PostInteractions.findAllBookmarkById(userId);
             res.locals.bookmarks = bookmarks;
 
             res.render('profile/bookmark')
@@ -202,7 +226,7 @@ module.exports = {
     profileModified_GET: async (req, res, next) => {
         try {
             const userId = req.params.userId;
-            
+
             if (!req.session.user) {
                 return res.redirect(`/auth/login`);
             }
@@ -226,7 +250,7 @@ module.exports = {
     profileModified_POST: async (req, res, next) => {
         try {
             const userId = req.params.userId;
-            
+
             if (!req.session.user) {
                 return res.redirect(`/auth/login`);
             }
@@ -266,7 +290,7 @@ module.exports = {
     passwordModified_GET: async (req, res, next) => {
         try {
             const userId = req.params.userId;
-            
+
             if (!req.session.user) {
                 return res.redirect(`/auth/login`);
             }
@@ -286,7 +310,7 @@ module.exports = {
     passwordModified_POST: async (req, res, next) => {
         try {
             const userId = req.params.userId;
-            
+
             if (!req.session.user) {
                 return res.redirect(`/auth/login`);
             }
@@ -315,10 +339,10 @@ module.exports = {
         };
     },
 
-    unregister_GET : async (req, res, next) => {
+    unregister_GET: async (req, res, next) => {
         try {
             const userId = req.params.userId;
-            
+
             if (!req.session.user) {
                 return res.redirect(`/auth/login`);
             }
@@ -335,17 +359,17 @@ module.exports = {
         };
     },
 
-    unregister_POST : async (req, res, next) => {
+    unregister_POST: async (req, res, next) => {
         try {
             const userId = req.params.userId;
-            
+
             if (!req.session.user) {
                 return res.redirect(`/auth/login`);
             }
 
             if (userId == req.session.user.id) {
                 const { current_password, confirm_check } = req.body;
-                
+
                 if (await Member.checkPassword(userId, current_password)) {
                     if (await Member.deleteMember(userId)) {
                         req.flash('success', '회원을 탈퇴했습니다.');
