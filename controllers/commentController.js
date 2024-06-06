@@ -3,17 +3,24 @@ const MemberModel = require('../models/Member');
 
 // 댓글 작성 (createComment 내용변경)
 exports.createComment = async (req, res) => {
+    console.log('createComment called'); // 추가된 콘솔 로그----------------------------------------------------------------------------------
     // 로그인 여부 확인
     if (!req.session.user) {
+        console.log('User not logged in'); // 추가된 콘솔 로그------------------------------------------------------------------------------
+        // 로그인 여부 확인
         return res.status(401).json({ error: 'Unauthorized' });
     }
 
     const post_id = req.params.postId;
     const { comment_content } = req.body;
 
+
+  console.log('Post ID:', post_id); // 추가된 콘솔 로그-----------------------------------
+  console.log('Comment content:', comment_content); // 추가된 콘솔 로그-----------------------------------
     const loginMember = await MemberModel.findById(req.session.user.id);
 
     if (!loginMember) {
+        console.log('Member not found'); // 추가된 콘솔 로그---------------------------------
         return res.status(404).json({ error: 'Member not found' });
     }
 
@@ -26,7 +33,11 @@ exports.createComment = async (req, res) => {
         nickname: loginMember.nickname,
         picture_base64: loginMember.picture_base64
     };
+
+    console.log('Comment object:', comment); // 추가된 콘솔 로그-----------------------------------------------------
     const newComment = await CommentModel.create(comment);
+
+    console.log('New comment:', newComment); // 추가된 콘솔 로그----------------------------------------------------
 
     // [수정한 부분] 생성된 댓글의 추가 정보를 가져옴
     res.json(newComment);
@@ -58,12 +69,23 @@ exports.deleteComment = async (req, res) => {
 // 대댓글 작성
 exports.createReply = async (req, res) => {
     const post_id = req.params.postId;
+    console.log('Post ID:', post_id); // 추가된 콘솔 로그
+
     const parent_comment_id = req.params.commentId;
+    console.log('Parent Comment ID:', parent_comment_id); // 추가된 콘솔 로그
+
     const { comment_content } = req.body;
+    console.log('Reply Content:', comment_content); // 추가된 콘솔 로그
+
+    console.log('받은데이터,Received Post ID:', post_id);//받은 데이터 콘솔 로그----------------------------------------------------
+    console.log('받은데이터,Received Parent Comment ID:', parent_comment_id);//받은 데이터 콘솔 로그----------------------------------------------------
+    console.log('받은데이터,Received Reply Content:', comment_content);//받은 데이터 콘솔 로그----------------------------------------------------
 
     const loginMember = await MemberModel.findById(req.session.user.id);
+    console.log('Logged-in Member:', loginMember); // 추가된 콘솔 로그
 
     if(!loginMember) {
+        console.log('Member not found'); // 추가된 콘솔 로그
         return res.status(404).json({ error: 'Member not found' });
     }
 
@@ -76,7 +98,12 @@ exports.createReply = async (req, res) => {
         nickname: loginMember.nickname,
         picture_base64: loginMember.picture_base64
     };
+
+    console.log('Comment Object:', comment); // 추가된 콘솔 로그
+
     const newReply = await CommentModel.create(comment);
+
+    console.log('New Reply:', newReply); // 추가된 콘솔 로그
 
     // [수정한 부분] 생성된 대댓글의 추가 정보를 가져옴
     res.json(newReply);
