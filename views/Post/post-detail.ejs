@@ -160,15 +160,11 @@
           <button id="likeButton" class="btn btn-outline-secondary btn-sm mr-2" style="margin-right: 10px; color: black;">
             <i id="likeIcon" class="fas fa-heart" style="color: red;"></i> 좋아요 (<span id="likeCount"><%= post.like_count %></span>)
           </button>
-          <button id="bookmarkButton" class="btn btn-outline-info btn-sm">
-            북마크 (<span id="bookmarkCount"><%= post.bookmark_count %></span>)
+          <button id="bookmarkButton" class="btn btn-outline-secondary btn-sm">
+            <i id="bookmarkIcon" class="far fa-bookmark"></i> 북마크 (<span id="bookmarkCount"><%= post.bookmark_count %></span>)
           </button>
         </div>n>
-          <button id="bookmarkButton" class="btn btn-outline-info btn-sm">
-            북마크 (<span id="bookmarkCount"><%= post.bookmark_count %></span>)
-          </button>
-        </div>
-
+    
     
 
         <!-- 수정 및 삭제 버튼 -->
@@ -293,28 +289,35 @@ const likeIcon = document.getElementById('likeIcon');
   });
 
   // 북마크 버튼 이벤트 리스너
-  bookmarkButton.addEventListener('click', function() {
-    if (userId === 'null') { // 로그인 여부 확인
-      alert('로그인이 필요합니다.');
-      return;
+bookmarkButton.addEventListener('click', function() {
+  if (userId === 'null') { // 로그인 여부 확인
+    alert('로그인이 필요합니다.');
+    return;
+  }
+  fetch('/post/bookmark', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ postId, memberId: userId })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.bookmarked) {
+      bookmarkIcon.classList.remove('far'); // 빈 북마크 아이콘 클래스 제거
+      bookmarkIcon.classList.add('fas'); // 채워진 북마크 아이콘 클래스 추가
+      bookmarkIcon.style.color = 'black'; // 북마크 아이콘 색상을 검은색으로 설정
+      bookmarkCount.innerText = parseInt(bookmarkCount.innerText) + 1;
+      alert('북마크를 등록했습니다');
+    } else {
+      bookmarkIcon.classList.remove('fas'); // 채워진 북마크 아이콘 클래스 제거
+      bookmarkIcon.classList.add('far'); // 빈 북마크 아이콘 클래스 추가
+      bookmarkIcon.style.color = ''; // 북마크 아이콘 색상 초기화
+      bookmarkCount.innerText = parseInt(bookmarkCount.innerText) - 1;
+      alert('북마크 등록을 해제했습니다');
     }
-    fetch('/post/bookmark', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ postId, memberId: userId })
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.bookmarked) {
-        bookmarkCount.innerText = parseInt(bookmarkCount.innerText) + 1;
-        alert('북마크를 등록했습니다');
-      } else {
-        bookmarkCount.innerText = parseInt(bookmarkCount.innerText) - 1;
-        alert('북마크 등록을 해제했습니다');
-      }
-    })
-    .catch(error => console.error('북마크 변경 중 오류 발생:', error));
-  });
+  })
+  .catch(error => console.error('북마크 변경 중 오류 발생:', error));
+});
+
 
   // 대댓글 작성 폼 표시/숨김 함수
   function toggleReplyForm(commentId) {
