@@ -3,6 +3,7 @@ const express = require("express"),
     profileController = require("../controllers/profileController");
 
 router.get("/:userId", profileController.profilePage);
+router.get("/:userId/posts", profileController.profilePostPage);
 router.get("/:userId/followee", profileController.followeePage);
 router.get("/:userId/follower",profileController.followerPage);
 router.delete("/:userId/:follow", profileController.unfollow);

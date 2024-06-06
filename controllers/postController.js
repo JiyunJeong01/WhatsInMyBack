@@ -100,7 +100,6 @@ exports.editPost = async (req, res) => {
                 pages[post_image.image_id] = { products: [], image: '' };
             }
             pages[post_image.image_id].image = post_image.image_base64;
-            console.log(pages[post_image.image_id].image);
         });
         products.forEach(function(product) {
             if (!pages[product.image_id]) {
@@ -195,7 +194,15 @@ exports.getPostDetail = async (req, res) => {
 
         const post = await PostModel.findByPostId(postId);
         const member = await MemberModel.findByMemberId(post.member_id);
-        const comments = await CommentModel.findByPostId(postId);
+        const comments = await CommentModel.findByPostId(postId); 
+        
+        if (IsProfileImageundefined(member.picture_base64)) member.picture_base64 = "/images/default_profile.jpg";
+        comments.forEach(function(comment) {
+            if (IsProfileImageundefined(comment.picture_base64)) comment.picture_base64 = "/images/default_profile.jpg";
+            comment.replies.forEach(reply => {
+                if (IsProfileImageundefined(reply.picture_base64)) reply.picture_base64 = "/images/default_profile.jpg";
+            });
+        });
 
         const images = await ImageModel.findByPostId(postId); 
         const products = await ProductModel.findByPostId(postId); 
@@ -316,4 +323,9 @@ function formatDate(dateString) {
     const hours = KoreaData.getHours();
     const minutes = KoreaData.getMinutes();
     return `${year}/${month}/${day} 작성시간:${hours}시 ${minutes}분`;
+}
+
+function IsProfileImageundefined(picture_base64) { // 프로필이 없으면 기본이미지로 설정하는 함수
+    if (picture_base64.length == 0) return true;
+    else false;
 }
