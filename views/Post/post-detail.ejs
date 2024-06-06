@@ -229,6 +229,7 @@
                 <!-- 대댓글 목록 -->
                 <div id="reply-list-<%= comment.comment_id %>" class="mt-2">
                   <% comment.replies.forEach(reply => { %>
+                
                     <div class="list-group-item">
                       <div class="d-flex align-items-center">
                         <img src="<%= reply.picture_base64 %>" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
@@ -345,7 +346,6 @@ function toggleReplyForm(commentId) {
   replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
 }
 
-
 // 대댓글 작성 폼 제출 이벤트 핸들러
 document.querySelectorAll('[id^="reply-form-"]').forEach(form => {
   form.addEventListener('submit', async (e) => {
@@ -379,7 +379,7 @@ document.querySelectorAll('[id^="reply-form-"]').forEach(form => {
           </div>
           <p class="mt-2 mb-0">${newReply.comment_content}</p>
         `;
-        replyList.appendChild(replyElement);
+        replyList.insertBefore(replyElement, replyList.firstChild); // 최신 대댓글을 맨 위에 추가
         replyInput.value = '';
         // form.style.display = 'none'; // 이 코드를 제거하여 대댓글 작성 폼을 계속 보이게 함
       } else {
@@ -390,6 +390,7 @@ document.querySelectorAll('[id^="reply-form-"]').forEach(form => {
     }
   });
 });
+
 
 // 댓글 작성 폼 제출 이벤트 핸들러
 document.getElementById('comment-form').addEventListener('submit', async (e) => {
