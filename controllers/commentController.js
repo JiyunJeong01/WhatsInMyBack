@@ -30,7 +30,7 @@ exports.createComment = async (req, res) => {
 
     const imageDataURI = newComment.picture_base64.toString('base64');
     newComment.picture_base64 = Buffer.from(imageDataURI, 'base64').toString('utf-8');
-    if (IsProfileImageundefined(comment.picture_base64)) newComment.picture_base64 = "/images/default_profile.jpg"
+    if (IsProfileImageundefined(newComment.picture_base64)) newComment.picture_base64 = "/images/default_profile.jpg"
 
     // [수정한 부분] 생성된 댓글의 추가 정보를 가져옴
     res.json(newComment);
