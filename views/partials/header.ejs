@@ -5,17 +5,34 @@
     <title>Header Example</title>
     <style>
         .nav-all {
-            padding-top: 2%; /* 위쪽 여백 */
-            padding-bottom: 20px; /* 아래쪽 여백 */
+            padding-top: 2%;
+            padding-bottom: 20px;
             position: sticky;
             top: 0;
             background-color: white;
             z-index: 20;
         }
         .navbar {
-            padding-top: 2%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             width: 100%;
             padding-left: 5%;
+            padding-right: 5%;
+        }
+        .navbar-brand {
+            margin-right: auto;
+        }
+        .navbar-nav {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-left: auto;
+        }
+        .search-form-wrapper {
+            flex-grow: 3;
+            display: flex;
+            justify-content: center;
         }
         .header-border {
             height: 0.5px;
@@ -30,27 +47,30 @@
                 <a class="navbar-brand" href="/">
                     <img src="https://blog.kakaocdn.net/dn/QzCrn/btsHwQaG7TZ/GMXLfXJ6apfGpN9XlC6t51/tfile.svg" alt="WIMB Logo" width="120" height="50" style="background: white;">
                 </a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav">
+                <div class="search-form-wrapper">
+                    <form class="mb-3" id="searchForm" onsubmit="search(event)">
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" placeholder="검색어를 입력하세요" name="query" id="searchInput">
+                            <input type="hidden" name="sortBy" id="sortBy" value="latest">
+                            <input type="hidden" name="theme" id="theme" value="all">
+                            <input type="hidden" name="page" id="page" value="1">
+                            <button class="btn btn-outline-dark" type="submit">검색</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/post/posts" style="color: black;">Posts</a>
+                    </li>
+                    <% if (user) { %>
                         <li class="nav-item">
-                            <a class="nav-link" href="/" style="color: black;">Home</a>
+                            <a class="nav-link" href="/profile/<%= user.id %>" style="color: black;">Profile</a>
                         </li>
+                    <% } else { %>
                         <li class="nav-item">
-                            <a class="nav-link" href="/post/posts" style="color: black;">Posts</a>
+                            <a class="nav-link" href="/auth/login" style="color: black;">Profile</a>
                         </li>
-                        <% if (user) { %>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/profile/<%= user.id %>" style="color: black;">Profile</a>
-                            </li>
-                        <% } else { %>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/auth/login" style="color: black;">Profile</a>
-                            </li>
-                        <% } %>
-                    </ul>
+                    <% } %>
                     <% if (user) { %>
                     <li class="nav-item">
                         <a class="nav-link" href="/auth/logout" style="color: black;">Logout</a>
@@ -60,18 +80,10 @@
                         <a class="nav-link" href="/auth/login" style="color: black;">Login</a>
                     </li>
                     <% } %>
-                    <li class="nav-item">
-                        <form class="mb-3" id="searchForm" onsubmit="search(event)">
-                            <div class="input-group mb-3">
-                                <input type="text" class="form-control" placeholder="검색어를 입력하세요" name="query" id="searchInput">
-                                <input type="hidden" name="sortBy" id="sortBy" value="latest">
-                                <input type="hidden" name="theme" id="theme" value="all">
-                                <input type="hidden" name="page" id="page" value="1">
-                                <button class="btn btn-outline-dark" type="submit">검색</button>
-                            </div>
-                        </form>
-                    </li>
                 </div>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
             </nav>
         </ul>
         <div class="header-border"></div>
