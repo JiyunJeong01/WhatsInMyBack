@@ -112,7 +112,9 @@
 
         <!-- 프로필 섹션 -->
         <div class="d-flex align-items-center mb-3">
-          <img src="<%= member.picture_base64 %>" alt="Profile Picture" class="rounded-circle mr-3" style="width: 50px; height: 50px; margin-right: 10px;" />
+          <a href="/profile/<%= member.member_id %>">
+            <img src="<%= member.picture_base64 %>" alt="Profile Picture" class="rounded-circle mr-3" style="width: 50px; height: 50px; margin-right: 10px;" />
+          </a>
           <div>
             <h5 class="mb-0"><%= member.username %></h5>
             <small class="text-muted"><%= member.nickname %></small>
@@ -203,7 +205,9 @@
             <% comments.forEach(comment => { %>
               <div class="list-group-item">
                 <div class="d-flex align-items-center">
-                  <img src="<%= comment.picture_base64 %>" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
+                  <a href="/profile/<%= comment.member_id %>">
+                    <img src="<%= comment.picture_base64 %>" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
+                  </a>
                   <div>
                     <h6 class="mb-0"><%= comment.username %> (<%= comment.nickname %>)</h6>
                     <small class="text-muted"><%= formatDate(comment.created_at) %></small>
@@ -232,7 +236,9 @@
                 
                     <div class="list-group-item">
                       <div class="d-flex align-items-center">
-                        <img src="<%= reply.picture_base64 %>" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
+                        <a href="/profile/<%= reply.member_id %>">
+                         <img src="<%= reply.picture_base64 %>" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
+                        </a>
                         <div>
                           <h6 class="mb-0"><%= reply.username %> (<%= reply.nickname %>)</h6>
                           <small class="text-muted"><%= formatDate(reply.created_at) %></small>
