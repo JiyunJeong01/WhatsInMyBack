@@ -4,6 +4,8 @@ exports.getUserByEmail = async (email) => {
         const db = await require('../main').connection(); 
         let sql = `SELECT * FROM member WHERE email = ?`;
         const [rows] = await db.query(sql, [email]);
+
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
         return rows.length > 0 ? rows[0] : null; // 사용자가 존재하면 첫 번째 사용자 객체 반환, 아니면 null 반환
     } catch (error) {
         console.error("UserModel.getUserByEmail() 쿼리 실행 중 오류:", error);
@@ -18,6 +20,8 @@ exports.getUserByNickname = async (nickname) => {
         const db = await require('../main').connection(); 
         let sql = `SELECT * FROM member WHERE nickname = ?`;
         const [rows] = await db.query(sql, [nickname]);
+
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
         return rows.length > 0 ? rows[0] : null; // 사용자가 존재하면 첫 번째 사용자 객체 반환, 아니면 null 반환
     } catch (error) {
         console.error("UserModel.getUserByNickname() 쿼리 실행 중 오류:", error);
@@ -41,6 +45,8 @@ exports.createUser = async (user) => {
             user.gender,
             user.age,
         ]);
+
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
         return result.insertId;
     } catch (error) {
         console.error("UserModel.createUser() 쿼리 실행 중 오류:", error);
@@ -54,6 +60,8 @@ exports.findByMemberId = async (memberId) => {
 
         let sql = 'SELECT * FROM member WHERE member_id = ?';
         const [rows] = await db.query(sql, [memberId]);
+
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
         return rows.length > 0 ? rows[0] : null;
 
     } catch (error) {
@@ -71,6 +79,8 @@ exports.findAll = async () => {
         const db = await require('../main').connection();
         let sql = 'SELECT * FROM member';
         let [rows] = await db.query(sql);
+
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
         return rows;
     } catch (error) {
         console.error("쿼리 실행 중 오류:", error);
@@ -117,7 +127,9 @@ exports.findById = async (userId) => {
             followeeCount: followeeCount,
             followerCount: followerCount,
         };
-        return member; // ??
+
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
+        return member;
     } catch (error) {
         console.error("쿼리 실행 중 오류:", error);
     }
@@ -137,6 +149,7 @@ exports.checkPassword = async (userId, current_password) => {
             password = row.password
         });
 
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
         return (bcrypt.compare(current_password, password));
     }
     catch (error) {
@@ -151,6 +164,7 @@ exports.updatePassword = async (userId, new_password) => {
         const db = await require('../main').connection();
         const [result] = await db.execute('UPDATE member SET password = ? WHERE member_id = ?', [hashedPassword, userId]);
 
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
         return (result.affectedRows===1);
     }
     catch (error) {
@@ -163,6 +177,7 @@ exports.deleteMember = async (userId) => {
         const db = await require('../main').connection();
         const [result] = await db.execute('DELETE FROM member WHERE member_id = ?', [userId]);
 
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
         return (result.affectedRows===1);
     }
     catch (error) {
@@ -175,6 +190,7 @@ exports.loadMember = async (userId) => {
         const db = await require('../main').connection();
         let [rows] = await db.query('SELECT username, nickname, email, age, gender, job, follow_notification, like_notification, comment_notification, recommend_notification, picture_base64, bio FROM member WHERE member_id = ?', [userId]);
     
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
         return (rows)
     }
     catch (error) {
@@ -188,6 +204,7 @@ exports.updateMember = async (userId, username, nickname, email, age, gender, jo
         const [result] = await db.execute('UPDATE member SET username = ?, nickname = ?, email = ?, age = ?, gender = ?, job = ?, follow_notification = ?, like_notification = ?, comment_notification = ?, recommend_notification = ?, picture_base64 = ?, bio = ? WHERE member_id = ?',
             [username, nickname, email, age, gender, job, follow_notification, like_notification, comment_notification, recommend_notification, picture_base64, bio, userId]);
     
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
         return (result.affectedRows===1);
     }
     catch (error) {
@@ -200,6 +217,7 @@ exports.getUserByEmail = async (email) => {
         const db = await require('../main').connection();
         const [rows, fields] = await db.query('SELECT * FROM member WHERE email = ?', [email]);
     
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
         return rows.length ? rows[0] : null;
     } catch (error) {
         console.error("쿼리 실행 중 오류:", error);

@@ -4,6 +4,7 @@ exports.findFollowAndAdd = async (userId, follow) => {
         const db = await require('../main').connection();
         await db.query('INSERT INTO follow VALUES (?,?, NOW())', [userId, follow]);
 
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
     } catch (error) {
         console.error("쿼리 실행 중 오류:", error);
     }
@@ -15,6 +16,7 @@ exports.findFollowAndDelete = async (userId, follow) => {
         const db = await require('../main').connection();
         await db.query('DELETE FROM follow WHERE followee_id = ? AND follower_id = ?', [follow, userId]);
 
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
     } catch (error) {
         console.error("쿼리 실행 중 오류:", error);
     }
@@ -30,6 +32,7 @@ exports.checkFollow = async (userId, follow = 0) => {
         );
         let is_following = rows[0].is_following;
 
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
         return is_following;
     } catch (error) {
         console.error("쿼리 실행 중 오류:", error);
@@ -59,6 +62,7 @@ exports.findFolloweeById = async (userId, loginId) => {
                 is_following: row.is_following,
             }));
     
+            if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
             return follows
     } catch (error) {
         console.error("쿼리 실행 중 오류:", error);
@@ -88,6 +92,7 @@ exports.findFollowerById = async (userId, loginId) => {
                 is_following: row.is_following,
             }));
     
+            if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
             return follows
     } catch (error) {
         console.error("쿼리 실행 중 오류:", error);

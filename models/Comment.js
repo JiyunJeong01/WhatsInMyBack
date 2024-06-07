@@ -33,6 +33,7 @@ exports.findByPostId = async (postId) => {
             });
         }
 
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
         return rows;
 
     } catch (error) {
@@ -51,15 +52,12 @@ exports.create = async (comment) => {
         let sql = `
           INSERT INTO comment (post_id, member_id, parent_comment_id, comment_content)
           VALUES (?, ?, ?, ?)`;
-          console.log('SQL데이터베이스:', sql); // 추가된 로그-----------------------------------------------------
         const [result] = await db.query(sql, [
             comment.post_id,
             comment.member_id,
             comment.parent_comment_id || null, // parent_comment_id가 없는 경우 null로 설정
             comment.comment_content
         ]);
-
-        console.log('New comment inserted with ID:', result.insertId); // 추가된 콘솔 로그-------------------------------------------
 
 
         // 생성된 댓글의 comment_id를 사용해 추가 정보 가져오기
@@ -72,6 +70,7 @@ exports.create = async (comment) => {
         `, [result.insertId]);
 
         // 생성된 댓글의 모든 정보를 반환
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
         return rows[0];
 
     } catch (error) {
@@ -91,6 +90,8 @@ exports.update = async (comment) => {
             comment.comment_content
         ]);
 
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
+
     } catch (error) {
         console.error("Comment.update() 쿼리 실행 중 오류:", error);
     }
@@ -102,6 +103,7 @@ exports.delete = async (commentId) => {
 
         let sql = `DELETE FROM comment WHERE comment_id = ?`;
         await db.query(sql, [commentId]);
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
 
     } catch (error) {
         console.error("Comment.delete() 쿼리 실행 중 오류:", error);
@@ -128,6 +130,7 @@ exports.findCommentWithUser = async (userId) => {
             comments[i].page_id = Math.floor(i/10) + 1;
         }
 
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
         return comments;
     }
     catch (error) {
