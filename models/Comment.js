@@ -51,14 +51,18 @@ exports.create = async (comment) => {
         let sql = `
           INSERT INTO comment (post_id, member_id, parent_comment_id, comment_content)
           VALUES (?, ?, ?, ?)`;
+          console.log('SQL데이터베이스:', sql); // 추가된 로그-----------------------------------------------------
         const [result] = await db.query(sql, [
             comment.post_id,
             comment.member_id,
-            comment.parent_comment_id,
+            comment.parent_comment_id || null, // parent_comment_id가 없는 경우 null로 설정
             comment.comment_content
         ]);
 
-        // [수정한 부분] 생성된 댓글의 comment_id를 사용해 추가 정보 가져오기
+        console.log('New comment inserted with ID:', result.insertId); // 추가된 콘솔 로그-------------------------------------------
+
+
+        // 생성된 댓글의 comment_id를 사용해 추가 정보 가져오기
         let [rows] = await db.query(`
           SELECT c.comment_id, c.member_id, c.post_id, c.parent_comment_id, c.comment_content, c.created_at,
                  m.username, m.nickname, m.picture_base64
@@ -67,7 +71,7 @@ exports.create = async (comment) => {
           WHERE c.comment_id = ?
         `, [result.insertId]);
 
-        // [수정한 부분] 생성된 댓글의 모든 정보를 반환
+        // 생성된 댓글의 모든 정보를 반환
         return rows[0];
 
     } catch (error) {
