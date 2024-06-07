@@ -347,6 +347,7 @@ fetch('/post/bookmark', {
 
 // 대댓글 작성 폼 표시/숨김 함수
 function toggleReplyForm(commentId) {
+  event.preventDefault();
   const replyForm = document.getElementById(`reply-form-${commentId}`);
   replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
 }
