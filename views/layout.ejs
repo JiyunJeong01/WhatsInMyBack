@@ -40,19 +40,6 @@
 <%- include('partials/header') %>
 
     <body>
-        <div>
-            <% if (flashMessages) { %>
-                <% if (flashMessages.success) { %>
-                    <div class="flash success">
-                        <%= flashMessages.success %>
-                    </div>
-                    <% } else if (flashMessages.error) { %>
-                        <div class="flash error">
-                            <%= flashMessages.error %>
-                        </div>
-                        <% } %>
-                            <% } %>
-        </div>
         <div class="container">
             <%- include('layouts/main') %>
                 <%- body %>
