@@ -6,7 +6,6 @@ const morgan = require('morgan');
 const mysql = require('mysql2/promise');
 const methodOverride = require("method-override");
 const session = require('express-session');
-const flash = require("connect-flash");
 
 // DB connection
 require('dotenv').config();
@@ -40,12 +39,8 @@ app.use(session({
   saveUninitialized: true
 }));
 
-// 플래시메시지
-app.use(flash());
-
 app.use((req, res, next) => {
   res.locals.user = req.session.user || null;
-  res.locals.flashMessages = req.flash();
   next();
 });
 

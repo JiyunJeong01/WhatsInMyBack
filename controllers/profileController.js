@@ -262,41 +262,37 @@ module.exports = {
     profileModified_POST: async (req, res, next) => {
         try {
             const userId = req.params.userId;
-
+    
             if (!req.session.user) {
                 return res.redirect(`/auth/login`);
             }
-
+    
             if (userId == req.session.user.id) {
                 const { email, nickname, username, bio, job, age, gender, theme, comment_notification, like_notification, follow_notification, recommend_notification, picture_base64 } = req.body;
-
+    
                 const existingUserWithEmail = await Member.getUserByEmail(email);
                 if (existingUserWithEmail && existingUserWithEmail.member_id != userId) {
-                    req.flash('error', '이미 사용 중인 이메일입니다.');
-                    return res.redirect(`/profile/${userId}/profileModified`);
+                    return res.send("<script>alert('이미 사용 중인 이메일입니다.'); window.location=`/profile/"+userId+"/profileModified`;</script>");
                 }
-
+    
                 const existingUserWithNickname = await Member.getUserByNickname(nickname);
                 if (existingUserWithNickname && existingUserWithNickname.member_id != userId) {
-                    req.flash('error', '이미 사용 중인 닉네임입니다.');
-                    return res.redirect(`/profile/${userId}/profileModified`);
+                    return res.send("<script>alert('이미 사용 중인 닉네임입니다.'); window.location=`/profile/"+userId+"/profileModified`;</script>");
                 }
-
+    
                 if ((await Member.updateMember(userId, username, nickname, email, age, gender, job, follow_notification, like_notification, comment_notification, recommend_notification, picture_base64, bio))
                     & (await Preference.updateTheme(userId, theme))) {
-                    req.flash('success', '프로필 정보가 수정되었습니다.');
-                    return res.redirect(`/profile/${userId}`);
+                    return res.send("<script>alert('프로필 정보가 수정되었습니다.'); window.location=`/profile/"+userId+"`;</script>");
                 } else {
-                    req.flash('error', '오류가 발생했습니다.');
-                    return res.redirect(`/profile/${userId}/profileModified`);
+                    return res.send("<script>alert('오류가 발생했습니다.'); window.location=`/profile/"+userId+"/profileModified`;</script>");
                 }
             } else {
-                res.render("profile/noaccess")
+                res.render("profile/noaccess");
             }
         } catch (error) {
             console.error(`Error collecting comments: ${error.message}`);
             next(error);
-        };
+        }
     },
 
     passwordModified_GET: async (req, res, next) => {
@@ -322,25 +318,22 @@ module.exports = {
     passwordModified_POST: async (req, res, next) => {
         try {
             const userId = req.params.userId;
-
+    
             if (!req.session.user) {
                 return res.redirect(`/auth/login`);
             }
-
+    
             if (userId == req.session.user.id) {
                 const { current_password, new_password, confirm_password } = req.body;
-
+    
                 if (await Member.checkPassword(userId, current_password)) {
                     if (await Member.updatePassword(userId, new_password)) {
-                        req.flash('success', '비밀번호가 재설정되었습니다.');
-                        return res.redirect(`/profile/${userId}/profileModified`);
+                        return res.send("<script>alert('비밀번호가 재설정되었습니다.'); window.location=`/profile/"+userId+"/profileModified`;</script>");
                     } else {
-                        req.flash('error', '오류가 발생했습니다.');
-                        return res.redirect(`/profile/${userId}/pwModified`);
+                        return res.send("<script>alert('오류가 발생했습니다.'); window.location=`/profile/"+userId+"/pwModified`;</script>");
                     }
                 } else {
-                    req.flash('error', '현재 비밀번호가 일치하지 않습니다.');
-                    return res.redirect(`/profile/${userId}/pwModified`);
+                    return res.send("<script>alert('현재 비밀번호가 일치하지 않습니다.'); window.location=`/profile/"+userId+"/pwModified`;</script>");
                 }
             } else {
                 res.render("profile/noaccess")
@@ -374,25 +367,22 @@ module.exports = {
     unregister_POST: async (req, res, next) => {
         try {
             const userId = req.params.userId;
-
+    
             if (!req.session.user) {
                 return res.redirect(`/auth/login`);
             }
-
+    
             if (userId == req.session.user.id) {
                 const { current_password, confirm_check } = req.body;
-
+    
                 if (await Member.checkPassword(userId, current_password)) {
                     if (await Member.deleteMember(userId)) {
-                        req.flash('success', '회원을 탈퇴했습니다.');
-                        return res.redirect(`/`);
+                        return res.send("<script>alert('회원을 탈퇴했습니다.'); window.location='/';</script>");
                     } else {
-                        req.flash('error', '오류가 발생했습니다.');
-                        return res.redirect(`/profile/${userId}/cancleAccount`);
+                        return res.send("<script>alert('오류가 발생했습니다.'); window.location='/profile/"+userId+"/cancleAccount';</script>");
                     }
                 } else {
-                    req.flash('error', '현재 비밀번호가 일치하지 않습니다.');
-                    return res.redirect(`/profile/${userId}/cancleAccount`);
+                    return res.send("<script>alert('현재 비밀번호가 일치하지 않습니다.'); window.location='/profile/"+userId+"/cancleAccount';</script>");
                 }
             } else {
                 res.render("profile/noaccess")
