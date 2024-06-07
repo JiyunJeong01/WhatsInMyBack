@@ -5,6 +5,8 @@ exports.findAll = async () => {
   
         let sql = 'SELECT * FROM theme';
         const [rows] = await db.query(sql);
+        
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
         return rows; 
   
     } catch (error) {

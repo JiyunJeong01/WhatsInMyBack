@@ -5,6 +5,10 @@ exports.findAll = async () => {
 
         let sql = 'SELECT * FROM post';
         let [rows] = await db.query(sql); 
+
+        if (db && db.end) {
+            db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); });
+        }
         return rows;
 
     } catch (error) {
@@ -23,6 +27,10 @@ exports.findByPostId = async (postId) => {
             (SELECT COUNT(*) FROM post_like WHERE post_id = p.post_id) AS like_count
             FROM post p WHERE post_id = ?`;
         const [rows] = await db.query(sql, [postId]);
+
+        if (db && db.end) {
+            db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); });
+        }
         return rows.length > 0 ? rows[0] : null;
 
     } catch (error) {
@@ -36,6 +44,10 @@ exports.findByMemberId = async (memberId) => {
 
         let sql = `SELECT * AS theme_name FROM post WHERE member_id = ?`;
         const [rows] = await db.query(sql, [memberId]);
+
+        if (db && db.end) {
+            db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); });
+        }
         return rows.length > 0 ? rows[0] : null;
 
     } catch (error) {
@@ -70,6 +82,10 @@ exports.findAllByMemberId = async (memberId, offset, limit) => {
                 image_base64: row.image_base64,
             };
         });
+
+        if (db && db.end) {
+            db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); });
+        }
         return posts;
     } catch (error) {
         console.error("쿼리 실행 중 오류:", error);
@@ -91,6 +107,10 @@ exports.create = async (post) => {
             post.post_content,
             post.hashtags,
         ]);
+
+        if (db && db.end) {
+            db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); });
+        }
         return result.insertId;
 
     } catch (error) {
@@ -118,6 +138,10 @@ exports.update = async (post) => {
             post.hashtags,
             post.post_id
         ]);
+
+        if (db && db.end) {
+            db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); });
+        }
         return;
 
     } catch (error) {
@@ -131,6 +155,10 @@ exports.delete = async (postId) => {
 
         let sql = `DELETE FROM post WHERE post_id = ?`;
         await db.query(sql, [postId]);
+
+        if (db && db.end) {
+            db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); });
+        }
         return;
 
     } catch (error) {
@@ -141,11 +169,16 @@ exports.delete = async (postId) => {
 
 // 조회수 증가 
 exports.increasedViews = async (postId) => {
+    let db = null;
     try {
         const db = await require('../main').connection(); 
 
         let sql = 'UPDATE post SET views = views + 1 WHERE post_id = ?';
         await db.query(sql, [postId]);
+        if (db && db.end) {
+            db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); });
+        }
+        return;
 
     } catch (error) {
         console.error("Post.increasedViews() 쿼리 실행 중 오류:", error);
@@ -180,6 +213,10 @@ exports.findLatestPosts = async (limit) => {
       `;
   
       const [rows] = await db.query(sql, [limit]);
+
+      if (db && db.end) {
+        db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); });
+    }
       return rows.length > 0 ? rows : null;
   
     } catch (error) {
@@ -243,10 +280,16 @@ exports.findByQueryAndSortBy = async (query, sortBy, themeId, pageIndex) => {
 
         if (themeId != 'all') {
             const [rows] = await db.query(sql, [`%${query}%`, themeId, pageSize, offset]);
+            if (db && db.end) {
+                db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); });
+            }
             return rows.length > 0 ? rows : null;
         }
         else {
             const [rows] = await db.query(sql, [`%${query}%`, pageSize, offset]);
+            if (db && db.end) {
+                db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); });
+            }
             return rows.length > 0 ? rows : null;
         }
 
@@ -293,10 +336,16 @@ exports.findCountByQueryAndSortBy = async (query, sortBy, themeId) => {
 
         if (themeId != 'all') {
             const [rows] = await db.query(sql, [`%${query}%`, themeId]);
+            if (db && db.end) {
+                db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); });
+            }
             return rows[0].totalPosts;
         }
         else {
             const [rows] = await db.query(sql, [`%${query}%`]);
+            if (db && db.end) {
+                db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); });
+            }
             return rows[0].totalPosts;;
         }
 

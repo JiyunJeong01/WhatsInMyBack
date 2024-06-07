@@ -5,6 +5,8 @@ exports.findLikeByMemberAndPost = async (postId, memberId) => {
 
         let sql = 'select * from post_like where post_id = ? and member_id = ?;';
         let [rows] = await db.query(sql, [postId, memberId]); 
+
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
         return rows.length > 0 ? rows[0] : null;
 
     } catch (error) {
@@ -19,6 +21,8 @@ exports.createLike = async (postId, memberId) => {
 
         let sql = `INSERT INTO post_like (post_id, member_id) VALUES (?, ?);`;
         await db.query(sql, [postId, memberId]); 
+
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
         return;
 
     } catch (error) {
@@ -33,6 +37,8 @@ exports.deleteLike = async (postId, MemberId) => {
 
         let sql = `DELETE FROM post_like WHERE post_id = ? AND member_id = ?`;
         await db.query(sql, [postId, MemberId]);
+
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
         return;
 
     } catch (error) {
@@ -66,7 +72,9 @@ exports.findAllLikeById = async (userId) => {
             };
             likes.push(like);
         });
-        return likes; // ??
+
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
+        return likes;
     } catch (error) {
         console.error("쿼리 실행 중 오류:", error);
     }
@@ -80,6 +88,8 @@ exports.findBookmarkByMemberAndPost = async (postId, memberId) => {
 
         let sql = 'select * from bookmark where post_id = ? and member_id = ?;';
         let [rows] = await db.query(sql, [postId, memberId]); 
+
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
         return rows.length > 0 ? rows[0] : null;
 
     } catch (error) {
@@ -94,6 +104,8 @@ exports.createBookmark = async (postId, memberId) => {
 
         let sql = `INSERT INTO bookmark (post_id, member_id) VALUES (?, ?);`;
         await db.query(sql, [postId, memberId]); 
+
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
         return;
 
     } catch (error) {
@@ -108,6 +120,8 @@ exports.deleteBookmark = async (postId, MemberId) => {
 
         let sql = `DELETE FROM bookmark WHERE post_id = ? AND member_id = ?`;
         await db.query(sql, [postId, MemberId]);
+
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
         return;
 
     } catch (error) {
@@ -132,7 +146,9 @@ exports.findAllBookmarkById = async (userId) => {
             };
             bookmarks.push(bookmark);
         });
-        return bookmarks; // ??
+
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
+        return bookmarks;
     } catch (error) {
         console.error("쿼리 실행 중 오류:", error);
     }

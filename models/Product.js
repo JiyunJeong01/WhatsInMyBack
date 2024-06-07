@@ -15,8 +15,7 @@ exports.create = async (product) => {
             product.purchase_link,
         ]);
 
-        //return findById(product_id);
-        return;
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
 
     } catch (error) {
         console.error("registerProduct() 쿼리 실행 중 오류:", error);
@@ -29,6 +28,8 @@ exports.findByPostId = async (postId) => {
         const db = await require('../main').connection(); 
         let sql = 'SELECT * FROM product WHERE post_id = ?';
         const [rows] = await db.query(sql, [postId]);
+
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
         return rows;
 
     } catch (error) {
@@ -42,8 +43,8 @@ exports.delete = async (postId) => {
 
         let sql = `DELETE FROM product WHERE post_id = ?`;
         await db.query(sql, [postId]);
-        return;
-
+        
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
     } catch (error) {
         console.error("Post.registerPost() 쿼리 실행 중 오류:", error);
     }

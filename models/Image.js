@@ -11,8 +11,7 @@ exports.create = async (post_image) => {
             post_image.image_base64,
         ]);
 
-        //return findById(image_id, post_id);
-        return;
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
 
     } catch (error) {
         console.error("registerPostImage() 쿼리 실행 중 오류:", error);
@@ -25,6 +24,8 @@ exports.findByPostId = async (postId) => {
         const db = await require('../main').connection(); 
         let sql = 'SELECT * FROM post_image WHERE post_id = ?';
         const [rows] = await db.query(sql, [postId]);
+
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
         return rows;
 
     } catch (error) {
@@ -38,6 +39,8 @@ exports.delete = async (postId) => {
 
         let sql = `DELETE FROM post_image WHERE post_id = ?`;
         await db.query(sql, [postId]);
+
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
         return;
 
     } catch (error) {
