@@ -160,7 +160,7 @@
         <!-- 좋아요/북마크 -->
         <div class="d-flex justify-content-end mb-3">
           <button id="likeButton" class="btn btn-outline-secondary btn-sm mr-2" style="margin-right: 10px; color: black;">
-            <i id="likeIcon" class="fas fa-heart" style="color: red;"></i> 좋아요 (<span id="likeCount"><%= post.like_count %></span>)
+            <i id="likeIcon" class="far fa-heart" style="color: red;"></i> 좋아요 (<span id="likeCount"><%= post.like_count %></span>)
           </button>
           <button id="bookmarkButton" class="btn btn-outline-secondary btn-sm">
             <i id="bookmarkIcon" class="far fa-bookmark"></i> 북마크 (<span id="bookmarkCount"><%= post.bookmark_count %></span>)
@@ -229,6 +229,7 @@
                 <!-- 대댓글 목록 -->
                 <div id="reply-list-<%= comment.comment_id %>" class="mt-2">
                   <% comment.replies.forEach(reply => { %>
+                
                     <div class="list-group-item">
                       <div class="d-flex align-items-center">
                         <img src="<%= reply.picture_base64 %>" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
@@ -338,111 +339,117 @@ fetch('/post/bookmark', {
 .catch(error => console.error('북마크 변경 중 오류 발생:', error));
 });
 
-
 // 대댓글 작성 폼 표시/숨김 함수
 function toggleReplyForm(commentId) {
   const replyForm = document.getElementById(`reply-form-${commentId}`);
   replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
 }
 
-// 대댓글 작성 폼 제출 이벤트 핸들러
-document.querySelectorAll('[id^="reply-form-"]').forEach(form => {
-  form.addEventListener('submit', async (e) => {
+document.addEventListener('DOMContentLoaded', function () {
+  // 대댓글 작성 폼 제출 이벤트 핸들러 (함수 정의)
+  function addReplyFormEventListeners() {
+    document.querySelectorAll('[id^="reply-form-"]').forEach(form => {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const commentId = form.id.split('-')[2];
+        const replyInput = form.querySelector('input[type="text"]');
+        const replyContent = replyInput.value.trim();
+        
+        if (!replyContent) return;
+
+        try {
+          const response = await fetch(`/post/${postId}/comment/${commentId}/reply`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ comment_content: replyContent }),
+          });
+
+          if (response.ok) {
+            const newReply = await response.json();
+            const replyList = document.getElementById(`reply-list-${commentId}`);
+            const replyElement = document.createElement('div');
+            replyElement.classList.add('list-group-item');
+            replyElement.innerHTML = `
+              <div class="d-flex align-items-center">
+                <img src="${newReply.picture_base64}" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
+                <div>
+                  <h6 class="mb-0">${newReply.username} (${newReply.nickname})</h6>
+                  <small class="text-muted">${formatDate(newReply.created_at)}</small>
+                </div>
+              </div>
+              <p class="mt-2 mb-0">${newReply.comment_content}</p>
+            `;
+            replyList.insertBefore(replyElement, replyList.firstChild);
+            replyInput.value = '';
+            form.style.display = 'none'; // 이 코드를 제거하여 대댓글 작성 폼을 계속 보이게 함 (상관 없었던 것 같다.)
+          } else {
+            console.error('Failed to create reply');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      });
+    });
+  }
+
+  // 댓글 작성 폼 제출 이벤트 핸들러
+  document.getElementById('comment-form').addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const commentId = form.id.split('-')[2];
-    const replyInput = form.querySelector('input[type="text"]');
-    const replyContent = replyInput.value.trim();
+    const commentInput = document.getElementById('comment-input');
+    const commentContent = commentInput.value.trim();
 
-    if (!replyContent) return;
+    if (!commentContent) return;
 
     try {
-      const response = await fetch(`/post/${postId}/comment/${commentId}/reply`, {
+      const response = await fetch(`/post/${postId}/comment`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ comment_content: replyContent }),
+        body: JSON.stringify({ comment_content: commentContent }),
       });
-
       if (response.ok) {
-        const newReply = await response.json();
-        const replyList = document.getElementById(`reply-list-${commentId}`);
-        const replyElement = document.createElement('div');
-        replyElement.classList.add('list-group-item');
-        replyElement.innerHTML = `
+        const newComment = await response.json();
+        const commentList = document.getElementById('comment-list');
+        const commentElement = document.createElement('div');
+        commentElement.classList.add('list-group-item');
+        commentElement.innerHTML = `
           <div class="d-flex align-items-center">
-            <img src="${newReply.picture_base64}" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
+            <img src="${newComment.picture_base64}" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
             <div>
-              <h6 class="mb-0">${newReply.username} (${newReply.nickname})</h6>
-              <small class="text-muted">${formatDate(newReply.created_at)}</small>
+              <h6 class="mb-0">${newComment.username} (${newComment.nickname})</h6>
+              <small class="text-muted">${formatDate(newComment.created_at)}</small>
             </div>
           </div>
-          <p class="mt-2 mb-0">${newReply.comment_content}</p>
+          <p class="mt-2 mb-0">${newComment.comment_content}</p>
+          <div class="mt-2">
+            <a href="#" class="btn btn-sm btn-outline-secondary" onclick="toggleReplyForm('${newComment.comment_id}')">대댓글 작성</a>
+            <form id="reply-form-${newComment.comment_id}" class="mt-2" style="display: none;">
+              <div class="input-group">
+                <input type="text" class="form-control" placeholder="대댓글을 입력하세요">
+                <div class="input-group-append">
+                  <button type="submit" class="btn btn-outline-secondary">작성</button>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div id="reply-list-${newComment.comment_id}" class="mt-2"></div>
         `;
-        replyList.appendChild(replyElement);
-        replyInput.value = '';
-        form.style.display = 'none'; // 폼 제출 후 폼을 숨김
+        commentList.insertBefore(commentElement, commentList.firstChild);
+        commentInput.value = '';
+
+        // 새로 추가된 대댓글 폼에 이벤트 리스너 등록
+        addReplyFormEventListeners();
       } else {
-        console.error('Failed to create reply');
+        console.error('Failed to create comment');
       }
     } catch (error) {
       console.error('Error:', error);
     }
   });
+
+  // 초기 로드 시 기존 대댓글 폼에 이벤트 리스너 등록
+  addReplyFormEventListeners();
 });
 
-// 댓글 작성 폼 제출 이벤트 핸들러
-document.getElementById('comment-form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const commentInput = document.getElementById('comment-input');
-  const commentContent = commentInput.value.trim();
-
-  if (!commentContent) return;
-
-  try {
-    const response = await fetch(`/post/${postId}/comment`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ comment_content: commentContent }),
-    });
-
-    if (response.ok) {
-      const newComment = await response.json();
-
-      console.log('New comment data:', newComment); // 댓글 콘솔 찍기
-      
-      const commentList = document.getElementById('comment-list');
-      const commentElement = document.createElement('div');
-      commentElement.classList.add('list-group-item');
-      commentElement.innerHTML = `
-        <div class="d-flex align-items-center">
-          <img src="${newComment.picture_base64}" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
-          <div>
-            <h6 class="mb-0">${newComment.username} (${newComment.nickname})</h6>
-            <small class="text-muted">${formatDate(newComment.created_at)}</small>
-          </div>
-        </div>
-        <p class="mt-2 mb-0">${newComment.comment_content}</p>
-        <div class="mt-2">
-          <a href="#" class="btn btn-sm btn-outline-secondary" onclick="toggleReplyForm('${newComment.comment_id}')">대댓글 작성</a>
-          <form id="reply-form-${newComment.comment_id}" class="mt-2" style="display: none;">
-            <div class="input-group">
-              <input type="text" class="form-control" placeholder="대댓글을 입력하세요">
-              <div class="input-group-append">
-                <button type="submit" class="btn btn-outline-secondary">작성</button>
-              </div>
-            </div>
-          </form>
-        </div>
-        <div id="reply-list-${newComment.comment_id}" class="mt-2"></div>
-      `;
-      commentList.insertBefore(commentElement, commentList.firstChild);
-      commentInput.value = '';
-    } else {
-      console.error('Failed to create comment');
-    }
-  } catch (error) {
-    console.error('Error:', error);
-  }
-});
 </script>
