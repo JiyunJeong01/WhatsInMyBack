@@ -355,13 +355,9 @@ document.querySelectorAll('[id^="reply-form-"]').forEach(form => {
     const replyInput = form.querySelector('input[type="text"]');
     const replyContent = replyInput.value.trim();
 
-    console.log('Post ID 포스트아이디:', postId);// 추가된 콘솔 로그---------------------------------------------------------------
-    console.log('Comment ID:', commentId); // 추가된 콘솔 로그---------------------------------------------------------------
-    console.log('Reply Content:', replyContent); // 추가된 콘솔 로그---------------------------------------------------------------
-
     if (!replyContent) return;
 
-    console.log('Submitting reply:', replyContent); // 추가된 콘솔 로그---------------------------------------------------------------
+ 
 
     try {
 
@@ -373,12 +369,9 @@ document.querySelectorAll('[id^="reply-form-"]').forEach(form => {
         body: JSON.stringify({ comment_content: replyContent }),
       });
 
-      console.log('대댓글 Response:', response); // 추가된 콘솔 로그
 
       if (response.ok) {
         const newReply = await response.json();
-        console.log('대댓글 New reply data:', newReply); // 추가된 콘솔 로그
-
         const replyList = document.getElementById(`reply-list-${commentId}`);
         const replyElement = document.createElement('div');
         replyElement.classList.add('list-group-item');
@@ -394,7 +387,7 @@ document.querySelectorAll('[id^="reply-form-"]').forEach(form => {
         `;
         replyList.insertBefore(replyElement, replyList.firstChild); // 최신 대댓글을 맨 위에 추가
         replyInput.value = '';
-        //form.style.display = 'none'; // 이 코드를 제거하여 대댓글 작성 폼을 계속 보이게 함
+        form.style.display = 'none'; // 이 코드를 제거하여 대댓글 작성 폼을 계속 보이게 함 (상관 없었던 것 같다.)
       } else {
         console.error('Failed to create reply');
       }
@@ -413,18 +406,15 @@ document.getElementById('comment-form').addEventListener('submit', async (e) => 
 
   if (!commentContent) return;
 
-  console.log('Submitting comment:', commentContent); // 추가된 콘솔 로그 ------------------------------------------------------------
   try {
     const response = await fetch(`/post/${postId}/comment`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ comment_content: commentContent }),
     });
-    console.log('Response:', response); // 추가된 콘솔 로그---------------------------------------------------------------------------
     if (response.ok) {
       const newComment = await response.json();
 
-      console.log('New comment data:', newComment); // 댓글 콘솔 찍기
       
       const commentList = document.getElementById('comment-list');
       const commentElement = document.createElement('div');
