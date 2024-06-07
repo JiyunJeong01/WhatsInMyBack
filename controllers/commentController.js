@@ -20,7 +20,7 @@ exports.createComment = async (req, res) => {
     const comment = { 
         post_id, 
         member_id: loginMember.member_id, 
-        parent_comment_id: null, 
+        parent_comment_id: null,
         comment_content,
         username: loginMember.username,
         nickname: loginMember.nickname,
