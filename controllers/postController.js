@@ -31,7 +31,8 @@ exports.newPost = async (req, res) => {
 
         res.render('Post/newPost', {
             memberId: req.session.user.id,
-            themes: themes
+            themes: themes,
+            formatDate
         });
     } catch (error) {
         console.error("새 포스트 작성 페이지 반환 중 오류:", error);
@@ -112,7 +113,7 @@ exports.editPost = async (req, res) => {
                 link: product.purchase_link
             });
         });
-        res.render(`Post/editPost`, { themes, post, pages });
+        res.render(`Post/editPost`, { themes, post, pages, formatDate });
  
     } catch (error) {
         console.error("게시글 수정 페이지 반환 중 오류:", error);
