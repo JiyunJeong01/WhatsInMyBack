@@ -140,9 +140,9 @@ exports.updatePost = async (req, res) => {
         // image등록
         for (const imageData of imagesData) {
             imageData.post_id = postId;
-            if (imageData.image_base64.data) {
-                const uint8Array = new Uint8Array(imageData.image_base64.data);
-                imageData.image_base64 = Buffer.from(uint8Array);
+            if (imageData.image_base64.data) { // 이미지 값이 바이너리 데이터의 숫자 배열인 경우 
+                const uint8Array = new Uint8Array(imageData.image_base64.data); //데이터를 이진 형식으로 바꿈
+                imageData.image_base64 = Buffer.from(uint8Array); // 변환된 데이터를 다시 버퍼로 변환하여 할당
             }
             await ImageModel.create(imageData);
         }
