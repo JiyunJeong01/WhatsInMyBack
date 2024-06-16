@@ -379,7 +379,9 @@ document.addEventListener('DOMContentLoaded', function () {
             replyElement.classList.add('list-group-item');
             replyElement.innerHTML = `
               <div class="d-flex align-items-center">
-                <img src="${newReply.picture_base64}" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
+                <a href="/profile/${newReply.member_id}">
+                  <img src="${newReply.picture_base64}" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
+                </a>
                 <div>
                   <h6 class="mb-0">${newReply.username} (${newReply.nickname})</h6>
                   <small class="text-muted">${formatDate(newReply.created_at)}</small>
@@ -422,7 +424,9 @@ document.addEventListener('DOMContentLoaded', function () {
         commentElement.classList.add('list-group-item');
         commentElement.innerHTML = `
           <div class="d-flex align-items-center">
-            <img src="${newComment.picture_base64}" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
+            <a href="/profile/${newComment.member_id}">
+              <img src="${newComment.picture_base64}" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
+            </a>
             <div>
               <h6 class="mb-0">${newComment.username} (${newComment.nickname})</h6>
               <small class="text-muted">${formatDate(newComment.created_at)}</small>
