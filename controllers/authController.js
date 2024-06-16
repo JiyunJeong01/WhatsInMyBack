@@ -52,16 +52,7 @@ exports.signup = async (req, res) => {
             await PreferenceModel.addPreference(memberId, themeId);
         }
 
-
-        // 회원가입 성공 시, 세션에 사용자 정보 저장
-        req.session.user = {
-            id: memberId,
-            email: user.email,
-            username: user.username
-        };
-
-
-        return res.status(200).json({ message: 'Login successful' });
+        return res.status(200).json({ message: 'Sign up successful' });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
