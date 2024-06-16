@@ -377,7 +377,7 @@ module.exports = {
     
                 if (await Member.checkPassword(userId, current_password)) {
                     if (await Member.deleteMember(userId)) {
-                        return res.send("<script>alert('회원을 탈퇴했습니다.'); window.location='/';</script>");
+                        return res.send("<script>alert('회원을 탈퇴했습니다.'); window.location='/auth/logout';</script>");
                     } else {
                         return res.send("<script>alert('오류가 발생했습니다.'); window.location='/profile/"+userId+"/cancleAccount';</script>");
                     }
