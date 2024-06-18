@@ -188,6 +188,10 @@ module.exports = {
         res.locals.loginId = loginId;
         let userId = req.params.userId;
 
+        const page = 1; // 처음 페이지는 1
+        const limit = 9; // 한 페이지에 표시할 게시글 수
+        const offset = (page - 1) * limit; // 오프셋 계산
+
         try {
             // 멤버 정보 가져오기
             const member = await Member.findById(userId);
@@ -198,7 +202,7 @@ module.exports = {
             res.locals.member = member;
 
             // 북마크 정보 가져오기
-            const bookmarks = await PostInteractions.findAllBookmarkById(userId);
+            const bookmarks = await PostInteractions.findAllBookmarkById(userId, offset, limit);
             res.locals.bookmarks = bookmarks;
 
             res.render('profile/bookmark')
@@ -209,10 +213,35 @@ module.exports = {
         }
     },
 
+    bookmarkPostPage: async (req, res, next) => {
+        const userId = req.params.userId;
+        const page = req.query.page || 1;
+        const limit = 9;
+        const offset = (page - 1) * limit;
+
+        try {
+            const posts = await PostInteractions.findAllBookmarkById(userId, offset, limit);
+            const new_posts = posts.map(post => {
+                const imageDataURI = post.image_base64.toString('base64');
+                post.image_base64 = Buffer.from(imageDataURI, 'base64').toString('utf-8');
+                return post
+            })
+            res.json(new_posts)
+        } catch (error) {
+            console.error(`Error occurred: ${error.message}`);
+            next(error);
+        }
+    },
+
     collectLike: async (req, res, next) => {
         let loginId = req.session.user ? req.session.user.id : 0;
         res.locals.loginId = loginId;
         let userId = req.params.userId;
+
+        const page = 1; // 처음 페이지는 1
+        const limit = 9; // 한 페이지에 표시할 게시글 수
+        const offset = (page - 1) * limit; // 오프셋 계산
+
         try {
             // 멤버 정보 가져오기
             const member = await Member.findById(userId);
@@ -223,11 +252,31 @@ module.exports = {
             res.locals.member = member;
 
             // 좋아요 정보 가져오기
-            const likes = await PostInteractions.findAllLikeById(userId)
+            const likes = await PostInteractions.findAllLikeById(userId, offset, limit)
             res.locals.likes = likes;
 
             res.render('profile/like')
 
+        } catch (error) {
+            console.error(`Error occurred: ${error.message}`);
+            next(error);
+        }
+    },
+
+    likePostPage: async (req, res, next) => {
+        const userId = req.params.userId;
+        const page = req.query.page || 1;
+        const limit = 9;
+        const offset = (page - 1) * limit;
+
+        try {
+            const posts = await PostInteractions.findAllLikeById(userId, offset, limit);
+            const new_posts = posts.map(post => {
+                const imageDataURI = post.image_base64.toString('base64');
+                post.image_base64 = Buffer.from(imageDataURI, 'base64').toString('utf-8');
+                return post
+            })
+            res.json(new_posts)
         } catch (error) {
             console.error(`Error occurred: ${error.message}`);
             next(error);
