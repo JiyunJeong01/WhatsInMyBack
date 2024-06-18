@@ -11,9 +11,11 @@
             <img id="profileImage" alt="프로필 이미지">
             <input type="hidden" id="picture_base64" name="picture_base64" value="<%= member.picture_base64 %>">
         </div>
+        <% if (member.bio!=null) { %>
         <div class="prifileBio">
-            <%= member.bio %>
+                <%= member.bio %>
         </div>
+        <% }; %>
         <div class="profileFollow">
             <div class="select">
                 <a href="/profile/<%= member.member_id %>/followee" class="followee">팔로잉 <%= member.followeeCount %></a>
