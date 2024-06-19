@@ -13,6 +13,7 @@
         </h1>
     </div>
     <div class="feed">
+        <div id="data" data-member-id="<%= member.member_id %>"></div>
         <% if (likes.length !== 0) { %>
             <div id="card" class="row row-cols-1 row-cols-md-3 g-4">
                 <% likes.forEach(like=> { %>
@@ -40,6 +41,43 @@
 </div>
 
 <script>
+    function loadingPost(userId, page) {
+        fetch(`/profile/${userId}/collectLike/posts?page=${page}`)
+            .then(response => response.json())
+            .then(posts => {
+                if (posts.length !== 0) {
+                    const cardContainer = document.getElementById('card');
+                    posts.forEach(post => {
+                        const HTML = `
+                        <div class="col">
+                            <div class="post" style="cursor: pointer;" onclick="location.href='/post/${post.post_id}/detail';">
+                                <div class="postPhoto">
+                                    <img src="${post.image_base64}" alt="게시글 이미지">
+                                </div>
+                                <h5 class="post_title">
+                                    ${post.post_title}
+                                </h5>
+                                <p class="card-text">
+                                    ${post.theme_name}
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                        cardContainer.insertAdjacentHTML('beforeend', HTML);
+                    });
+                }
+                if (posts.length < 10) {
+                    hasMore = false;
+                }
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+            })
+            .finally(() => {
+                loading = false;
+            });
+    }
+
     window.addEventListener('DOMContentLoaded', (event) => {
         const profileImage = document.getElementById('profileImage');
         const pictureBase64Input = document.getElementById('picture_base64');
