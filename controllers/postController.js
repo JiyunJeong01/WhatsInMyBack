@@ -186,7 +186,7 @@ exports.deletePost = async (req, res) => {
     }
 }
 
-// 게시글 
+// 게시글 상세 보기
 exports.getPostDetail = async (req, res) => {
     try {
         const postId = req.params.postId;
@@ -229,7 +229,8 @@ exports.getPostDetail = async (req, res) => {
 
         // 현재 세션에 저장된 사용자와 게시글 작성자가 같은 경우 -> 수정 삭제 버튼 표시
         const isAuthor = req.session.user && req.session.user.id === post.member_id;
-        res.render('Post/post-detail', { post, member, comments, pages, isAuthor, formatDate }); // 수정: isAuthor 변수를 템플릿에 전달
+        const user = req.session.user; // 추가: 세션에서 사용자 정보 가져오기
+        res.render('Post/post-detail', { post, member, comments, pages, isAuthor, user, formatDate }); // 수정: user 변수를 템플릿에 전달
 
     } catch (error) {
         console.error("게시글 보기 중 오류:", error);

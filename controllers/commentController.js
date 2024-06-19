@@ -1,4 +1,5 @@
 const CommentModel = require('../models/Comment');
+
 const MemberModel = require('../models/Member');
 
 // 댓글 작성 (createComment 내용변경)
@@ -10,6 +11,7 @@ exports.createComment = async (req, res) => {
 
     const post_id = req.params.postId;
     const { comment_content } = req.body;
+
     const loginMember = await MemberModel.findById(req.session.user.id);
 
     if (!loginMember) {
@@ -60,16 +62,55 @@ exports.updateComment = async (req, res) => {
 exports.deleteComment = async (req, res) => {
     const commentId = req.params.commentId;
 
-    // 로그인 된 사용자id 와 댓글 작성자 id가 같은지 확인
-    await CommentModel.delete(commentId);
+    // 로그인 여부 확인
+    if (!req.session.user) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+    try {
+        const db = await require('../main').connection();
 
-    res.send('Comment deleted successfully');
+        let sql = `
+            SELECT c.comment_id, c.member_id, c.post_id, c.parent_comment_id, c.comment_content, c.created_at,
+                m.username, m.nickname, m.picture_base64
+            FROM comment c
+            JOIN member m ON c.member_id = m.member_id
+            WHERE c.comment_id = ?
+        `;
+        const [rows] = await db.query(sql, [commentId]);
+
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
+        const reply = rows[0];
+
+        // 삭제 요청한 사용자와 대댓글 작성자가 같은지 확인
+        // if (reply.member_id !== req.session.user.member_id) {
+        //     return res.status(403).json({ error: 'Forbidden' });
+        // }
+
+        // 대댓글 삭제 로직
+        await CommentModel.delete(commentId);
+
+        res.send('Reply deleted successfully');
+    } catch (error) {
+        console.error("Comment.findById() 쿼리 실행 중 오류:", error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+
+    // 삭제 요청한 사용자와 댓글 작성자가 같은지 확인
+    // const comment = await CommentModel.findById(commentId);
+    // if (comment.member_id !== req.session.user.member_id) {
+    //     return res.status(403).json({ error: 'Forbidden' });
+    // }
+
+    // await CommentModel.delete(commentId);
+
+    
 };
 
 exports.createReply = async (req, res) => {
     const post_id = req.params.postId;
     const parent_comment_id = req.params.commentId;
     const { comment_content } = req.body;
+
     const loginMember = await MemberModel.findById(req.session.user.id);
 
     if (!loginMember) {
@@ -104,7 +145,6 @@ exports.createReply = async (req, res) => {
     res.json(newReply);
 };
 
-
 // 대댓글 수정
 exports.updateReply = async (req, res) => {
     const comment_id = req.params.replyId;
@@ -120,14 +160,54 @@ exports.updateReply = async (req, res) => {
 // 대댓글 삭제
 exports.deleteReply = async (req, res) => {
     const replyId = req.params.replyId;
+    console.log(replyId, "replyid:::")
 
-    // 로그인 된 사용자id 와 대댓글 작성자 id가 같은지 확인
-    await CommentModel.delete(replyId);
+    // 로그인 여부 확인
+    if (!req.session.user) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+    console.log("로그인확인완료")
+    // 삭제 요청한 사용자와 대댓글 작성자가 같은지 확인
+    try {
+        const db = await require('../main').connection();
 
-    res.send('Reply deleted successfully');
+        let sql = `
+            SELECT c.comment_id, c.member_id, c.post_id, c.parent_comment_id, c.comment_content, c.created_at,
+                m.username, m.nickname, m.picture_base64
+            FROM comment c
+            JOIN member m ON c.member_id = m.member_id
+            WHERE c.comment_id = ?
+        `;
+        const [rows] = await db.query(sql, [replyId]);
+
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
+        const reply = rows[0];
+
+        // 삭제 요청한 사용자와 대댓글 작성자가 같은지 확인
+        // if (reply.member_id !== req.session.user.member_id) {
+        //     return res.status(403).json({ error: 'Forbidden' });
+        // }
+
+        // 대댓글 삭제 로직
+        await CommentModel.delete(replyId);
+
+        res.send('Reply deleted successfully');
+    } catch (error) {
+        console.error("Comment.findById() 쿼리 실행 중 오류:", error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+    // const reply = await CommentModel.findById(replyId)
+    // console.log(reply, "reply::")
+    // if (reply.member_id !== req.session.user.member_id) {
+    //     return res.status(403).json({ error: 'Forbidden' });
+    // }
+
+    // await CommentModel.delete(replyId);
+
+    // res.send('Reply deleted successfully');
 };
 
 function IsProfileImageundefined(picture_base64) { // 프로필이 없으면 기본이미지로 설정하는 함수
     if (!picture_base64 || picture_base64.length == 0) return true;
     else false;
-  }
+}

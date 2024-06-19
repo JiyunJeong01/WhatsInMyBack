@@ -61,6 +61,23 @@
      /* h1 요소 위에 여백 추가 */
      .title-margin2 {
       margin-top: 10px; /* 원하는 여백 크기로 설정 */
+
+      /* 댓글 및 대댓글 삭제 버튼 스타일 */
+.btn-delete {
+  display: inline-block;
+  background-color: #ffffff; /* 백그라운드 색상을 흰색으로 변경 */
+  color: #000000; /* 텍스트 색상을 검정색으로 설정 */
+  border: 1px solid #000000; /* 테두리를 검정색으로 설정 */
+  font-size: 1.0rem; /* h4 기본 크기 (1.5rem) */
+  font-weight: 400; /* h4 기본 굵기 (400) */
+  padding: 0.25rem 0.5rem; /* 버튼 크기를 줄임 */
+  border-radius: 0.5rem; /* 모서리를 라운드로 설정 */
+}
+
+.btn-delete:hover {
+  background-color: #000000;
+  color: #ffffff;
+}
   }
   </style>
 </head>
@@ -203,7 +220,7 @@
         <% } else { %>
           <div class="list-group">
             <% comments.forEach(comment => { %>
-              <div class="list-group-item">
+              <div class="list-group-item" data-comment-id="<%= comment.comment_id %>">
                 <div class="d-flex align-items-center">
                   <a href="/profile/<%= comment.member_id %>">
                     <img src="<%= comment.picture_base64 %>" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
@@ -214,6 +231,11 @@
                   </div>
                 </div>
                 <p class="mt-2 mb-0"><%= comment.comment_content %></p>
+
+                <!-- 댓글 삭제 버튼 추가 -->
+                <% if (user && user.id === comment.member_id) { %>
+                  <button class="btn btn-sm btn-outline-primary" onclick="deleteComment('<%= comment.comment_id %>', '<%= post.post_id %>')">삭제</button>
+                <% } %>
 
                 <!-- 대댓글 작성 폼 -->
                 <% if (user) { %> <!-- 로그인 여부 확인 -->
@@ -234,7 +256,7 @@
                 <div id="reply-list-<%= comment.comment_id %>" class="mt-2">
                   <% comment.replies.forEach(reply => { %>
                 
-                    <div class="list-group-item">
+                    <div class="list-group-item" data-reply-id="<%= reply.comment_id %>">
                       <div class="d-flex align-items-center">
                         <a href="/profile/<%= reply.member_id %>">
                          <img src="<%= reply.picture_base64 %>" alt="Profile Picture" class="rounded-circle mr-3" style="width: 30px; height: 30px" />
@@ -245,7 +267,12 @@
                         </div>
                       </div>
                       <p class="mt-2 mb-0"><%= reply.comment_content %></p>
-                    </div>
+
+                      <!-- 대댓글 삭제 버튼 추가 -->
+                      <% if (user && user.id === reply.member_id ) { %>
+                        <button class="btn btn-sm btn-outline-primary" onclick="deleteReply('<%= reply.comment_id %>', '<%= comment.comment_id %>','<%= post.post_id %>')">삭제</button>
+                      <% } %>
+                  
                   <% }) %>
                 </div>
                 
@@ -262,6 +289,7 @@
 </body>
 
 <script>
+
 const likeButton = document.getElementById('likeButton');
 const likeIcon = document.getElementById('likeIcon');
 const bookmarkButton = document.getElementById('bookmarkButton');
@@ -285,6 +313,7 @@ function formatDate(dateString) {
   
   return `${year}/${month}/${day} 작성시간:${localHour}시 ${localMinute}분`;
 }
+
 
 // 좋아요 버튼 이벤트 리스너
 likeButton.addEventListener('click', function() {
@@ -463,4 +492,45 @@ document.addEventListener('DOMContentLoaded', function () {
   addReplyFormEventListeners();
 });
 
+// 댓글 삭제 함수
+function deleteComment(commentId, postId) {
+  if (confirm('댓글을 삭제하시겠습니까?')) {
+    fetch(`/post/${postId}/comment/${commentId}`, {
+      method: 'DELETE',
+    })
+    .then(response => {
+      if (response.ok) {
+        // 삭제 성공 시 댓글을 화면에서 제거
+        const commentElement = document.querySelector(`.list-group-item[data-comment-id="${commentId}"]`);
+        commentElement.remove();
+      } else {
+        console.error('Failed to delete comment');
+      }
+    })
+    .catch(error => console.error('Error:', error));
+  }
+}
+
+// 대댓글 삭제 함수
+function deleteReply(replyId, commentId, postId) {
+  console.log(replyId, commentId, "test::::")
+  if (confirm('대댓글을 삭제하시겠습니까?')) {
+    fetch(`/post/${postId}/comment/${commentId}/reply/${replyId}`, {
+      method: 'DELETE',
+    })
+    .then(response => {
+      if (response.ok) {
+        // 삭제 성공 시 대댓글을 화면에서 제거
+        const replyElement = document.querySelector(`.list-group-item[data-reply-id="${replyId}"]`);
+        replyElement.remove();
+      } else {
+        console.error('Failed to delete reply');
+      }
+    })
+    .catch(error => console.error('Error:', error));
+  }
+}
+function deleteReply2(reply_id, comment_id, user_id) {
+  console.log("rid::", reply_id, "commid::", comment_id,"uid::", user_id, "test")
+}
 </script>
