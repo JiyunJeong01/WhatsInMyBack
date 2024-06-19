@@ -47,7 +47,7 @@ exports.deleteLike = async (postId, MemberId) => {
 }
 
 // 특정 멤버의 좋아요 전체 조회
-exports.findAllLikeById = async (userId) => {
+exports.findAllLikeById = async (memberId, offset, limit) => {
     try {
         const db = await require("../main").connection();
         let [rows] = await db.query(`SELECT p.post_id, 
@@ -59,7 +59,8 @@ exports.findAllLikeById = async (userId) => {
         JOIN post p ON l.post_id = p.post_id 
         JOIN theme t ON p.theme_id = t.theme_id 
         WHERE l.member_id = ? 
-        ORDER BY l.liked_at DESC`,[userId]);
+        ORDER BY l.liked_at DESC
+        LIMIT ? OFFSET ?`, [memberId, limit, offset]);
 
         let likes = [];
         rows.forEach(row => {
@@ -130,10 +131,11 @@ exports.deleteBookmark = async (postId, MemberId) => {
 }
 
 // 특정 멤버의 북마크 전체 조회
-exports.findAllBookmarkById = async (userId) => {
+exports.findAllBookmarkById = async (memberId, offset, limit) => {
     try {
         const db = await require("../main").connection();
-        let [rows] = await db.query('SELECT p.post_id,p.post_title, t.theme_name, b.bookmarked_at, (SELECT image_base64 FROM post_image WHERE post_id = p.post_id LIMIT 1) AS image_base64 FROM bookmark b JOIN post p ON b.post_id = p.post_id JOIN theme t ON p.theme_id = t.theme_id WHERE b.member_id = ? ORDER BY b.bookmarked_at DESC',[userId]);
+        let [rows] = await db.query(`SELECT p.post_id,p.post_title, t.theme_name, b.bookmarked_at, (SELECT image_base64 FROM post_image WHERE post_id = p.post_id LIMIT 1) AS image_base64 FROM bookmark b JOIN post p ON b.post_id = p.post_id JOIN theme t ON p.theme_id = t.theme_id WHERE b.member_id = ? ORDER BY b.bookmarked_at DESC
+        LIMIT ? OFFSET ?`, [memberId, limit, offset]);
 
         let bookmarks = [];
         rows.forEach(row => {
