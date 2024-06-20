@@ -1,49 +1,34 @@
 <!DOCTYPE html>
 <html lang="kor">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WhatsInMyBag</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .flash {
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            font-weight: bold;
+        body {
+            height: 100vh;
         }
-        .flash.success {
-            background-color: #4CAF50;
-            color: white;
-        }
-        .flash.error {
-            background-color: #f44336; 
-            color: white;
+
+        .container {
+            height: auto;
+            width: 100%;
+            min-height: 63%;
         }
     </style>
 </head>
 
 
 <%- include('partials/header') %>
-<body>
-    <div>
-        <% if (flashMessages) { %>
-            <% if (flashMessages.success) { %>
-                <div class="flash success">
-                    <%= flashMessages.success %>
-                </div>
-            <% } else if (flashMessages.error) { %>
-                <div class="flash error">
-                    <%= flashMessages.error %>
-                </div>
-            <% } %>
-        <% } %>
-    </div>
-    <div class="container">
-        <%- include('layouts/main') %>
-        <%- body %>
-    </div>
-</body>
 
-<%- include('partials/footer') %>
+    <body>
+        <div class="container">
+            <%- include('layouts/main') %>
+                <%- body %>
+        </div>
+    </body>
+
+    <%- include('partials/footer') %>
+
 </html>

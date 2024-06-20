@@ -21,21 +21,32 @@
             height: auto;
             object-fit: cover;
         }
-
-        /*css 파일에서 변경 시도했으나 색상변경안됨. posts.ejs에서 변경시도함*/
         .hashtag-button {
           display: inline-block;
-          background-color: #ffffff; /* 백그라운드 색상을 하얀색으로 변경 */
-          color: #6c757d; /* 텍스트 색상을 회색으로 유지 */
+          background-color: #ffffff;
+          color: #6c757d;
           padding: 0.25rem 0.5rem;
           font-size: 0.875rem;
           border-radius: 0.25rem;
           margin-right: 0.5rem;
           margin-bottom: 0.5rem;
-          border: 1px solid #6c757d; /* 1px 두께의 회색 테두리 */
-          border-radius: 1rem; /* 모서리 라운드로 만들기 */
-      }
-      
+          border: 1px solid #6c757d;
+          border-radius: 1rem;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center; /* 페이지네이션 인덱스를 중앙으로 정렬 */
+            list-style: none; /* 기본 리스트 스타일 제거 */
+            padding: 0; /* 기본 패딩 제거 */
+        }
+        .pagination .page-link {
+            color: black; /* 페이지 링크를 검정색으로 변경 */
+            margin: 0 5px; /* 링크 사이의 간격 추가 */
+        }
+        .pagination .page-item.active .page-link {
+            background-color: rgb(105, 105, 105); /* 현재 페이지의 배경을 딤 그레이로 변경 */
+            border-color: rgb(105, 105, 105); /* 현재 페이지의 테두리도 딤 그레이로 변경 */
+        }
     </style>
 </head>
 <body>
@@ -76,18 +87,39 @@
                 </div>
             <% }) %>
         </div>
+
     <% } %>
-    <input type="hidden" id="Datas" value='<%= JSON.stringify(Previews) %>'>
-    <script>
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            const year = date.getFullYear();
-            const month = date.getMonth() + 1;
-            const day = date.getDate();
-            const hours = date.getHours();
-            const minutes = date.getMinutes();
-            return `${year}/${month}/${day} 작성시간:${hours}시 ${minutes}분`;
-        }
-    </script>
+
+    <!-- 페이지네이션 링크 -->
+    <nav aria-label="Page navigation example">
+        <ul class="pagination">
+            <% 
+                const maxPagesToShow = 10;
+                const startPage = Math.floor((currentPage - 1) / maxPagesToShow) * maxPagesToShow + 1;
+                const endPage = Math.min(startPage + maxPagesToShow - 1, totalPages);
+            %>
+
+            <% if (startPage > 1) { %>
+                <li class="page-item">
+                    <a class="page-link" href="/post/posts/?page=<%= startPage - 1 %>">Previous</a>
+                </li>
+            <% } %>
+
+            <% for(let i = startPage; i <= endPage; i++) { %>
+                <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                    <a class="page-link" href="/post/posts/?page=<%= i %>"><%= i %></a>
+                </li>
+            <% } %>
+
+            <% if (endPage < totalPages) { %>
+                <li class="page-item">
+                    <a class="page-link" href="/post/posts/?page=<%= endPage + 1 %>">Next</a>
+                </li>
+            <% } %>
+        </ul>
+    </nav>
 </body>
 </html>
+
+
+<input type="hidden" id="Datas" value='<%= JSON.stringify(Previews) %>'>

@@ -25,8 +25,6 @@
         .page-link {
             color: black !important; /* 검은색으로 설정 */
         }
-           
-            
     </style>
 </head>
 <body>
@@ -260,10 +258,6 @@
 
         // 페이지 로드시 초기 데이터 불러오기
         window.onload = function() {
-            const savedPages = localStorage.getItem('pages');
-            if (savedPages) {
-                Object.assign(pages, JSON.parse(savedPages));
-            }
             loadPageData();
         };
 
@@ -281,6 +275,26 @@
             const imagesData = [];
             const productsData = [];
 
+            // 필수 필드 유효성 검사
+            if (!postData.post_title || !postData.post_content || !pages[1] || !pages[1].image) {
+                alert('제목, 내용 및 첫 번째 페이지의 이미지를 입력해주세요.');
+                return;
+            } 
+
+            let canAddProducts = true;
+            for (const [page, data] of Object.entries(pages)) {
+                // 이미지가 없으면서 제품이 있는 페이지 검사
+                if (data.products.length > 0 && !data.image) {
+                    canAddProducts = false;
+                    break;
+                }
+            }
+            if (!canAddProducts) {
+                alert('이미지가 비어있는 페이지가 있습니다.');
+                return;
+            }
+
+
             for (const [page, data] of Object.entries(pages)) {
                 if (data.image) {
                     imagesData.push({
@@ -288,7 +302,6 @@
                         image_base64: data.image
                     });
                 }
-
 
                 data.products.forEach(product => {
                     productsData.push({
@@ -315,18 +328,18 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                console.log('Success:', data);
-                window.location.href = data.redirect; // 서버로부터 받은 리디렉션 URL로 이동 
-            } else {
-                console.error('Failed to register post:', data.error);
+                    console.log('Success:', data);
+                    window.location.href = data.redirect; // 서버로부터 받은 리디렉션 URL로 이동 
+                } else {
+                    console.error('Failed to register post:', data.error);
+                    window.location.href = data.redirect;
+                }
+            })
+            .catch((error) => {
+                console.error('Network Error:', error);
                 window.location.href = data.redirect;
-            }
-        })
-        .catch((error) => {
-            console.error('Network Error:', error);
-            window.location.href = data.redirect;
-        });
-    }
+            });
+        }
     </script>
 </body>
 </html>

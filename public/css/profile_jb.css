@@ -63,8 +63,8 @@
     position: relative;
 }
 .setting-form-group label {
-                display: block;
-                margin-bottom: 5px;
+    display: block;
+    margin-bottom: 5px;
 }
 .setting-form-group input[type="text"],
 .setting-form-group input[type="integer"] {
@@ -322,3 +322,16 @@
      display: inline-block;
      margin-left: 8px;
   }
+.error {
+    color: block;
+    display: none;
+    padding: 10px;
+}
+.image-delete-button {
+    padding: 5px;
+    border: 1px solid #C5C5C5;
+    border-radius: 10px;
+    cursor: pointer;
+    width: 100px;
+    background-color: #F8F8F8;
+}

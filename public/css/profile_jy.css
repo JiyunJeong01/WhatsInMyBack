@@ -1,6 +1,6 @@
 /*profile view css*/
 .profileBord {
-    height: 93dvh;
+    height: auto;
     display: flex;
     justify-content: flex-end;
 }
@@ -25,9 +25,7 @@
     min-height: 100px;
     height: 12%;
     aspect-ratio: 1 / 1;
-    /* 정사각형 비율을 유지합니다 */
     border-radius: 50%;
-    /* 완전한 원형으로 만들려면 50% */
     overflow: hidden;
     border: 1px solid #C5C5C5;
     outline: 10px solid white;
@@ -90,6 +88,19 @@
 .profileCon>a:hover {
     background-color: #e2e2e2;
     color: black;
+}
+
+.profileCon>button {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 7px;
+    background-color: #F6F6F6;
+    border: 1px solid #C5C5C5;
+    border-radius: 20px;
+}
+
+.profileCon>button:hover {
+    background-color: #e2e2e2;
 }
 
 .right {
@@ -219,7 +230,9 @@
 }
 
 .collect_user {
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .collect_user>.profilePhoto {
@@ -234,4 +247,7 @@
 .feed {
     max-width: 70dvi;
     margin-top: 3vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
