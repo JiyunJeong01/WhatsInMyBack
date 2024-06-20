@@ -1,5 +1,5 @@
 <head>
-    <link rel="stylesheet" href="/css/whats_in_my_back.css">
+    <link rel="stylesheet" href="/css/profile_jy.css">
 </head>
 <div class="collect_container">
     <h1>북마크한 글</h1>
@@ -13,14 +13,15 @@
         </h1>
     </div>
     <div class="feed">
+        <div id="data" data-member-id="<%= member.member_id %>"></div>
         <% if (bookmarks.length !== 0) { %>
             <div id="card" class="row row-cols-1 row-cols-md-3 g-4">
                 <% bookmarks.forEach(bookmark=> { %>
                     <div class="col">
-                        <div class="post">
+                        <div class="post" style=" cursor: pointer;" onclick="location.href='/post/<%= bookmark.post_id %>/detail';">
                             <div class="postPhoto">
-                                <img src="https://2.bp.blogspot.com/-svDfXHlWFXc/UxWxzy1zzXI/AAAAAAAACAE/3NmmqvGgnjo/s1600/[Whats+in+my+bag+blogger].jpg"
-                                    alt="게시글 이미지">
+                                <img src="<%= bookmark.image_base64 %>"
+                                        alt="게시글 이미지">
                             </div>
                             <h5 class="post_title"><%= bookmark.post_title %>
                             </h5>
@@ -31,17 +32,66 @@
                     <% }); %>
             </div>
             <% } else { %>
-                <div class="center-container">
-                    <p>북마크한 게시글이 없습니다.</p>
-                    <a href="/profile/<%= member.member_id %>" style="text-decoration: none; color: #000000; background-color: #F8F8F8; padding: 10px; border-radius: 5px;">
+                <p>북마크한 게시글이 없습니다.</p>
+                <a href="/profile/<%= member.member_id %>" style="text-decoration: none; color: #000000; background-color: #F8F8F8; padding: 10px; border-radius: 5px;">
                         프로필로 돌아가기
-                    </a>
-                </div>
+                </a>
             <% }; %>
     </div>
 </div>
 
 <script>
+    let loading = false;
+    let page = 1;
+    let hasMore = true;
+
+    window.addEventListener('scroll', () => {
+        const dataElement = document.getElementById('data');
+        const userId = dataElement.dataset.memberId;
+
+        if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 10 && !loading && hasMore) {
+            loading = true;
+            page += 1;
+            loadingPost(userId, page);
+        }
+    })
+    function loadingPost(userId, page) {
+        fetch(`/profile/${userId}/collectBookmark/posts?page=${page}`)
+            .then(response => response.json())
+            .then(posts => {
+                if (posts.length !== 0) {
+                    const cardContainer = document.getElementById('card');
+                    posts.forEach(post => {
+                        const HTML = `
+                        <div class="col">
+                            <div class="post" style="cursor: pointer;" onclick="location.href='/post/${post.post_id}/detail';">
+                                <div class="postPhoto">
+                                    <img src="${post.image_base64}" alt="게시글 이미지">
+                                </div>
+                                <h5 class="post_title">
+                                    ${post.post_title}
+                                </h5>
+                                <p class="card-text">
+                                    ${post.theme_name}
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                        cardContainer.insertAdjacentHTML('beforeend', HTML);
+                    });
+                }
+                if (posts.length < 10) {
+                    hasMore = false;
+                }
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+            })
+            .finally(() => {
+                loading = false;
+            });
+    }
+
     window.addEventListener('DOMContentLoaded', (event) => {
         const profileImage = document.getElementById('profileImage');
         const pictureBase64Input = document.getElementById('picture_base64');

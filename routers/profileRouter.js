@@ -2,13 +2,16 @@ const express = require("express"),
     router = express.Router(),
     profileController = require("../controllers/profileController");
 
-router.get("/:userId", profileController.profilePage,profileController.profileShow);
-router.get("/:userId/followee", profileController.followeePage, profileController.followeeShow);
-router.get("/:userId/follower",profileController.followerPage, profileController.followerShow);
+router.get("/:userId", profileController.profilePage);
+router.get("/:userId/posts", profileController.profilePostPage);
+router.get("/:userId/followee", profileController.followeePage);
+router.get("/:userId/follower",profileController.followerPage);
 router.delete("/:userId/:follow", profileController.unfollow);
 router.put("/:userId/:follow", profileController.follow);
-router.get("/:userId/collectBookmark", profileController.collectBookmark, profileController.collectBookmarkShow);
-router.get("/:userId/collectLike", profileController.collectLike, profileController.collectLikeShow);
+router.get("/:userId/collectBookmark", profileController.collectBookmark);
+router.get("/:userId/collectBookmark/posts", profileController.bookmarkPostPage);
+router.get("/:userId/collectLike", profileController.collectLike);
+router.get("/:userId/collectLike/posts", profileController.likePostPage);
 router.get("/:userId/collectComment/:pageId",profileController.collectComment);
 router.get("/:userId/profileModified",profileController.profileModified_GET);
 router.post("/:userId/profileModified",profileController.profileModified_POST);

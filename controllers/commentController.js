@@ -1,27 +1,48 @@
 const CommentModel = require('../models/Comment');
+const MemberModel = require('../models/Member');
 
 // 댓글 작성 (createComment 내용변경)
 exports.createComment = async (req, res) => {
+    // 로그인 여부 확인
+    if (!req.session.user) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+
     const post_id = req.params.postId;
-    const { member_id, comment_content } = req.body;
+    const { comment_content } = req.body;
+    const loginMember = await MemberModel.findById(req.session.user.id);
 
-    const comment = { post_id, member_id, parent_comment_id: null, comment_content };
-    const newComment = await CommentModel.create(comment);
+    if (!loginMember) {
+        return res.status(404).json({ error: 'Member not found' });
+    }
 
-    // 생성된 댓글의 추가 정보를 가져옴
-    const commentWithInfo = {
-        comment_id: newComment.comment_id,
-        member_id: newComment.member_id,
-        post_id: newComment.post_id,
-        parent_comment_id: newComment.parent_comment_id,
-        comment_content: newComment.comment_content,
-        created_at: newComment.created_at,
-        // 필요한 다른 정보 추가
+    const comment = {
+        post_id,
+        member_id: loginMember.member_id,
+        parent_comment_id: null,
+        comment_content,
+        username: loginMember.username,
+        nickname: loginMember.nickname,
+        picture_base64: loginMember.picture_base64
     };
 
-    res.json(commentWithInfo);
-};
+    const newComment = await CommentModel.create(comment);
 
+    // 추가된 부분: picture_base64가 null인 경우 처리
+    let imageDataURI = null;
+    if (newComment.picture_base64 !== null) {
+        imageDataURI = newComment.picture_base64.toString('base64');
+        newComment.picture_base64 = Buffer.from(imageDataURI, 'base64').toString('utf-8');
+    }
+
+    // 프로필 이미지 경로가 undefined인 경우 기본 이미지 경로로 설정
+    if (IsProfileImageundefined(newComment.picture_base64)) {
+        newComment.picture_base64 = "/images/default_profile.jpg";
+    }
+
+    // [수정한 부분] 생성된 댓글의 추가 정보를 가져옴
+    res.json(newComment);
+};
 
 // 댓글 수정
 exports.updateComment = async (req, res) => {
@@ -45,17 +66,44 @@ exports.deleteComment = async (req, res) => {
     res.send('Comment deleted successfully');
 };
 
-// 대댓글 작성
 exports.createReply = async (req, res) => {
     const post_id = req.params.postId;
     const parent_comment_id = req.params.commentId;
-    const { member_id, comment_content } = req.body;
+    const { comment_content } = req.body;
+    const loginMember = await MemberModel.findById(req.session.user.id);
 
-    const comment = { post_id, member_id, parent_comment_id, comment_content };
-    await CommentModel.create(comment);
+    if (!loginMember) {
+        return res.status(404).json({ error: 'Member not found' });
+    }
 
-    res.redirect(`/post/${post_id}/detail`);
+    const comment = {
+        post_id,
+        member_id: loginMember.member_id,
+        parent_comment_id,
+        comment_content,
+        username: loginMember.username,
+        nickname: loginMember.nickname,
+        picture_base64: loginMember.picture_base64
+    };
+
+    const newReply = await CommentModel.create(comment);
+
+    // 추가된 부분: picture_base64가 null인 경우 처리
+    let imageDataURI = null;
+    if (newReply.picture_base64 !== null) {
+        imageDataURI = newReply.picture_base64.toString('base64');
+        newReply.picture_base64 = Buffer.from(imageDataURI, 'base64').toString('utf-8');
+    }
+
+    // 프로필 이미지 경로가 undefined인 경우 기본 이미지 경로로 설정
+    if (IsProfileImageundefined(newReply.picture_base64)) {
+        newReply.picture_base64 = "/images/default_profile.jpg";
+    }
+
+    // [수정한 부분] 생성된 대댓글의 추가 정보를 가져옴
+    res.json(newReply);
 };
+
 
 // 대댓글 수정
 exports.updateReply = async (req, res) => {
@@ -78,3 +126,8 @@ exports.deleteReply = async (req, res) => {
 
     res.send('Reply deleted successfully');
 };
+
+function IsProfileImageundefined(picture_base64) { // 프로필이 없으면 기본이미지로 설정하는 함수
+    if (!picture_base64 || picture_base64.length == 0) return true;
+    else false;
+  }

@@ -99,38 +99,40 @@
                 <div class="left">
                     <hr>
                     <% Object.keys(pages).forEach(function(key) { %>
-                        <button type="button" class="remove-page-button" onclick="removePage('<%= key %>')">페이지 삭제</button>
+                        <div id="pageContainer_<%= key %>" class="page-container">
+                            <button type="button" class="remove-page-button btn btn-danger" onclick="removePage('<%= key %>')">페이지 삭제</button>
 
-                        <div class="upload-detail-container" data-index="<%= key %>">
-                            <div class="upload-section">
-                                <label>이미지 업로드 창</label>
-                                <input type="file" onchange="previewImage(event, '<%= key %>')">
-                                <div id="uploadedImage<%= key %>">
-                                    <% if (pages[key].image) { %>
-                                        <img src="<%= pages[key].image %>" alt="Uploaded Image">
-                                        <button class="btn btn-outline-dark" type="button" onclick="removeImage('<%= key %>')">삭제</button>
-                                    <% } %>
+                            <div class="upload-detail-container" data-index="<%= key %>">
+                                <div class="upload-section">
+                                    <label>이미지 업로드 창</label>
+                                    <input type="file" onchange="previewImage(event, '<%= key %>')">
+                                    <div id="uploadedImage<%= key %>">
+                                        <% if (pages[key].image) { %>
+                                            <img src="<%= pages[key].image %>" alt="Uploaded Image">
+                                            <button class="btn btn-outline-dark" type="button" onclick="removeImage('<%= key %>')">삭제</button>
+                                        <% } %>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="detail-section">
-                                <label>상세 제품 목록</label>
-                                <div id="productList<%= key %>">
-                                    <hr>
-                                    <% pages[key].products.forEach(function(product) { %>
-                                        <div class="product-item">
-                                            <small class="text-muted">제품명: <input type="text" name="product_name_<%= key %>[]", value="<%= product.name %>" placeholder="제품명" style="height: 30px;"></small>
-                                            <small class="text-muted">제품카테고리: <input type="text" name="product_category_<%= key %>[]", value="<%= product.category %>" placeholder="제품 카테고리" style="height: 30px;"></small>
-                                            <small class="text-muted">제품브랜드: <input type="text" name="product_brand_<%= key %>[]", value="<%= product.brand %>" placeholder="제품 브랜드" style="height: 30px;"></small>
-                                            <small class="text-muted">제품링크: <input type="text" name="product_link_<%= key %>[]", value="<%= product.link %>" placeholder="구매 링크" style="height: 30px;"></small>
-                                            <button class="btn btn-outline-dark" type="button" onclick="removeProduct(this)">삭제</button>
-                                        </div>
+                                <div class="detail-section">
+                                    <label>상세 제품 목록</label>
+                                    <div id="productList<%= key %>">
                                         <hr>
-                                    <% }); %>
+                                        <% pages[key].products.forEach(function(product) { %>
+                                            <div class="product-item">
+                                                <small class="text-muted">제품명: <input type="text" name="product_name_<%= key %>[]", value="<%= product.name %>" placeholder="제품명" style="height: 30px;"></small>
+                                                <small class="text-muted">제품카테고리: <input type="text" name="product_category_<%= key %>[]", value="<%= product.category %>" placeholder="제품 카테고리" style="height: 30px;"></small>
+                                                <small class="text-muted">제품브랜드: <input type="text" name="product_brand_<%= key %>[]", value="<%= product.brand %>" placeholder="제품 브랜드" style="height: 30px;"></small>
+                                                <small class="text-muted">제품링크: <input type="text" name="product_link_<%= key %>[]", value="<%= product.link %>" placeholder="구매 링크" style="height: 30px;"></small>
+                                                <button class="btn btn-outline-dark" type="button" onclick="removeProduct(this)">삭제</button>
+                                            </div>
+                                            <hr>
+                                        <% }); %>
+                                    </div>
+                                    <button class="btn btn-outline-dark" type="button" onclick="addProduct('<%= key %>')">제품 추가</button>
                                 </div>
-                                <button class="btn btn-outline-dark" type="button" onclick="addProduct('<%= key %>')">제품 추가</button>
                             </div>
+                            <hr>
                         </div>
-                        <hr>
                     <% }); %>
                 </div>
                 <div class="right">
@@ -200,40 +202,62 @@
             document.getElementById('uploadedImage' + pageIndex).innerHTML = '';
         }
 
-        function removePage(pageIndex) {
+        // function removePage(pageIndex) {
+        //     // pages 객체에서 페이지 삭제
+        //     delete pages[pageIndex];
+        //     // HTML에서 페이지 컨테이너 제거
+        //     const pageContainer = document.querySelector(`.upload-detail-container[data-index="${pageIndex}"]`);
+        //     pageContainer.parentNode.removeChild(pageContainer);
+        // }
+        function removePage(key) {
             // pages 객체에서 페이지 삭제
-            delete pages[pageIndex];
-            // HTML에서 페이지 컨테이너 제거
-            const pageContainer = document.querySelector(`.upload-detail-container[data-index="${pageIndex}"]`);
-            pageContainer.parentNode.removeChild(pageContainer);
+            delete pages[key];
+
+            var pageElement = document.getElementById('pageContainer_' + key);
+            if (pageElement) {
+                pageElement.parentNode.removeChild(pageElement);
+            }
         }
 
         function addPage() {
             const pageIndex = Object.keys(pages).length + 1;
             pages[pageIndex] = { image: '', products: [] };
+
             const leftSection = document.querySelector('.left');
+            const pageContainer = document.createElement('div');
+            pageContainer.id = 'pageContainer_' + pageIndex;
+            pageContainer.className = 'page-container';
+
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'remove-page-button btn btn-danger';
+            deleteButton.textContent = '페이지 삭제';
+            deleteButton.onclick = function() { removePage(pageIndex); };
+            pageContainer.appendChild(deleteButton);
+
             const uploadDetailContainer = document.createElement('div');
             uploadDetailContainer.className = 'upload-detail-container';
-            uploadDetailContainer.dataset.index = pageIndex;
+            uploadDetailContainer.setAttribute('data-index', pageIndex);
 
             const uploadSection = document.createElement('div');
             uploadSection.className = 'upload-section';
             uploadSection.innerHTML = `
                 <label>이미지 업로드 창</label>
-                <input type="file" onchange="previewImage(event, ${pageIndex})">
+                <input type="file" onchange="previewImage(event, '${pageIndex}')">
                 <div id="uploadedImage${pageIndex}"></div>
             `;
+
             const detailSection = document.createElement('div');
             detailSection.className = 'detail-section';
             detailSection.innerHTML = `
                 <label>상세 제품 목록</label>
                 <div id="productList${pageIndex}"></div>
-                <button type="button" onclick="addProduct(${pageIndex})">제품 추가</button>
+                <button class="btn btn-outline-dark" type="button" onclick="addProduct('${pageIndex}')">제품 추가</button>
             `;
 
             uploadDetailContainer.appendChild(uploadSection);
             uploadDetailContainer.appendChild(detailSection);
-            leftSection.appendChild(uploadDetailContainer);
+            pageContainer.appendChild(uploadDetailContainer);
+            leftSection.appendChild(pageContainer);
         }
 
         async function submitForm() {
@@ -248,8 +272,13 @@
             const imagesData = [];
             const productsData = [];
 
+            let canAddProducts = true;
             Object.keys(pages).forEach(key => {
                 const page = pages[key];
+                if (page.products.length > 0 && !page.image) {
+                    canAddProducts = false;
+                }
+
                 imagesData.push({
                     image_id: key,
                     image_base64: page.image
@@ -270,6 +299,18 @@
                     });
                 }
             });
+
+            // 필수 필드 유효성 검사
+            if (!postData.post_title || !postData.post_content || !pages[1] || !pages[1].image) {
+                alert('제목, 내용 및 첫 번째 이미지를 입력해주세요.');
+                return;
+            } 
+
+            // 이미지가 없으면서 제품이 있는 페이지 검사
+            if (!canAddProducts) {
+                alert('제품이 있는 페이지에는 반드시 이미지를 업로드해야 합니다.');
+                return;
+            }
 
             fetch('/post/update', {
                 method: 'PUT',

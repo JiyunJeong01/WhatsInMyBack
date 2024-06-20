@@ -59,22 +59,32 @@
             font-size: 12px;
             display: none;
         }
-        /* 커스텀 팝업 스타일 */
+
         .popup {
             display: none;
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            padding: 20px;
+            padding: 40px;
             background-color: white;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
+            z-index: 1001;
             text-align: center;
+            width: 50%;
+            height: 40%;
+            max-width: 800px;
+            max-height: 600px;
         }
+
         .popup .message {
             margin-bottom: 20px;
+            position: absolute; /* 부모 요소에 대해 절대적인 위치 지정 */
+            top: 30%; /* 부모 요소의 50% 위치에 메시지 상단 정렬 */
+            left: 50%; /* 부모 요소의 50% 위치에 메시지 좌측 정렬 */
+            transform: translate(-50%, -50%); /* 메시지를 중앙에 정렬 */
         }
+
         .popup .close-button {
             background-color: black;
             color: white;
@@ -82,7 +92,28 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            position: absolute; /* 부모 요소에 대해 절대적인 위치 지정 */
+            bottom: 30%; /* 부모 요소의 하단으로부터 20px 위에 버튼 배치 */
+            left: 50%; /* 부모 요소의 50% 위치에 버튼 좌측 정렬 */
+            transform: translateX(-50%); /* 버튼을 가운데 정렬 */
         }
+
+
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* 검은색 반투명 배경 */
+            z-index: 1000;
+        }
+
+        .popup.show + .popup-overlay {
+            display: block;
+        }
+
     </style>
 </head>
 <body>
@@ -96,7 +127,9 @@
             <input type="password" class="input-field" id="password-confirm" placeholder="비밀번호 확인">
             <div id="password-match-error" class="error-message"></div>
             <input type="text" class="input-field" id="username" placeholder="이름">
+            <div id="username-error" class="error-message"></div>
             <input type="text" class="input-field" id="nickname" placeholder="닉네임">
+            <div id="nickname-error" class="error-message"></div>
             <input type="text" class="input-field" id="job" placeholder="직업">
             <select id="gender" class="dropdown">
                 <option value="" disabled selected>성별</option>
@@ -120,6 +153,7 @@
             <div class="message">가입이 완료되었습니다!</div>
             <button class="close-button" onclick="closePopup()">홈으로 가기</button>
         </div>
+        <div class="popup-overlay" id="popup-overlay"></div>
         <script>
             // 출생연도 드롭다운 메뉴에 1980년부터 2024년까지 추가
             const birthYearSelect = document.getElementById('birth-year');
@@ -152,6 +186,8 @@
             const emailError = document.getElementById('email-error');
             const passwordError = document.getElementById('password-error');
             const passwordMatchError = document.getElementById('password-match-error');
+            const usernameError = document.getElementById('username-error');
+            const nicknameError = document.getElementById('nickname-error');
 
             // 이메일 검증 함수
             function validateEmail() {
@@ -203,13 +239,45 @@
                 }
             }
 
+            // 이름 검증 함수
+            function validateUsername() {
+                const usernameValue = username.value;
+                const hasValidLength = usernameValue.length > 0 && usernameValue.length <= 12;
+
+                if (!hasValidLength) {
+                    usernameError.textContent = "이름은 12글자 이하로 입력하세요.";
+                    usernameError.style.display = 'block';
+                    return false;
+                } else {
+                    usernameError.textContent = "";
+                    usernameError.style.display = 'none';
+                    return true;
+                }
+            }
+            
+            // 닉네임 검증 함수
+            function validateNickname() {
+                const nicknameValue = nickname.value;
+                const hasValidLength = nicknameValue.length > 0 && nicknameValue.length <= 8;
+
+                if (!hasValidLength) {
+                    nicknameError.textContent = "닉네임은 8글자 이하로 입력하세요.";
+                    nicknameError.style.display = 'block';
+                    return false;
+                } else {
+                    nicknameError.textContent = "";
+                    nicknameError.style.display = 'none';
+                    return true;
+                }
+            }
+
             // 폼 유효성 검사 함수
             function validateForm() {
                 const isEmailValid = validateEmail();
                 const isPasswordValid = validatePassword();
                 const isPasswordMatchValid = validatePasswordMatch();
-                const isUsernameValid = username.value.trim() !== '';
-                const isNicknameValid = nickname.value.trim() !== '';
+                const isUsernameValid = validateUsername();
+                const isNicknameValid = validateNickname();
                 const isJobValid = job.value.trim() !== '';
                 const isGenderValid = gender.value !== '';
                 const isBirthYearValid = birthYear.value !== '';
@@ -230,6 +298,8 @@
             // 폼 제출 이벤트 처리
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
+
+                const age = currentYear - birthYear.value;
                 const themes = Array.from(document.querySelectorAll('.tag.selected')).map(tag => tag.getAttribute('data-theme-id'));
                 const response = await fetch('/auth/signup', {
                     method: 'POST',
@@ -241,22 +311,29 @@
                         nickname: nickname.value,
                         job: job.value,
                         gender: gender.value,
-                        age: birthYear.value,
+                        age: age,
                         themes: themes
                     })
                 });
 
                 if (response.ok) {
-                    document.getElementById('signup-popup').style.display = 'block';
+                    openPopup();
                 } else {
                     const errorData = await response.json();
                     alert(errorData.error);
                 }
             });
 
+            // 커스텀 팝업 열기
+            function openPopup() {
+                document.getElementById('signup-popup').style.display = 'block';
+                document.getElementById('popup-overlay').style.display = 'block';
+            }
+
             // 커스텀 팝업 닫기
             function closePopup() {
                 document.getElementById('signup-popup').style.display = 'none';
+                document.getElementById('popup-overlay').style.display = 'none';
                 window.location.href = '/';
             }
         </script>

@@ -33,6 +33,7 @@ exports.findByPostId = async (postId) => {
             });
         }
 
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
         return rows;
 
     } catch (error) {
@@ -54,12 +55,23 @@ exports.create = async (comment) => {
         const [result] = await db.query(sql, [
             comment.post_id,
             comment.member_id,
-            comment.parent_comment_id,
+            comment.parent_comment_id || null, // parent_comment_id가 없는 경우 null로 설정
             comment.comment_content
         ]);
 
-        // 생성된 댓글의 comment_id를 포함한 객체 반환
-        return { comment_id: result.insertId, ...comment };
+
+        // 생성된 댓글의 comment_id를 사용해 추가 정보 가져오기
+        let [rows] = await db.query(`
+          SELECT c.comment_id, c.member_id, c.post_id, c.parent_comment_id, c.comment_content, c.created_at,
+                 m.username, m.nickname, m.picture_base64
+          FROM comment c
+          JOIN member m ON c.member_id = m.member_id
+          WHERE c.comment_id = ?
+        `, [result.insertId]);
+
+        // 생성된 댓글의 모든 정보를 반환
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
+        return rows[0];
 
     } catch (error) {
         console.error("Comment.create() 쿼리 실행 중 오류:", error);
@@ -78,6 +90,8 @@ exports.update = async (comment) => {
             comment.comment_content
         ]);
 
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
+
     } catch (error) {
         console.error("Comment.update() 쿼리 실행 중 오류:", error);
     }
@@ -89,6 +103,7 @@ exports.delete = async (commentId) => {
 
         let sql = `DELETE FROM comment WHERE comment_id = ?`;
         await db.query(sql, [commentId]);
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
 
     } catch (error) {
         console.error("Comment.delete() 쿼리 실행 중 오류:", error);
@@ -115,6 +130,7 @@ exports.findCommentWithUser = async (userId) => {
             comments[i].page_id = Math.floor(i/10) + 1;
         }
 
+        if (db && db.end) { db.end().catch(err => { console.error('DB 연결 종료 중 오류:', err); }); }
         return comments;
     }
     catch (error) {

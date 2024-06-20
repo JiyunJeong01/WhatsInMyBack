@@ -2,142 +2,180 @@ const db = require("../models/Index"),
     validator = require('validator'),
     Comment = db.Comment,
     Member = db.Member,
-    Preference = db.Preference;
+    Preference = db.Preference,
+    Follow = db.Follow,
+    Post = db.Post,
+    PostInteractions = db.PostInteractions;
 
 module.exports = {
-    /*지윤 작업 부분*/ 
+    /*지윤 작업 부분*/
     profilePage: async (req, res, next) => {
-        let userId = req.params.userId;
-        await Member.findById(userId)
-            .then(member => {
-                res.locals.member = member;
-            })
-            .catch(error => {
-                console.log(`Error fetching member by ID: ${error.message}`);
-                next(error);
-            });
-        await Member.findAllPostById(userId)
-            .then(posts => {
-                res.locals.posts = posts;
-                next();
-            })
-            
-            .catch(error => {
-                console.log(`Error fetching member by ID: ${error.message}`);
-                next(error);
-            });
-    },
+        const loginId = req.session.user ? req.session.user.id : 0;
+        res.locals.loginId = loginId;
+        const userId = req.params.userId;
 
-    profileShow: (req, res) => {
-        if (!res.locals.member) {
-            res.status(404).send('Member not found');
-            return;
+        const page = 1; // 처음 페이지는 1
+        const limit = 10; // 한 페이지에 표시할 게시글 수
+        const offset = (page - 1) * limit; // 오프셋 계산
+
+        try {
+            // 멤버 정보 가져오기
+            const member = await Member.findById(userId);
+            if (!member) {
+                res.render("profile/noaccess")
+                return;
+            }
+            res.locals.member = member;
+
+            // 팔로잉 상태 확인
+            const is_following = await Follow.checkFollow(userId, loginId);
+            res.locals.member.is_following = is_following;
+
+            // 초기 포스트 정보 가져오기 (첫 페이지)
+            const posts = await Post.findAllByMemberId(userId, offset, limit);
+            res.locals.posts = posts;
+
+            res.render('profile/main');
+        } catch (error) {
+            console.error(`Error occurred: ${error.message}`);
+            next(error);
         }
-        res.render('profile/main', {
-            member: res.locals.member
-        });
     },
 
-    followeePage: async (req,res,next) =>{
-        let userId = req.params.userId;
-        await Member.findById(userId)
-            .then(member => {
-                res.locals.member = member;
-            })
-            .catch(error => {
-                console.log(`Error fetching member by ID: ${error.message}`);
-                next(error);
-            });
-        await Member.findFolloweeById(userId)
-            .then(followees => {
-                res.locals.followees = followees;
-                next();
-            })
-            .catch(error => {
-                console.log(`Error fetching member by ID: ${error.message}`);
-                next(error);
-            });
-    },
+    profilePostPage: async (req, res, next) => {
+        const userId = req.params.userId;
+        const page = req.query.page || 1;
+        const limit = 10;
+        const offset = (page - 1) * limit;
 
-    followeeShow: (req, res) => {
-        if (!res.locals.followees) {
-            res.status(404).send('followee not found');
-            return;
+        try {
+            const posts = await Post.findAllByMemberId(userId, offset, limit);
+            const new_posts = posts.map(post => {
+                const imageDataURI = post.image_base64.toString('base64');
+                post.image_base64 = Buffer.from(imageDataURI, 'base64').toString('utf-8');
+                return post
+            })
+            res.json(new_posts)
+        } catch (error) {
+            console.error(`Error occurred: ${error.message}`);
+            next(error);
         }
-        res.render('profile/follow', {
-            member: res.locals.member,
-            follows: res.locals.followees
-        });
     },
 
-    followerPage: async (req,res,next) =>{
+    followeePage: async (req, res, next) => {
+        let loginId = req.session.user ? req.session.user.id : 0;
+        res.locals.loginId = loginId;
         let userId = req.params.userId;
-        await Member.findById(userId)
-            .then(member => {
-                res.locals.member = member;
-            })
-            .catch(error => {
-                console.log(`Error fetching member by ID: ${error.message}`);
-                next(error);
-            });
-        await Member.findFollowerById(userId)
-            .then(followers => {
-                member: res.locals.member
-                res.locals.followers = followers;
-                next();
-            })
-            .catch(error => {
-                console.log(`Error fetching member by ID: ${error.message}`);
-                next(error);
-            });
-    },
 
-    followerShow: (req, res) => {
-        if (!res.locals.followers) {
-            res.status(404).send('followee not found');
-            return;
+        try {
+            // 멤버 정보 가져오기
+            const member = await Member.findById(userId);
+            if (!member) {
+                res.render("profile/noaccess")
+                return;
+            }
+            res.locals.member = member;
+
+            // 팔로잉 상태 확인
+            const is_following = await Follow.checkFollow(userId, loginId);
+            res.locals.member.is_following = is_following;
+
+            // 팔로위 정보 가져오기
+            const followees = await Follow.findFolloweeById(userId, loginId);
+            res.locals.follows = followees;
+
+            res.render('profile/follow');
+
+        } catch (error) {
+            console.error(`Error occurred: ${error.message}`);
+            next(error);
         }
-        res.render('profile/follow', {
-            member: res.locals.member,
-            follows: res.locals.followers
-        });
     },
 
-    follow: (req, res) => {
+    followerPage: async (req, res, next) => {
+        let loginId = req.session.user ? req.session.user.id : 0;
+        res.locals.loginId = loginId;
+        let userId = req.params.userId;
+
+        try {
+            // 멤버 정보 가져오기
+            const member = await Member.findById(userId);
+            if (!member) {
+                res.render("profile/noaccess")
+                return;
+            }
+            res.locals.member = member;
+
+            // 팔로잉 상태 확인
+            const is_following = await Follow.checkFollow(userId, loginId);
+            res.locals.member.is_following = is_following;
+
+            // 팔로워 정보 가져오기
+            const followers = await Follow.findFollowerById(userId, loginId);
+            res.locals.follows = followers;
+
+            res.render('profile/follow');
+
+        } catch (error) {
+            console.error(`Error occurred: ${error.message}`);
+            next(error);
+        }
+    },
+
+    follow: async (req, res, next) => {
         let userId = req.params.userId;
         let followId = req.params.follow;
-        Member.findFollowAndAdd(userId, followId);
+        try {
+            await Follow.findFollowAndAdd(userId, followId);
+            res.status(200).json({ message: "Follow successfully" });
+        } catch (error) {
+            console.error(`Error occurred: ${error.message}`);
+            next(error);
+        }
     },
 
-    unfollow: (req, res) => {
+    unfollow: async (req, res, next) => {
         let userId = req.params.userId;
         let followId = req.params.follow;
-        Member.findFollowAndDelete(userId, followId);
+        try {
+            await Follow.findFollowAndDelete(userId, followId);
+            res.status(200).json({ message: "Unfollow successfully" });
+        } catch (error) {
+            console.error(`Error occurred: ${error.message}`);
+            next(error);
+        }
     },
     /*정빈 작업 부분 */
-    //세션 이용해서 접근 중인 사용자와 userId가 일치하는지 확인하는 작업 필요 -> 로그인 구현 이후에 가능할듯
     collectComment: async (req, res, next) => {
         try {
-            const userId = req.params.userId;
+            const userId = req.params.userId
             let pageId = req.params.pageId;
-    
-            const comments = await Comment.findCommentWithUser(userId);
 
-            if(comments.length === 0) {
-                res.locals.userId = userId;
-                res.render("profile/nocomment");
+            if (!req.session.user) {
+                return res.redirect(`/auth/login`);
+            }
+
+            if (userId == req.session.user.id) {
+                const comments = await Comment.findCommentWithUser(userId);
+
+                if (comments.length === 0) {
+                    res.locals.userId = userId;
+                    res.render("profile/nocomment");
+                } else {
+                    if (pageId > Math.floor(comments.length / 10) + 1) {
+                        pageId = Math.floor(comments.length / 10) + 1
+                    }
+
+                    const filteredComments = comments.filter(comment => comment.page_id == pageId);
+
+                    res.locals.length = comments.length;
+                    res.locals.comments = filteredComments;
+                    res.locals.currentURL = req.originalUrl;
+                    res.locals.currentPageId = pageId;
+                    res.render("profile/comment");
+                }
             } else {
-                if(pageId > Math.floor(comments.length / 10) + 1) {
-                    pageId = Math.floor(comments.length / 10) + 1
-                } 
-                
-                const filteredComments = comments.filter(comment => comment.page_id == pageId);
-                
-                res.locals.length = comments.length;
-                res.locals.comments = filteredComments;
-                res.locals.currentURL = req.originalUrl;
-                res.locals.currentPageId = pageId;
-                res.render("profile/comment");
+                res.render("profile/noaccess")
             }
         } catch (error) {
             console.error(`Error collecting comments: ${error.message}`);
@@ -146,77 +184,124 @@ module.exports = {
     },
     /*지윤 작업 부분 */
     collectBookmark: async (req, res, next) => {
+        let loginId = req.session.user ? req.session.user.id : 0;
+        res.locals.loginId = loginId;
         let userId = req.params.userId;
-        await Member.findById(userId)
-            .then(member => {
-                res.locals.member = member;
-            })
-            .catch(error => {
-                console.log(`Error fetching member by ID: ${error.message}`);
-                next(error);
-            });
-        await Member.findAllBookmarkById(userId)
-            .then(bookmarks => {
-                res.locals.bookmarks = bookmarks;
-                next();
-            })
-            .catch(error => {
-                console.log(`Error fetching member by ID: ${error.message}`);
-                next(error);
-            });
+
+        const page = 1; // 처음 페이지는 1
+        const limit = 9; // 한 페이지에 표시할 게시글 수
+        const offset = (page - 1) * limit; // 오프셋 계산
+
+        try {
+            // 멤버 정보 가져오기
+            const member = await Member.findById(userId);
+            if (!member || member.member_id != res.locals.loginId) {
+                res.render("profile/noaccess")
+                return;
+            }
+            res.locals.member = member;
+
+            // 북마크 정보 가져오기
+            const bookmarks = await PostInteractions.findAllBookmarkById(userId, offset, limit);
+            res.locals.bookmarks = bookmarks;
+
+            res.render('profile/bookmark')
+
+        } catch (error) {
+            console.error(`Error occurred: ${error.message}`);
+            next(error);
+        }
     },
 
-    collectBookmarkShow: (req, res) => {
-        if (!res.locals.member) {
-            res.status(404).send('Member not found');
-            return;
+    bookmarkPostPage: async (req, res, next) => {
+        const userId = req.params.userId;
+        const page = req.query.page || 1;
+        const limit = 9;
+        const offset = (page - 1) * limit;
+
+        try {
+            const posts = await PostInteractions.findAllBookmarkById(userId, offset, limit);
+            const new_posts = posts.map(post => {
+                const imageDataURI = post.image_base64.toString('base64');
+                post.image_base64 = Buffer.from(imageDataURI, 'base64').toString('utf-8');
+                return post
+            })
+            res.json(new_posts)
+        } catch (error) {
+            console.error(`Error occurred: ${error.message}`);
+            next(error);
         }
-        res.render('profile/bookmark', {
-            member: res.locals.member
-        });
     },
 
     collectLike: async (req, res, next) => {
+        let loginId = req.session.user ? req.session.user.id : 0;
+        res.locals.loginId = loginId;
         let userId = req.params.userId;
-        await Member.findById(userId)
-            .then(member => {
-                res.locals.member = member;
-            })
-            .catch(error => {
-                console.log(`Error fetching member by ID: ${error.message}`);
-                next(error);
-            });
-        await Member.findAllLikeById(userId)
-            .then(likes => {
-                res.locals.likes = likes;
-                next();
-            })
-            .catch(error => {
-                console.log(`Error fetching member by ID: ${error.message}`);
-                next(error);
-            });
-    },
-    
-    collectLikeShow: (req, res) => {
-        if (!res.locals.member) {
-            res.status(404).send('Member not found');
-            return;
+
+        const page = 1; // 처음 페이지는 1
+        const limit = 9; // 한 페이지에 표시할 게시글 수
+        const offset = (page - 1) * limit; // 오프셋 계산
+
+        try {
+            // 멤버 정보 가져오기
+            const member = await Member.findById(userId);
+            if (!member || member.member_id != res.locals.loginId) {
+                res.render("profile/noaccess")
+                return;
+            }
+            res.locals.member = member;
+
+            // 좋아요 정보 가져오기
+            const likes = await PostInteractions.findAllLikeById(userId, offset, limit)
+            res.locals.likes = likes;
+
+            res.render('profile/like')
+
+        } catch (error) {
+            console.error(`Error occurred: ${error.message}`);
+            next(error);
         }
-        res.render('profile/like', {
-            member: res.locals.member
-        });
+    },
+
+    likePostPage: async (req, res, next) => {
+        const userId = req.params.userId;
+        const page = req.query.page || 1;
+        const limit = 9;
+        const offset = (page - 1) * limit;
+
+        try {
+            const posts = await PostInteractions.findAllLikeById(userId, offset, limit);
+            const new_posts = posts.map(post => {
+                const imageDataURI = post.image_base64.toString('base64');
+                post.image_base64 = Buffer.from(imageDataURI, 'base64').toString('utf-8');
+                return post
+            })
+            res.json(new_posts)
+        } catch (error) {
+            console.error(`Error occurred: ${error.message}`);
+            next(error);
+        }
     },
 
     /*정빈 작업부분 */
     profileModified_GET: async (req, res, next) => {
         try {
             const userId = req.params.userId;
-            res.locals.userId = userId;
-            const userInfo = await Member.loadMember(userId);
-            const userTheme = await Preference.loadTheme(userId);
-            res.locals.userInfo = userInfo[0]
-            res.locals.userTheme = userTheme
-            res.render("profile/setting");
+
+            if (!req.session.user) {
+                return res.redirect(`/auth/login`);
+            }
+
+            if (userId == req.session.user.id) {
+                res.locals.userId = userId;
+                const userInfo = await Member.loadMember(userId);
+                const userTheme = await Preference.loadTheme(userId);
+                res.locals.userInfo = userInfo[0]
+                res.locals.userTheme = userTheme
+                res.render("profile/setting");
+            } else {
+                res.render("profile/noaccess")
+            }
         } catch (error) {
             console.error(`Error collecting comments: ${error.message}`);
             next(error);
@@ -226,72 +311,53 @@ module.exports = {
     profileModified_POST: async (req, res, next) => {
         try {
             const userId = req.params.userId;
-            const { email, nickname, username, bio, job, age, gender, theme, comment_notification, like_notification, follow_notification, recommend_notification, picture_base64 } = req.body;
-
-            if (!email || !nickname || !username || !job || !age || !gender) {
-                let errorMessage = '모든 필드를 채워주세요: ';
-                if (!email) errorMessage += '이메일, ';
-                if (!nickname) errorMessage += '닉네임, ';
-                if (!username) errorMessage += '이름, ';
-                if (!job) errorMessage += '직업, ';
-                if (!age) errorMessage += '나이, ';
-                if (!gender) errorMessage += '성별, ';
-                errorMessage = errorMessage.slice(0, -2);
-                req.flash('error', errorMessage);
-                return res.redirect(`/profile/${userId}/profileModified`);
-            }
-
-            if (!validator.isEmail(email)) {
-                req.flash('error', '올바른 이메일 주소를 입력하세요.');
-                return res.redirect(`/profile/${userId}/profileModified`);
-            }
-
-            if (nickname.length > 8) {
-                req.flash('error', '닉네임은 8글자 이하로 입력하세요.');
-                return res.redirect(`/profile/${userId}/profileModified`);
+    
+            if (!req.session.user) {
+                return res.redirect(`/auth/login`);
             }
     
-            if (username.length > 12) {
-                req.flash('error', '이름은 12글자 이하로 입력하세요.');
-                return res.redirect(`/profile/${userId}/profileModified`);
-            }
-
-            if (!validator.isNumeric(age)) {
-                req.flash('error', '나이는 숫자로 입력하세요.');
-                return res.redirect(`/profile/${userId}/profileModified`);
-            }
-
-            const existingUserWithEmail = await Member.getUserByEmail(email);
-            if (existingUserWithEmail && existingUserWithEmail.member_id != userId) {
-                req.flash('error', '이미 사용 중인 이메일입니다.');
-                return res.redirect(`/profile/${userId}/profileModified`);
-            }
-
-            const existingUserWithNickname = await Member.getUserByNickname(nickname);
-            if (existingUserWithNickname && existingUserWithNickname.member_id != userId) {
-                req.flash('error', '이미 사용 중인 닉네임입니다.');
-                return res.redirect(`/profile/${userId}/profileModified`);
-            }
-
-            if ((await Member.updateMember(userId, username, nickname, email, age, gender, job, follow_notification, like_notification, comment_notification, recommend_notification, picture_base64, bio))
-                & (await Preference.updateTheme(userId, theme))) {
-                req.flash('success', '프로필 정보가 수정되었습니다.');
-                return res.redirect(`/profile/${userId}`);
+            if (userId == req.session.user.id) {
+                const { email, nickname, username, bio, job, age, gender, theme, comment_notification, like_notification, follow_notification, recommend_notification, picture_base64 } = req.body;
+    
+                const existingUserWithEmail = await Member.getUserByEmail(email);
+                if (existingUserWithEmail && existingUserWithEmail.member_id != userId) {
+                    return res.send("<script>alert('이미 사용 중인 이메일입니다.'); window.location=`/profile/"+userId+"/profileModified`;</script>");
+                }
+    
+                const existingUserWithNickname = await Member.getUserByNickname(nickname);
+                if (existingUserWithNickname && existingUserWithNickname.member_id != userId) {
+                    return res.send("<script>alert('이미 사용 중인 닉네임입니다.'); window.location=`/profile/"+userId+"/profileModified`;</script>");
+                }
+    
+                if ((await Member.updateMember(userId, username, nickname, email, age, gender, job, follow_notification, like_notification, comment_notification, recommend_notification, picture_base64, bio))
+                    & (await Preference.updateTheme(userId, theme))) {
+                    return res.send("<script>alert('프로필 정보가 수정되었습니다.'); window.location=`/profile/"+userId+"`;</script>");
+                } else {
+                    return res.send("<script>alert('오류가 발생했습니다.'); window.location=`/profile/"+userId+"/profileModified`;</script>");
+                }
             } else {
-                req.flash('error', '오류가 발생했습니다.');
-                return res.redirect(`/profile/${userId}/profileModified`);
+                res.render("profile/noaccess");
             }
         } catch (error) {
             console.error(`Error collecting comments: ${error.message}`);
             next(error);
-        };
+        }
     },
 
     passwordModified_GET: async (req, res, next) => {
         try {
             const userId = req.params.userId;
-            res.locals.userId = userId;
-            res.render("profile/pwd_change.ejs");
+
+            if (!req.session.user) {
+                return res.redirect(`/auth/login`);
+            }
+
+            if (userId == req.session.user.id) {
+                res.locals.userId = userId;
+                res.render("profile/pwd_change.ejs");
+            } else {
+                res.render("profile/noaccess")
+            }
         } catch (error) {
             console.error(`Error collecting comments: ${error.message}`);
             next(error);
@@ -301,34 +367,25 @@ module.exports = {
     passwordModified_POST: async (req, res, next) => {
         try {
             const userId = req.params.userId;
-            const { current_password, new_password, confirm_password } = req.body;
-            
-            if (!current_password || !new_password || !confirm_password) {
-                req.flash('error', '모든 필드를 채워주세요.');
-                return res.redirect(`/profile/${userId}/pwModified`);
+    
+            if (!req.session.user) {
+                return res.redirect(`/auth/login`);
             }
-
-            if (new_password.length < 6) {
-                req.flash('error', '새 비밀번호는 6글자 이상이어야 합니다.');
-                return res.redirect(`/profile/${userId}/pwModified`);
-            }    
-
-            if (await Member.checkPassword(userId, current_password)) {
-                if (new_password === confirm_password) {
+    
+            if (userId == req.session.user.id) {
+                const { current_password, new_password, confirm_password } = req.body;
+    
+                if (await Member.checkPassword(userId, current_password)) {
                     if (await Member.updatePassword(userId, new_password)) {
-                        req.flash('success', '비밀번호가 재설정되었습니다.');
-                        return res.redirect(`/profile/${userId}/profileModified`);
+                        return res.send("<script>alert('비밀번호가 재설정되었습니다.'); window.location=`/profile/"+userId+"/profileModified`;</script>");
                     } else {
-                        req.flash('error', '오류가 발생했습니다.');
-                        return res.redirect(`/profile/${userId}/pwModified`);
+                        return res.send("<script>alert('오류가 발생했습니다.'); window.location=`/profile/"+userId+"/pwModified`;</script>");
                     }
                 } else {
-                    req.flash('error', '새 비밀번호가 일치하지 않습니다.');
-                    return res.redirect(`/profile/${userId}/pwModified`);
+                    return res.send("<script>alert('현재 비밀번호가 일치하지 않습니다.'); window.location=`/profile/"+userId+"/pwModified`;</script>");
                 }
             } else {
-                req.flash('error', '현재 비밀번호가 일치하지 않습니다.');
-                return res.redirect(`/profile/${userId}/pwModified`);
+                res.render("profile/noaccess")
             }
         } catch (error) {
             console.error(`Error collecting comments: ${error.message}`);
@@ -336,44 +393,48 @@ module.exports = {
         };
     },
 
-
-    unregister_GET : async (req, res, next) => {
+    unregister_GET: async (req, res, next) => {
         try {
             const userId = req.params.userId;
-            res.locals.userId = userId;
-            res.render("profile/unregister.ejs");
+
+            if (!req.session.user) {
+                return res.redirect(`/auth/login`);
+            }
+
+            if (userId == req.session.user.id) {
+                res.locals.userId = userId;
+                res.render("profile/unregister.ejs");
+            } else {
+                res.render("profile/noaccess")
+            }
         } catch (error) {
             console.error(`Error collecting comments: ${error.message}`);
             next(error);
         };
     },
 
-    unregister_POST : async (req, res, next) => {
+    unregister_POST: async (req, res, next) => {
         try {
             const userId = req.params.userId;
-            const { current_password, confirm_check } = req.body;
-
-            if (!current_password) {
-                req.flash('error', '현재 비밀번호를 입력해주세요.');
-                return res.redirect(`/profile/${userId}/cancleAccount`);
+    
+            if (!req.session.user) {
+                return res.redirect(`/auth/login`);
             }
-
-            if (!confirm_check) {
-                req.flash('error', '체크박스를 확인해주세요.');
-                return res.redirect(`/profile/${userId}/cancleAccount`);
-            }
-
-            if (await Member.checkPassword(userId, current_password)) {
-                if (await Member.deleteMember(userId)) {
-                    req.flash('success', '회원을 탈퇴했습니다.');
-                    return res.redirect(`/`);
+    
+            if (userId == req.session.user.id) {
+                const { current_password, confirm_check } = req.body;
+    
+                if (await Member.checkPassword(userId, current_password)) {
+                    if (await Member.deleteMember(userId)) {
+                        return res.send("<script>alert('회원을 탈퇴했습니다.'); window.location='/auth/logout';</script>");
+                    } else {
+                        return res.send("<script>alert('오류가 발생했습니다.'); window.location='/profile/"+userId+"/cancleAccount';</script>");
+                    }
                 } else {
-                    req.flash('error', '오류가 발생했습니다.');
-                    return res.redirect(`/profile/${userId}/cancleAccount`);
+                    return res.send("<script>alert('현재 비밀번호가 일치하지 않습니다.'); window.location='/profile/"+userId+"/cancleAccount';</script>");
                 }
             } else {
-                req.flash('error', '현재 비밀번호가 일치하지 않습니다.');
-                return res.redirect(`/profile/${userId}/cancleAccount`);
+                res.render("profile/noaccess")
             }
         } catch (error) {
             console.error(`Error collecting comments: ${error.message}`);

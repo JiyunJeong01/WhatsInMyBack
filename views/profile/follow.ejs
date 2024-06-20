@@ -1,5 +1,6 @@
 <head>
-    <link rel="stylesheet" href="/css/whats_in_my_back.css">
+    <link rel="stylesheet" href="/css/profile_jy.css">
+    <script src="/js/script.js"></script>
 </head>
 <div class="profileBord">
     <div class="left">
@@ -10,9 +11,11 @@
             <img class="profileImage" alt="프로필 이미지">
             <input type="hidden" class="picture_base64" name="picture_base64" value="<%= member.picture_base64 %>">
         </div>
-        <div class="prifileBio">
-            <%= member.bio %>
-        </div>
+        <% if (member.bio!=null) { %>
+            <div class="prifileBio">
+                    <%= member.bio %>
+            </div>
+            <% }; %>
         <div class="profileFollow">
             <div class="select">
                 <a href="/profile/<%= member.member_id %>/followee" class="followee">팔로잉 <%= member.followeeCount %></a>
@@ -20,19 +23,28 @@
             </div>
         </div>
         <div class="profileCon">
-
-            <a href="/profile/<%= member.member_id %>/collectComment/1">
-                <span class="button">내가 쓴 댓글</span>
-            </a>
-            <a href="/profile/<%= member.member_id %>/collectBookmark">
-                <span class="button">북마크한 글</span>
-            </a>
-            <a href="/profile/<%= member.member_id %>/collectLike">
-                <span class="button">좋아요 한 글</span>
-            </a>
-            <a href="/profile/<%= member.member_id %>/profileModified">
-                <span class="button">설정</span>
-            </a>
+            <% if (member.member_id==loginId) { %>
+                <a href="/profile/<%= member.member_id %>/collectComment/1">
+                    <span class="button">내가 쓴 댓글</span>
+                </a>
+                <a href="/profile/<%= member.member_id %>/collectBookmark">
+                    <span class="button">북마크한 글</span>
+                </a>
+                <a href="/profile/<%= member.member_id %>/collectLike">
+                    <span class="button">좋아요 한 글</span>
+                </a>
+                <a href="/profile/<%= member.member_id %>/profileModified">
+                    <span class="button">설정</span>
+                </a>
+                <% } else if (loginId!= 0) { %>
+                    <button onclick="followb_click(<%= loginId %>, <%= member.member_id %>, this)">
+                        <% if (member.is_following) { %>
+                            언팔로우
+                            <% } else { %>
+                                팔로우
+                                <% } %>
+                    </button>
+                    <% }; %>
         </div>
     </div>
     <div class="right">
@@ -47,13 +59,15 @@
                     <a href="/profile/<%= follow.member_id %>" class="follow_name">
                         <%= follow.nickname %>
                     </a>
-                    <button onclick="followb_click(<%= member.member_id %>, <%= follow.member_id %>, this)">
-                        <% if (follow.is_following) { %>
-                            언팔로우
-                            <% } else { %>
-                                팔로우
-                                <% } %>
-                    </button>
+                    <% if (loginId!= 0 && loginId != follow.member_id) { %>
+                        <button onclick="followb_click(<%= loginId %>, <%= follow.member_id %>, this)">
+                            <% if (follow.is_following) { %>
+                                언팔로우
+                                <% } else { %>
+                                    팔로우
+                                    <% } %>
+                        </button>
+                        <% }; %>
                 </div>
                 <% }); %>
         </div>
@@ -77,17 +91,4 @@
     });
 });
 
-    function followb_click(member_id, follow_id, button) {
-        is_following = (button.innerText == '언팔로우') ? true : false;
-        const followUrl = `/profile/${member_id}/${follow_id}`;
-        const config = {
-            method: is_following ? "DELETE" : "PUT"
-        };
-
-        fetch(followUrl, config)
-            .then(response => response.json())
-            .catch(error => console.log('Fetch error: ', error));
-        
-        button.innerText = is_following ? '팔로우' : '안팔로우';
-    }
 </script>
