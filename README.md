@@ -1,5 +1,5 @@
 # WhatsInMyBack?
-스프링 부트 + JSP 파싱_영화 예매 사이트
+node.js 기반 웹 제작 프로젝트
 
 
 ## 🖥️ 프로젝트 소개
@@ -7,7 +7,7 @@
 <br>
 
 ## 🕰️ 개발 기간
-* 22.04.26일 - 22.05.24일
+* 24.03.22일 - 22.06.23일
 
 ### 🧑‍🤝‍🧑 맴버구성
  - 로그인 기능
@@ -21,10 +21,9 @@
    - 최정빈 : 
 
 ### ⚙️ 개발 환경
-- `Java 8`
-- `JDK 1.8.0`
-- **IDE** : STS 3.9
-- **Framework** : Node.js(20.14.0)
+- `Node.js(20.14.0)`
+- **IDE** : Visual Studio Code
+- **Framework** : Express.js
 - **Database** : MySQL
 
 ## 📌 주요 기능
