@@ -60,6 +60,12 @@ node.js 기반 웹 제작 프로젝트
 
 
 ## 💻 구현 화면
+홈 페이지|게시글 페이지
+--- | --- | 
+![localhost_](https://github.com/JiyunJeong01/WhatsInMyBack/assets/89970899/a838421e-495a-4187-8c3d-dcb053f11257)|![localhost_post_121_detail](https://github.com/JiyunJeong01/WhatsInMyBack/assets/89970899/102803c6-ab66-4f4f-b33b-91fa7bb16cc1)
 
-### 데모 영상
+마이 페이지|로그인 페이지
+--- | --- | 
+![localhost_profile_124](https://github.com/JiyunJeong01/WhatsInMyBack/assets/89970899/f01a4ad5-ef0a-43bf-bc67-bd1b259513dc)|![localhost_auth_login](https://github.com/JiyunJeong01/WhatsInMyBack/assets/89970899/7f8225d9-f16b-4427-9080-8bb9d5e673de)
+## ▶️ 데모 영상
 [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/cLGqxM8C4R8/0.jpg)](https://www.youtube.com/watch?v=cLGqxM8C4R8)
