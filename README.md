@@ -58,3 +58,8 @@ node.js 기반 웹 제작 프로젝트
 - 제목/내용/해시태그 검색
 - 최신순/조회순/댓글순/좋아요순/북마크순 정렬
 
+
+## 💻 구현 화면
+
+### 데모 영상
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/cLGqxM8C4R8/0.jpg)](https://www.youtube.com/watch?v=cLGqxM8C4R8)
