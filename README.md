@@ -25,6 +25,7 @@ node.js 기반 웹 제작 프로젝트
 - **IDE** : Visual Studio Code
 - **Framework** : Express.js
 - **Database** : MySQL
+- **Cloud Platform**: Google Cloud Platform (GCP)
 
 ## 📌 주요 기능
 #### 로그인 
