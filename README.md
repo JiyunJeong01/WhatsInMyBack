@@ -7,7 +7,7 @@ node.js 기반 웹 제작 프로젝트
 <br>
 
 ## 🕰️ 개발 기간
-* 24.03.22일 - 22.06.23일
+* 24.03.22일 - 22.06.23일 (3개월)
 
 ### 🧑‍🤝‍🧑 맴버구성
  - 로그인 기능
@@ -26,6 +26,10 @@ node.js 기반 웹 제작 프로젝트
 - **Framework** : Express.js
 - **Database** : MySQL
 - **Cloud Platform**: Google Cloud Platform (GCP)
+
+
+## ⭐ ERD
+<img src="https://github.com/JiyunJeong01/WhatsInMyBack/assets/89970899/f54b544e-bb2e-4ace-8e0e-bb0bcaec9479" width="80%" />
 
 ## 📌 주요 기능
 #### 로그인 
