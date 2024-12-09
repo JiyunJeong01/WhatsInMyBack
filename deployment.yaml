@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wimb-deployment
+  labels:
+    app: wimb-d
+spec:
+  replicas: 3
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: wimb-p
+  template:
+    metadata:
+      labels:
+        app: wimb-p
+        tier: wimb-tier
+    spec:
+      containers:
+      - name: wimb-container
+        image: jjeongbin0826/oss-wimb:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5000   # 컨테이너 내부에서 요청을 처리할 포트
+          name: wimb-port
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wimb-service
+  labels:
+    app: wimb-s
+spec:
+  ports:
+  - port: 80          # 사용자가 요청을 보낼 포트
+    targetPort: 5000  # 요청이 전달될 Pod 내부 컨테이너 포트
+  selector:
+    app: wimb-p       # 파드를 식별하기 위한 라벨
+    tier: wimb-tier
+  type: LoadBalancer
